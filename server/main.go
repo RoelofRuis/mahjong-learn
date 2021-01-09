@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,14 +13,18 @@ func main() {
 	}
 
 	server := &Server{
+		Host: "localhost",
+		Port: port,
 		Router: http.ServeMux{},
+
+		Storage: NewGameStorage(),
 	}
 
 	server.Routes()
 
 	log.Printf("mahjong API")
-	log.Printf("server started on localhost:%s", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), server)
+	log.Printf("server starting on %s", server.GetDomain(true))
+	err := http.ListenAndServe(server.GetDomain(false), server)
 	if err != nil {
 		log.Fatal(err)
 	}
