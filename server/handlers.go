@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -42,7 +41,14 @@ func (s *Server) handleGame(w http.ResponseWriter, r *http.Request) (interface{}
 		}
 	}
 
-	log.Println(id)
+	game, err := s.Storage.Get(uint64(id))
+	if err != nil {
+		return nil, &RequestError{
+			Message: "game does not exist",
+			StatusCode: http.StatusNotFound,
+			Error: err.Error(),
+		}
+	}
 
-	return &Game{}, nil
+	return game, nil
 }
