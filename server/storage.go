@@ -38,9 +38,7 @@ func (s *GameStorage) Get(id uint64) (Game, error) {
 func (s *GameStorage) StartNew() uint64 {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	game := Game{
-		Id: id,
-	}
+	game := InitGame(id)
 
 	s.gamesLock.Lock()
 	s.games[id] = game
