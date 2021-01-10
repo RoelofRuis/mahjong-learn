@@ -8,10 +8,6 @@ type Combination struct {
 	tiles []*Tile
 }
 
-type Wall struct {
-	tiles []*Tile
-}
-
 type Player struct {
 	score int
 
@@ -25,6 +21,6 @@ type Game struct {
 
 	HasEnded bool
 
-	Wall Wall
+	Wall []*Tile
 	Players map[int]*Player
 }

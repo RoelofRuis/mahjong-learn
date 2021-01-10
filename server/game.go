@@ -10,7 +10,7 @@ func InitGame(id uint64) Game {
 	return Game{
 		Id: id,
 		HasEnded: false,
-		Wall: Wall{tiles: TILESET},
+		Wall: TILESET,
 		Players: players,
 	}
 }
