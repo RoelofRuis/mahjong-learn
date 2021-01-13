@@ -21,7 +21,7 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 }
 
 func (s *Server) handleNew(r *http.Request) *Response {
-	id := s.Storage.StartNew()
+	id := s.Games.StartNew()
 
 	return &Response{
 		StatusCode: http.StatusCreated,
@@ -45,7 +45,7 @@ func (s *Server) handleShow(r *http.Request) *Response {
 		}
 	}
 
-	game, err := s.Storage.Get(uint64(id))
+	game, err := s.Games.Get(uint64(id))
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusNotFound,

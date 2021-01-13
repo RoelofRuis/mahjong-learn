@@ -12,7 +12,7 @@ type Server struct {
 	Port string
 	Router http.ServeMux
 
-	Storage *GameStorage
+	Games *GameStorage
 }
 
 type Response struct {

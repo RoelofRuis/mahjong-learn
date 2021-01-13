@@ -17,7 +17,7 @@ func main() {
 		Port: port,
 		Router: http.ServeMux{},
 
-		Storage: NewGameStorage(),
+		Games: NewGameStorage(),
 	}
 
 	server.Routes()
