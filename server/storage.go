@@ -9,20 +9,20 @@ import (
 func NewGameStorage() *GameStorage {
 	return &GameStorage{
 		gamesLock: sync.RWMutex{},
-		games:     make(map[uint64]Game),
+		games:     make(map[uint64]*Game),
 		lastIndex: new(uint64),
 	}
 }
 
 type GameStorage struct {
 	gamesLock sync.RWMutex
-	games     map[uint64]Game
+	games     map[uint64]*Game
 
 	lastIndex *uint64
 }
 
-func (s *GameStorage) Get(id uint64) (Game, error) {
-	var game Game
+func (s *GameStorage) Get(id uint64) (*Game, error) {
+	var game *Game
 
 	s.gamesLock.RLock()
 	game, has := s.games[id]

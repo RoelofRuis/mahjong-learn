@@ -50,17 +50,18 @@ const (
 type Player struct {
 	Score int
 
-	ConcealedTiles      TileCollection
+	ConcealedTiles      *TileCollection
 	ExposedCombinations []TileCollection
-	Discards            TileCollection
+	Discards            *TileCollection
 }
 
 type Game struct {
+	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
 	Id uint64
 
 	HasEnded bool
 
-	Wall    TileCollection
+	Wall    *TileCollection
 	Players map[int]Player
 }
 
