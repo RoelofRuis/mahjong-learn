@@ -47,16 +47,12 @@ const (
 	SeasonWinter        Tile = 63
 )
 
-type Combination struct {
-	Tiles []Tile
-}
-
 type Player struct {
 	Score int
 
-	ConcealedTiles      []Tile
-	ExposedCombinations []Combination
-	Discards            []Tile
+	ConcealedTiles      TileCollection
+	ExposedCombinations []TileCollection
+	Discards            TileCollection
 }
 
 type Game struct {

@@ -3,7 +3,11 @@ package main
 func InitGame(id uint64) Game {
 	players := make(map[int]Player, 4)
 
-	tiles := NewTileCollection()
+	tiles := NewMahjongSet()
+	players[0] = NewPlayer()
+	players[1] = NewPlayer()
+	players[2] = NewPlayer()
+	players[3] = NewPlayer()
 
 	return Game{
 		Id:       id,
@@ -13,7 +17,20 @@ func InitGame(id uint64) Game {
 	}
 }
 
-func NewTileCollection() TileCollection {
+func NewPlayer() Player {
+	return Player{
+		Score: 0,
+		ConcealedTiles: NewEmptyTileCollection(),
+		ExposedCombinations: []TileCollection{},
+		Discards: NewEmptyTileCollection(),
+	}
+}
+
+func NewEmptyTileCollection() TileCollection {
+	return TileCollection{Tiles: make(map[Tile]int)}
+}
+
+func NewMahjongSet() TileCollection {
 	return TileCollection{Tiles: map[Tile]int{
 		Bamboo1: 4, Bamboo2: 4, Bamboo3: 4, Bamboo4: 4, Bamboo5: 4, Bamboo6: 4, Bamboo7: 4, Bamboo8: 4, Bamboo9: 4,
 		Circles1: 4, Circles2: 4, Circles3: 4, Circles4: 4, Circles5: 4, Circles6: 4, Circles7: 4, Circles8: 4, Circles9: 4,
@@ -26,6 +43,6 @@ func NewTileCollection() TileCollection {
 	}}
 }
 
-func (t *TileCollection) Add(tile Tile, n int) {
-	t.Tiles[tile] = n
+func (t *TileCollection) Take(n int) {
+	// TODO
 }
