@@ -16,7 +16,7 @@ func NewGameStorage() *GameStorage {
 
 type GameStorage struct {
 	gamesLock sync.RWMutex
-	games map[uint64]Game
+	games     map[uint64]Game
 
 	lastIndex *uint64
 }

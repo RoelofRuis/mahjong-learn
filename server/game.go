@@ -6,58 +6,24 @@ func InitGame(id uint64) Game {
 	tiles := NewTileCollection()
 
 	return Game{
-		Id: id,
+		Id:       id,
 		HasEnded: false,
-		Wall: tiles,
-		Players: players,
+		Wall:     tiles,
+		Players:  players,
 	}
 }
 
 func NewTileCollection() TileCollection {
-	c := TileCollection{Tiles: make(map[Tile]int)}
-	c.Add(Bamboo1, 4)
-	c.Add(Bamboo2, 4)
-	c.Add(Bamboo3, 4)
-	c.Add(Bamboo4, 4)
-	c.Add(Bamboo5, 4)
-	c.Add(Bamboo6, 4)
-	c.Add(Bamboo7, 4)
-	c.Add(Bamboo8, 4)
-	c.Add(Bamboo9, 4)
-	c.Add(Circles1, 4)
-	c.Add(Circles2, 4)
-	c.Add(Circles3, 4)
-	c.Add(Circles4, 4)
-	c.Add(Circles5, 4)
-	c.Add(Circles6, 4)
-	c.Add(Circles7, 4)
-	c.Add(Circles8, 4)
-	c.Add(Circles9, 4)
-	c.Add(Characters1, 4)
-	c.Add(Characters2, 4)
-	c.Add(Characters3, 4)
-	c.Add(Characters4, 4)
-	c.Add(Characters5, 4)
-	c.Add(Characters6, 4)
-	c.Add(Characters7, 4)
-	c.Add(Characters8, 4)
-	c.Add(Characters9, 4)
-	c.Add(RedDragon, 4)
-	c.Add(GreenDragon, 4)
-	c.Add(WhiteDragon, 4)
-	c.Add(EastWind, 4)
-	c.Add(SouthWind, 4)
-	c.Add(NorthWind, 4)
-	c.Add(WestWind, 4)
-	c.Add(FlowerPlumb, 1)
-	c.Add(FlowerOrchid, 1)
-	c.Add(FlowerChrysanthemum, 1)
-	c.Add(FlowerBamboo, 1)
-	c.Add(SeasonSpring, 1)
-	c.Add(SeasonSummer, 1)
-	c.Add(SeasonAutumn, 1)
-	c.Add(SeasonWinter, 1)
-	return c
+	return TileCollection{Tiles: map[Tile]int{
+		Bamboo1: 4, Bamboo2: 4, Bamboo3: 4, Bamboo4: 4, Bamboo5: 4, Bamboo6: 4, Bamboo7: 4, Bamboo8: 4, Bamboo9: 4,
+		Circles1: 4, Circles2: 4, Circles3: 4, Circles4: 4, Circles5: 4, Circles6: 4, Circles7: 4, Circles8: 4, Circles9: 4,
+		Characters1: 4, Characters2: 4, Characters3: 4, Characters4: 4, Characters5: 4, Characters6: 4, Characters7: 4, Characters8: 4, Characters9: 4,
+
+		RedDragon: 4, GreenDragon: 4, WhiteDragon: 4,
+		EastWind: 4, SouthWind: 4, WestWind: 4, NorthWind: 4,
+		FlowerPlumb: 1, FlowerOrchid: 1, FlowerChrysanthemum: 1, FlowerBamboo: 1,
+		SeasonSpring: 1, SeasonSummer: 1, SeasonAutumn: 1, SeasonWinter: 1,
+	}}
 }
 
 func (t *TileCollection) Add(tile Tile, n int) {

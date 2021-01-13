@@ -13,9 +13,9 @@ func main() {
 	}
 
 	server := &Server{
-		Host: "localhost",
-		Port: port,
-		Paths: NewPaths(),
+		Host:   "localhost",
+		Port:   port,
+		Paths:  NewPaths(),
 		Router: http.ServeMux{},
 
 		Games: NewGameStorage(),

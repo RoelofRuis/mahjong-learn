@@ -10,9 +10,9 @@ import (
 )
 
 type Server struct {
-	Host string
-	Port string
-	Paths *Paths
+	Host   string
+	Port   string
+	Paths  *Paths
 	Router http.ServeMux
 
 	Games *GameStorage
@@ -20,28 +20,28 @@ type Server struct {
 
 func NewPaths() *Paths {
 	return &Paths{
-		Index: "/",
-		New: "/new",
-		Show: "/show/",
+		Index:   "/",
+		New:     "/new",
+		Show:    "/show/",
 		Advance: "/advance/",
 	}
 }
 
 type Paths struct {
-	Index string
-	New string
-	Show string
+	Index   string
+	New     string
+	Show    string
 	Advance string
 }
 
 type Response struct {
-	Data interface{}
+	Data       interface{}
 	StatusCode int
-	Error error
+	Error      error
 }
 
 type ErrorMessage struct {
-	Error string
+	Error      string
 	StatusCode int
 }
 
@@ -65,7 +65,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		response := f(r)
 
 		var data = response.Data
@@ -85,8 +85,8 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 	}
 }
 
-func (s *Server) withGame(f func (r *http.Request, game Game) *Response) func(r *http.Request) *Response {
-	return func (r *http.Request) *Response {
+func (s *Server) withGame(f func(r *http.Request, game Game) *Response) func(r *http.Request) *Response {
+	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
 		if len(parts) == 2 {
@@ -96,7 +96,7 @@ func (s *Server) withGame(f func (r *http.Request, game Game) *Response) func(r 
 		} else {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
-				Error: fmt.Errorf("unable to determine id"),
+				Error:      fmt.Errorf("unable to determine id"),
 			}
 		}
 
@@ -104,7 +104,7 @@ func (s *Server) withGame(f func (r *http.Request, game Game) *Response) func(r 
 		if err != nil {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
-				Error: fmt.Errorf("invalid game id [%s]", strId),
+				Error:      fmt.Errorf("invalid game id [%s]", strId),
 			}
 		}
 
@@ -112,7 +112,7 @@ func (s *Server) withGame(f func (r *http.Request, game Game) *Response) func(r 
 		if err != nil {
 			return &Response{
 				StatusCode: http.StatusNotFound,
-				Error: fmt.Errorf("no game with id [%s]", strId),
+				Error:      fmt.Errorf("no game with id [%s]", strId),
 			}
 		}
 
