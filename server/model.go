@@ -47,6 +47,10 @@ const (
 	SeasonWinter        Tile = 63
 )
 
+type TileCollection struct {
+	Tiles map[Tile]int
+}
+
 type Player struct {
 	Score int
 
@@ -63,8 +67,4 @@ type Game struct {
 
 	Wall    *TileCollection
 	Players map[int]Player
-}
-
-type TileCollection struct {
-	Tiles map[Tile]int
 }
