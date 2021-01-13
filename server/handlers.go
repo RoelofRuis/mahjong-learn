@@ -25,9 +25,11 @@ func (s *Server) handleNew(r *http.Request) *Response {
 		StatusCode: http.StatusCreated,
 		Data: &struct{
 			Message string
+			Id uint64
 			Location string
 		}{
 			Message: "Game created",
+			Id: id,
 			Location: fmt.Sprintf("%s/show/%d", s.GetDomain(true), id),
 		},
 	}

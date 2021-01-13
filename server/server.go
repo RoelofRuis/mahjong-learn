@@ -23,6 +23,11 @@ type Response struct {
 	Error error
 }
 
+type ErrorMessage struct {
+	Error string
+	StatusCode int
+}
+
 func (s *Server) GetDomain(includeScheme bool) string {
 	if includeScheme {
 		return fmt.Sprintf("http://%s:%s", s.Host, s.Port)
@@ -50,22 +55,34 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 
 		if response.Error != nil {
 			log.Printf("Handler returned error: %s", response.Error.Error())
-			data = response.Error
+			data = &ErrorMessage{StatusCode: response.StatusCode, Error: response.Error.Error()}
 		}
+
+		w.WriteHeader(response.StatusCode)
 
 		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Unable to encode data: %s", err.Error()), http.StatusInternalServerError)
 			return
 		}
-
-		w.WriteHeader(response.StatusCode)
 	}
 }
 
 func (s *Server) withGame(f func (r *http.Request, game Game) *Response) func(r *http.Request) *Response {
 	return func (r *http.Request) *Response {
-		strId := strings.TrimPrefix(r.URL.Path, "/game/")
+		parts := strings.Split(r.URL.Path, "/")
+		var strId string
+		if len(parts) == 2 {
+			strId = parts[1]
+		} else if len(parts) == 3 {
+			strId = parts[2]
+		} else {
+			return &Response{
+				StatusCode: http.StatusBadRequest,
+				Error: fmt.Errorf("unable to determine id"),
+			}
+		}
+
 		id, err := strconv.ParseInt(strId, 10, 64)
 		if err != nil {
 			return &Response{
