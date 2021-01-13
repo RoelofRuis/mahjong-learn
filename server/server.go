@@ -15,11 +15,10 @@ type Server struct {
 	Storage *GameStorage
 }
 
-type RequestError struct {
-	Message string
+type Response struct {
+	Data interface{}
 	StatusCode int
-
-	Error string
+	Error error
 }
 
 func (s *Server) GetDomain(includeScheme bool) string {
@@ -34,24 +33,30 @@ func (s *Server) Routes() {
 	s.Router.HandleFunc("/", s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc("/new", s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc("/game/", s.asJsonResponse(s.handleGame))
+	s.Router.HandleFunc("/advance/", s.asJsonResponse(s.handleAdvance))
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Router.ServeHTTP(w, r)
 }
 
-func (s *Server) asJsonResponse(f func(w http.ResponseWriter, r *http.Request) (interface{}, *RequestError)) http.HandlerFunc {
+func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		obj, requestError := f(w, r)
-		if requestError != nil {
-			log.Printf("Handler returned request error: %s", requestError.Error)
-			w.WriteHeader(requestError.StatusCode)
-			obj = requestError
+		response := f(r)
+
+		var data = response.Data
+
+		if response.Error != nil {
+			log.Printf("Handler returned error: %s", response.Error.Error())
+			data = response.Error
 		}
 
-		err := json.NewEncoder(w).Encode(obj)
+		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("unable to encode data: %s", err.Error()), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Unable to encode data: %s", err.Error()), http.StatusInternalServerError)
+			return
 		}
+
+		w.WriteHeader(response.StatusCode)
 	}
 }

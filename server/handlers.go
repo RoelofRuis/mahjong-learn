@@ -7,48 +7,59 @@ import (
 	"strings"
 )
 
-func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) (interface{}, *RequestError) {
-	return &struct{
-		Message string
-		Version string
-	}{
-		Message: "Mahjong Game API",
-		Version: "0.1",
-	}, nil
+func (s *Server) handleIndex(_ *http.Request) *Response {
+	return &Response{
+		StatusCode: http.StatusFound,
+		Data: &struct {
+			Message string
+			Version string
+		}{
+			Message: "Mahjong Game API",
+			Version: "0.1",
+		},
+	}
 }
 
-func (s *Server) handleNew(w http.ResponseWriter, r *http.Request) (interface{}, *RequestError) {
+func (s *Server) handleNew(r *http.Request) *Response {
 	id := s.Storage.StartNew()
-	w.WriteHeader(http.StatusCreated)
 
-	return &struct{
-		Message string
-		Location string
-	}{
-		Message: "Game created",
-		Location: fmt.Sprintf("%s/game/%d", s.GetDomain(true), id),
-	}, nil
+	return &Response{
+		StatusCode: http.StatusCreated,
+		Data: &struct{
+			Message string
+			Location string
+		}{
+			Message: "Game created",
+			Location: fmt.Sprintf("%s/game/%d", s.GetDomain(true), id),
+		},
+	}
 }
 
-func (s *Server) handleGame(w http.ResponseWriter, r *http.Request) (interface{}, *RequestError) {
+func (s *Server) handleGame(r *http.Request) *Response {
 	strId := strings.TrimPrefix(r.URL.Path, "/game/")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
-		return nil, &RequestError{
-			Message:    "invalid game id",
+		return &Response{
 			StatusCode: http.StatusBadRequest,
-			Error:      err.Error(),
+			Error: fmt.Errorf("invalid game id [%s]", strId),
 		}
 	}
 
 	game, err := s.Storage.Get(uint64(id))
 	if err != nil {
-		return nil, &RequestError{
-			Message: "game does not exist",
+		return &Response{
 			StatusCode: http.StatusNotFound,
-			Error: err.Error(),
+			Error: fmt.Errorf("no game with id [%s]", strId),
 		}
 	}
 
-	return game, nil
+	return &Response{
+		StatusCode: http.StatusFound,
+		Data: game,
+	}
+}
+
+func (s *Server) handleAdvance(r *http.Request) *Response {
+	// TODO: implement
+	return &Response{}
 }
