@@ -1,5 +1,7 @@
 package main
 
+import "math/rand"
+
 func InitGame(id uint64) *Game {
 	players := make(map[int]Player, 4)
 
@@ -7,12 +9,17 @@ func InitGame(id uint64) *Game {
 	players[1] = NewPlayer()
 	players[2] = NewPlayer()
 	players[3] = NewPlayer()
-	tiles := NewMahjongSet()
+	tileSet := NewMahjongSet()
+
+	tileSet.Transfer(14, players[0].ConcealedTiles)
+	tileSet.Transfer(13, players[1].ConcealedTiles)
+	tileSet.Transfer(13, players[2].ConcealedTiles)
+	tileSet.Transfer(13, players[3].ConcealedTiles)
 
 	return &Game{
 		Id:       id,
 		HasEnded: false,
-		Wall:     tiles,
+		Wall:     tileSet,
 		Players:  players,
 	}
 }
@@ -45,5 +52,21 @@ func NewMahjongSet() *TileCollection {
 
 // Transfers n tiles from this tile collection to the target tile collection.
 func (t *TileCollection) Transfer(n int, target *TileCollection) {
+	var tileList = make([]Tile, 0)
+	for k, v := range t.Tiles {
+		for i:=v; i>0; i-- {
+			tileList = append(tileList, k)
+		}
+	}
+	for i:=n; i>0; i-- {
+		numTiles := len(tileList)
+		pos := rand.Intn(numTiles)
+		picked := tileList[pos]
 
+		tileList[pos] = tileList[numTiles-1]
+		tileList = tileList[:numTiles-1]
+
+		t.Tiles[picked]--
+		target.Tiles[picked]++
+	}
 }
