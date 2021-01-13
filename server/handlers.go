@@ -11,9 +11,11 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 		Data: &struct {
 			Message string
 			Version string
+			Location string
 		}{
 			Message: "Mahjong Game API",
 			Version: "0.1",
+			Location: fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
 		},
 	}
 }
@@ -30,7 +32,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 		}{
 			Message: "Game created",
 			Id: id,
-			Location: fmt.Sprintf("%s/show/%d", s.GetDomain(true), id),
+			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Show, id),
 		},
 	}
 }
