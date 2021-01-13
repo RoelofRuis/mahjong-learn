@@ -1,19 +1,19 @@
 package main
 
 type Tile struct {
-	name string
+	Name string
 }
 
 type Combination struct {
-	tiles []*Tile
+	Tiles []Tile
 }
 
 type Player struct {
-	score int
+	Score int
 
-	concealedTiles []*Tile
-	exposedCombinations []*Combination
-	discards []*Tile
+	ConcealedTiles []Tile
+	ExposedCombinations []Combination
+	Discards []Tile
 }
 
 type Game struct {
@@ -21,6 +21,6 @@ type Game struct {
 
 	HasEnded bool
 
-	Wall []*Tile
-	Players map[int]*Player
+	Wall []Tile
+	Players map[int]Player
 }
