@@ -32,7 +32,7 @@ func (s *Server) GetDomain(includeScheme bool) string {
 func (s *Server) Routes() {
 	s.Router.HandleFunc("/", s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc("/new", s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc("/game/", s.asJsonResponse(s.handleGame))
+	s.Router.HandleFunc("/show/", s.asJsonResponse(s.handleShow))
 	s.Router.HandleFunc("/advance/", s.asJsonResponse(s.handleAdvance))
 }
 

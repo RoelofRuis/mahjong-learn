@@ -30,12 +30,12 @@ func (s *Server) handleNew(r *http.Request) *Response {
 			Location string
 		}{
 			Message: "Game created",
-			Location: fmt.Sprintf("%s/game/%d", s.GetDomain(true), id),
+			Location: fmt.Sprintf("%s/show/%d", s.GetDomain(true), id),
 		},
 	}
 }
 
-func (s *Server) handleGame(r *http.Request) *Response {
+func (s *Server) handleShow(r *http.Request) *Response {
 	strId := strings.TrimPrefix(r.URL.Path, "/game/")
 	id, err := strconv.ParseInt(strId, 10, 64)
 	if err != nil {
