@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 func (s *Server) handleIndex(_ *http.Request) *Response {
@@ -35,31 +33,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleShow(r *http.Request) *Response {
-	strId := strings.TrimPrefix(r.URL.Path, "/game/")
-	id, err := strconv.ParseInt(strId, 10, 64)
-	if err != nil {
-		return &Response{
-			StatusCode: http.StatusBadRequest,
-			Error: fmt.Errorf("invalid game id [%s]", strId),
-		}
-	}
-
-	game, err := s.Games.Get(uint64(id))
-	if err != nil {
-		return &Response{
-			StatusCode: http.StatusNotFound,
-			Error: fmt.Errorf("no game with id [%s]", strId),
-		}
-	}
-
+func (s *Server) handleShow(r *http.Request, game Game) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
 		Data: game,
 	}
 }
 
-func (s *Server) handleAdvance(r *http.Request) *Response {
+func (s *Server) handleAdvance(r *http.Request, game Game) *Response {
 	// TODO: implement
 	return &Response{}
 }
