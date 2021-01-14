@@ -32,7 +32,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 		}{
 			Message:  "Game created",
 			Id:       id,
-			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Show, id),
+			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, id),
 		},
 	}
 }
@@ -40,7 +40,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 func (s *Server) handleShow(r *http.Request, game *Game) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
-		Data:       &game,
+		Data:       game.View(),
 	}
 }
 

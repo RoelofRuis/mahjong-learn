@@ -22,7 +22,7 @@ func NewPaths() *Paths {
 	return &Paths{
 		Index:   "/",
 		New:     "/new",
-		Show:    "/show/",
+		Game:    "/game/",
 		Advance: "/advance/",
 	}
 }
@@ -30,7 +30,7 @@ func NewPaths() *Paths {
 type Paths struct {
 	Index   string
 	New     string
-	Show    string
+	Game    string
 	Advance string
 }
 
@@ -56,7 +56,7 @@ func (s *Server) GetDomain(includeScheme bool) string {
 func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc(s.Paths.Show, s.asJsonResponse(s.withGame(s.handleShow)))
+	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withGame(s.handleShow)))
 	s.Router.HandleFunc(s.Paths.Advance, s.asJsonResponse(s.withGame(s.handleAdvance)))
 }
 

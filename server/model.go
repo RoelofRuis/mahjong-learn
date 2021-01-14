@@ -34,8 +34,8 @@ const (
 	GreenDragon         Tile = 31
 	WhiteDragon         Tile = 32
 	EastWind            Tile = 40
-	WestWind            Tile = 41
-	SouthWind           Tile = 42
+	SouthWind           Tile = 41
+	WestWind            Tile = 42
 	NorthWind           Tile = 43
 	FlowerPlumb         Tile = 50
 	FlowerOrchid        Tile = 51
