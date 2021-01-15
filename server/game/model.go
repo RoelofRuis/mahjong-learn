@@ -75,11 +75,11 @@ type TileCollection struct {
 func (t *TileCollection) Transfer(n int, target *TileCollection) {
 	var tileList = make([]Tile, 0)
 	for k, v := range t.Tiles {
-		for i:=v; i>0; i-- {
+		for i := v; i > 0; i-- {
 			tileList = append(tileList, k)
 		}
 	}
-	for i:=n; i>0; i-- {
+	for i := n; i > 0; i-- {
 		numTiles := len(tileList)
 		pos := rand.Intn(numTiles)
 		picked := tileList[pos]

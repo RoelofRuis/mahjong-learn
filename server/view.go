@@ -10,7 +10,7 @@ type TileDescriptor struct {
 	Name string
 }
 
-var TileDescriptors = []TileDescriptor {
+var TileDescriptors = []TileDescriptor{
 	{Tile: game.Bamboo1, Name: "Bamboo 1"},
 	{Tile: game.Bamboo2, Name: "Bamboo 2"},
 	{Tile: game.Bamboo3, Name: "Bamboo 3"},
@@ -56,14 +56,14 @@ var TileDescriptors = []TileDescriptor {
 }
 
 type PlayerView struct {
-	Concealed []string `json:"hand"`
-	Exposed [][]string `json:"exposed"`
-	Discarded []string `json:"discarded"`
+	Concealed []string   `json:"hand"`
+	Exposed   [][]string `json:"exposed"`
+	Discarded []string   `json:"discarded"`
 }
 
 type HumanView struct {
-	Id uint64 `json:"id"`
-	Wall []string `json:"wall"`
+	Id      uint64     `json:"id"`
+	Wall    []string   `json:"wall"`
 	Player1 PlayerView `json:"player_1"`
 	Player2 PlayerView `json:"player_2"`
 	Player3 PlayerView `json:"player_3"`
@@ -72,26 +72,26 @@ type HumanView struct {
 
 func View(g *game.Game) *HumanView {
 	return &HumanView{
-		Id: g.Id,
+		Id:   g.Id,
 		Wall: Describe(g.Wall),
 		Player1: PlayerView{
 			Concealed: Describe(g.Players[0].Concealed),
-			Exposed: DescribeAll(g.Players[0].Exposed),
+			Exposed:   DescribeAll(g.Players[0].Exposed),
 			Discarded: Describe(g.Players[0].Discarded),
 		},
 		Player2: PlayerView{
 			Concealed: Describe(g.Players[1].Concealed),
-			Exposed: DescribeAll(g.Players[1].Exposed),
+			Exposed:   DescribeAll(g.Players[1].Exposed),
 			Discarded: Describe(g.Players[1].Discarded),
 		},
 		Player3: PlayerView{
 			Concealed: Describe(g.Players[2].Concealed),
-			Exposed: DescribeAll(g.Players[2].Exposed),
+			Exposed:   DescribeAll(g.Players[2].Exposed),
 			Discarded: Describe(g.Players[2].Discarded),
 		},
 		Player4: PlayerView{
 			Concealed: Describe(g.Players[3].Concealed),
-			Exposed: DescribeAll(g.Players[3].Exposed),
+			Exposed:   DescribeAll(g.Players[3].Exposed),
 			Discarded: Describe(g.Players[3].Discarded),
 		},
 	}
