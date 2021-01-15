@@ -63,6 +63,7 @@ type PlayerView struct {
 
 type HumanView struct {
 	Id      uint64     `json:"id"`
+	State   int        `json:"state"` // TODO: map to human readable string
 	Wall    []string   `json:"wall"`
 	Player1 PlayerView `json:"player_1"`
 	Player2 PlayerView `json:"player_2"`
@@ -73,6 +74,7 @@ type HumanView struct {
 func View(g *game.Game) *HumanView {
 	return &HumanView{
 		Id:   g.Id,
+		State: int(g.State),
 		Wall: Describe(g.Wall),
 		Player1: PlayerView{
 			Concealed: Describe(g.Players[0].Concealed),

@@ -3,7 +3,6 @@ package game
 import "math/rand"
 
 type Tile int
-
 const (
 	Bamboo1             Tile = 1
 	Bamboo2             Tile = 2
@@ -49,12 +48,32 @@ const (
 	SeasonWinter        Tile = 63
 )
 
+type State int
+const (
+	// Internal States
+	StateNextRound    State = 0
+	StateNextTurn     State = 1
+	StateKongDeclared State = 2
+	StateRoundEnded   State = 3
+	StateGameEnded    State = 4
+
+	// Observable States
+	StateTileReceived State = 10
+	StateTileDiscarded State = 11
+)
+
+type Action int
+
+
+func (s State) IsObservable() bool {
+	return s >= 10
+}
+
 type Game struct {
 	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
 	Id uint64
 
-	HasEnded bool
-
+	State State
 	Wall    *TileCollection
 	Players map[int]Player
 }

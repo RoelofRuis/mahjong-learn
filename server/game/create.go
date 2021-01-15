@@ -9,12 +9,16 @@ func NewGame(id uint64) *Game {
 	players[3] = NewPlayer()
 	tileSet := NewMahjongSet()
 
-	return &Game{
+	game := &Game{
 		Id:       id,
-		HasEnded: false,
+		State:    StateNextRound,
 		Wall:     tileSet,
 		Players:  players,
 	}
+
+	game.Transition()
+
+	return game
 }
 
 func NewPlayer() Player {
