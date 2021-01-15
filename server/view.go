@@ -2,56 +2,57 @@ package main
 
 import (
 	"fmt"
+	"github.com/roelofruis/mahjong-learn/game"
 )
 
 type TileDescriptor struct {
-	Tile Tile
+	Tile game.Tile
 	Name string
 }
 
 var TileDescriptors = []TileDescriptor {
-	{Tile: Bamboo1, Name: "Bamboo 1"},
-	{Tile: Bamboo2, Name: "Bamboo 2"},
-	{Tile: Bamboo3, Name: "Bamboo 3"},
-	{Tile: Bamboo4, Name: "Bamboo 4"},
-	{Tile: Bamboo5, Name: "Bamboo 5"},
-	{Tile: Bamboo6, Name: "Bamboo 6"},
-	{Tile: Bamboo7, Name: "Bamboo 7"},
-	{Tile: Bamboo8, Name: "Bamboo 8"},
-	{Tile: Bamboo9, Name: "Bamboo 1"},
-	{Tile: Circles1, Name: "Circles 1"},
-	{Tile: Circles2, Name: "Circles 2"},
-	{Tile: Circles3, Name: "Circles 3"},
-	{Tile: Circles4, Name: "Circles 4"},
-	{Tile: Circles5, Name: "Circles 5"},
-	{Tile: Circles6, Name: "Circles 6"},
-	{Tile: Circles7, Name: "Circles 7"},
-	{Tile: Circles8, Name: "Circles 8"},
-	{Tile: Circles9, Name: "Circles 9"},
-	{Tile: Characters1, Name: "Characters 1"},
-	{Tile: Characters2, Name: "Characters 2"},
-	{Tile: Characters3, Name: "Characters 3"},
-	{Tile: Characters4, Name: "Characters 4"},
-	{Tile: Characters5, Name: "Characters 5"},
-	{Tile: Characters6, Name: "Characters 6"},
-	{Tile: Characters7, Name: "Characters 7"},
-	{Tile: Characters8, Name: "Characters 8"},
-	{Tile: Characters9, Name: "Characters 9"},
-	{Tile: RedDragon, Name: "Red Dragon"},
-	{Tile: GreenDragon, Name: "Green Dragon"},
-	{Tile: WhiteDragon, Name: "White Dragon"},
-	{Tile: EastWind, Name: "East Wind"},
-	{Tile: SouthWind, Name: "South Wind"},
-	{Tile: WestWind, Name: "West Wind"},
-	{Tile: NorthWind, Name: "North Wind"},
-	{Tile: FlowerPlumb, Name: "Plumb (flower)"},
-	{Tile: FlowerOrchid, Name: "Orchid (flower)"},
-	{Tile: FlowerChrysanthemum, Name: "Chrysanthemum (flower)"},
-	{Tile: FlowerBamboo, Name: "Bamboo (flower)"},
-	{Tile: SeasonSpring, Name: "Spring (season)"},
-	{Tile: SeasonSummer, Name: "Summer (season)"},
-	{Tile: SeasonAutumn, Name: "Autumn (season)"},
-	{Tile: SeasonWinter, Name: "Winter (season)"},
+	{Tile: game.Bamboo1, Name: "Bamboo 1"},
+	{Tile: game.Bamboo2, Name: "Bamboo 2"},
+	{Tile: game.Bamboo3, Name: "Bamboo 3"},
+	{Tile: game.Bamboo4, Name: "Bamboo 4"},
+	{Tile: game.Bamboo5, Name: "Bamboo 5"},
+	{Tile: game.Bamboo6, Name: "Bamboo 6"},
+	{Tile: game.Bamboo7, Name: "Bamboo 7"},
+	{Tile: game.Bamboo8, Name: "Bamboo 8"},
+	{Tile: game.Bamboo9, Name: "Bamboo 1"},
+	{Tile: game.Circles1, Name: "Circles 1"},
+	{Tile: game.Circles2, Name: "Circles 2"},
+	{Tile: game.Circles3, Name: "Circles 3"},
+	{Tile: game.Circles4, Name: "Circles 4"},
+	{Tile: game.Circles5, Name: "Circles 5"},
+	{Tile: game.Circles6, Name: "Circles 6"},
+	{Tile: game.Circles7, Name: "Circles 7"},
+	{Tile: game.Circles8, Name: "Circles 8"},
+	{Tile: game.Circles9, Name: "Circles 9"},
+	{Tile: game.Characters1, Name: "Characters 1"},
+	{Tile: game.Characters2, Name: "Characters 2"},
+	{Tile: game.Characters3, Name: "Characters 3"},
+	{Tile: game.Characters4, Name: "Characters 4"},
+	{Tile: game.Characters5, Name: "Characters 5"},
+	{Tile: game.Characters6, Name: "Characters 6"},
+	{Tile: game.Characters7, Name: "Characters 7"},
+	{Tile: game.Characters8, Name: "Characters 8"},
+	{Tile: game.Characters9, Name: "Characters 9"},
+	{Tile: game.RedDragon, Name: "Red Dragon"},
+	{Tile: game.GreenDragon, Name: "Green Dragon"},
+	{Tile: game.WhiteDragon, Name: "White Dragon"},
+	{Tile: game.EastWind, Name: "East Wind"},
+	{Tile: game.SouthWind, Name: "South Wind"},
+	{Tile: game.WestWind, Name: "West Wind"},
+	{Tile: game.NorthWind, Name: "North Wind"},
+	{Tile: game.FlowerPlumb, Name: "Plumb (flower)"},
+	{Tile: game.FlowerOrchid, Name: "Orchid (flower)"},
+	{Tile: game.FlowerChrysanthemum, Name: "Chrysanthemum (flower)"},
+	{Tile: game.FlowerBamboo, Name: "Bamboo (flower)"},
+	{Tile: game.SeasonSpring, Name: "Spring (season)"},
+	{Tile: game.SeasonSummer, Name: "Summer (season)"},
+	{Tile: game.SeasonAutumn, Name: "Autumn (season)"},
+	{Tile: game.SeasonWinter, Name: "Winter (season)"},
 }
 
 type PlayerView struct {
@@ -69,42 +70,42 @@ type HumanView struct {
 	Player4 PlayerView `json:"player_4"`
 }
 
-func (g *Game) HumanView() *HumanView {
+func View(g *game.Game) *HumanView {
 	return &HumanView{
 		Id: g.Id,
-		Wall: g.Wall.Describe(),
+		Wall: Describe(g.Wall),
 		Player1: PlayerView{
-			Concealed: g.Players[0].Concealed.Describe(),
+			Concealed: Describe(g.Players[0].Concealed),
 			Exposed: DescribeAll(g.Players[0].Exposed),
-			Discarded: g.Players[0].Discarded.Describe(),
+			Discarded: Describe(g.Players[0].Discarded),
 		},
 		Player2: PlayerView{
-			Concealed: g.Players[1].Concealed.Describe(),
+			Concealed: Describe(g.Players[1].Concealed),
 			Exposed: DescribeAll(g.Players[1].Exposed),
-			Discarded: g.Players[1].Discarded.Describe(),
+			Discarded: Describe(g.Players[1].Discarded),
 		},
 		Player3: PlayerView{
-			Concealed: g.Players[2].Concealed.Describe(),
+			Concealed: Describe(g.Players[2].Concealed),
 			Exposed: DescribeAll(g.Players[2].Exposed),
-			Discarded: g.Players[2].Discarded.Describe(),
+			Discarded: Describe(g.Players[2].Discarded),
 		},
 		Player4: PlayerView{
-			Concealed: g.Players[3].Concealed.Describe(),
+			Concealed: Describe(g.Players[3].Concealed),
 			Exposed: DescribeAll(g.Players[3].Exposed),
-			Discarded: g.Players[3].Discarded.Describe(),
+			Discarded: Describe(g.Players[3].Discarded),
 		},
 	}
 }
 
-func DescribeAll(t []*TileCollection) [][]string {
+func DescribeAll(t []*game.TileCollection) [][]string {
 	descriptions := make([][]string, len(t))
 	for i, col := range t {
-		descriptions[i] = col.Describe()
+		descriptions[i] = Describe(col)
 	}
 	return descriptions
 }
 
-func (t *TileCollection) Describe() []string {
+func Describe(t *game.TileCollection) []string {
 	descriptions := make([]string, 0)
 	for _, d := range TileDescriptors {
 		count, has := t.Tiles[d.Tile]
@@ -117,7 +118,7 @@ func (t *TileCollection) Describe() []string {
 	return descriptions
 }
 
-func (t *TileCollection) ToVector() []int {
+func ToVector(t *game.TileCollection) []int {
 	tileVector := make([]int, len(TileDescriptors))
 	for i, d := range TileDescriptors {
 		count, has := t.Tiles[d.Tile]

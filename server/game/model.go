@@ -1,4 +1,6 @@
-package main
+package game
+
+import "math/rand"
 
 type Tile int
 
@@ -47,8 +49,14 @@ const (
 	SeasonWinter        Tile = 63
 )
 
-type TileCollection struct {
-	Tiles map[Tile]int
+type Game struct {
+	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
+	Id uint64
+
+	HasEnded bool
+
+	Wall    *TileCollection
+	Players map[int]Player
 }
 
 type Player struct {
@@ -59,12 +67,27 @@ type Player struct {
 	Discarded *TileCollection
 }
 
-type Game struct {
-	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
-	Id uint64
+type TileCollection struct {
+	Tiles map[Tile]int
+}
 
-	HasEnded bool
+// Transfers n randomly picked tiles from this tile collection to the target tile collection.
+func (t *TileCollection) Transfer(n int, target *TileCollection) {
+	var tileList = make([]Tile, 0)
+	for k, v := range t.Tiles {
+		for i:=v; i>0; i-- {
+			tileList = append(tileList, k)
+		}
+	}
+	for i:=n; i>0; i-- {
+		numTiles := len(tileList)
+		pos := rand.Intn(numTiles)
+		picked := tileList[pos]
 
-	Wall    *TileCollection
-	Players map[int]Player
+		tileList[pos] = tileList[numTiles-1]
+		tileList = tileList[:numTiles-1]
+
+		t.Tiles[picked]--
+		target.Tiles[picked]++
+	}
 }
