@@ -40,7 +40,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 func (s *Server) handleShow(r *http.Request, game *Game) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
-		Data:       game.View(),
+		Data:       game.HumanView(),
 	}
 }
 

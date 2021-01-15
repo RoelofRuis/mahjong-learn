@@ -11,10 +11,10 @@ func InitGame(id uint64) *Game {
 	players[3] = NewPlayer()
 	tileSet := NewMahjongSet()
 
-	tileSet.Transfer(14, players[0].ConcealedTiles)
-	tileSet.Transfer(13, players[1].ConcealedTiles)
-	tileSet.Transfer(13, players[2].ConcealedTiles)
-	tileSet.Transfer(13, players[3].ConcealedTiles)
+	tileSet.Transfer(14, players[0].Concealed)
+	tileSet.Transfer(13, players[1].Concealed)
+	tileSet.Transfer(13, players[2].Concealed)
+	tileSet.Transfer(13, players[3].Concealed)
 
 	return &Game{
 		Id:       id,
@@ -26,10 +26,10 @@ func InitGame(id uint64) *Game {
 
 func NewPlayer() Player {
 	return Player{
-		Score: 0,
-		ConcealedTiles: NewEmptyTileCollection(),
-		ExposedCombinations: []TileCollection{},
-		Discards: NewEmptyTileCollection(),
+		Score:     0,
+		Concealed: NewEmptyTileCollection(),
+		Exposed:   []*TileCollection{},
+		Discarded: NewEmptyTileCollection(),
 	}
 }
 

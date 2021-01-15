@@ -54,22 +54,58 @@ var TileDescriptors = []TileDescriptor {
 	{Tile: SeasonWinter, Name: "Winter (season)"},
 }
 
-type GameView struct {
-	Id uint64 `json:"id"`
-	Wall []string `json:"wall"`
-	WallVector []int `json:"wall_vector"`
+type PlayerView struct {
+	Concealed []string `json:"hand"`
+	Exposed [][]string `json:"exposed"`
+	Discarded []string `json:"discarded"`
 }
 
-func (g *Game) View() *GameView {
-	return &GameView{
+type HumanView struct {
+	Id uint64 `json:"id"`
+	Wall []string `json:"wall"`
+	Player1 PlayerView `json:"player_1"`
+	Player2 PlayerView `json:"player_2"`
+	Player3 PlayerView `json:"player_3"`
+	Player4 PlayerView `json:"player_4"`
+}
+
+func (g *Game) HumanView() *HumanView {
+	return &HumanView{
 		Id: g.Id,
 		Wall: g.Wall.Describe(),
-		WallVector: g.Wall.ToVector(),
+		Player1: PlayerView{
+			Concealed: g.Players[0].Concealed.Describe(),
+			Exposed: DescribeAll(g.Players[0].Exposed),
+			Discarded: g.Players[0].Discarded.Describe(),
+		},
+		Player2: PlayerView{
+			Concealed: g.Players[1].Concealed.Describe(),
+			Exposed: DescribeAll(g.Players[1].Exposed),
+			Discarded: g.Players[1].Discarded.Describe(),
+		},
+		Player3: PlayerView{
+			Concealed: g.Players[2].Concealed.Describe(),
+			Exposed: DescribeAll(g.Players[2].Exposed),
+			Discarded: g.Players[2].Discarded.Describe(),
+		},
+		Player4: PlayerView{
+			Concealed: g.Players[3].Concealed.Describe(),
+			Exposed: DescribeAll(g.Players[3].Exposed),
+			Discarded: g.Players[3].Discarded.Describe(),
+		},
 	}
 }
 
+func DescribeAll(t []*TileCollection) [][]string {
+	descriptions := make([][]string, len(t))
+	for i, col := range t {
+		descriptions[i] = col.Describe()
+	}
+	return descriptions
+}
+
 func (t *TileCollection) Describe() []string {
-	var descriptions []string
+	descriptions := make([]string, 0)
 	for _, d := range TileDescriptors {
 		count, has := t.Tiles[d.Tile]
 		if !has || count == 0 {

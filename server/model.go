@@ -54,9 +54,9 @@ type TileCollection struct {
 type Player struct {
 	Score int
 
-	ConcealedTiles      *TileCollection
-	ExposedCombinations []TileCollection
-	Discards            *TileCollection
+	Concealed *TileCollection
+	Exposed   []*TileCollection
+	Discarded *TileCollection
 }
 
 type Game struct {
