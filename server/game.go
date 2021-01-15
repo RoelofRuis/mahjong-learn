@@ -50,7 +50,7 @@ func NewMahjongSet() *TileCollection {
 	}}
 }
 
-// Transfers n tiles from this tile collection to the target tile collection.
+// Transfers n randomly picked tiles from this tile collection to the target tile collection.
 func (t *TileCollection) Transfer(n int, target *TileCollection) {
 	var tileList = make([]Tile, 0)
 	for k, v := range t.Tiles {
