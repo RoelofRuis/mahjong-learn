@@ -1,5 +1,56 @@
 package game
 
+type StateMachine struct {
+	State *State
+	Game  *Game
+}
+
+type Action func(*Game) *State
+
+type State struct {
+	// Name just to display human readable information.
+	Name string
+
+	// Transfer to next state via action, or nil if player input is required.
+	TransferAction Action
+	// Show required player actions. This requires TransferAction to be nil.
+	RequiredActions func(*Game) map[Seat][]Action
+}
+
+type Game struct {
+	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
+	Id uint64
+
+	PrevalentWind Wind
+	Wall          *TileCollection
+	Players       map[Seat]Player
+	ActiveSeat    Seat
+}
+
+type Player struct {
+	Score int
+
+	SeatWind  Wind
+	Concealed *TileCollection
+	Exposed   []*TileCollection
+	Discarded *TileCollection
+}
+
+type TileCollection struct {
+	Tiles map[Tile]int
+}
+
+type Seat int
+
+type Wind int
+
+const (
+	East  Wind = 0
+	South Wind = 1
+	West  Wind = 2
+	North Wind = 3
+)
+
 type Tile int
 
 const (
@@ -46,37 +97,3 @@ const (
 	SeasonAutumn        Tile = 62
 	SeasonWinter        Tile = 63
 )
-
-type Seat int
-
-type Wind int
-
-const (
-	East  Wind = 0
-	South Wind = 1
-	West  Wind = 2
-	North Wind = 3
-)
-
-type Game struct {
-	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
-	Id uint64
-
-	PrevalentWind Wind
-	Wall          *TileCollection
-	Players       map[Seat]Player
-	ActiveSeat    Seat
-}
-
-type Player struct {
-	Score int
-
-	SeatWind  Wind
-	Concealed *TileCollection
-	Exposed   []*TileCollection
-	Discarded *TileCollection
-}
-
-type TileCollection struct {
-	Tiles map[Tile]int
-}

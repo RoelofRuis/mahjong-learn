@@ -13,6 +13,14 @@ func (g *Game) DealTile(seat Seat) {
 	g.Wall.Transfer(1, g.Players[seat].Concealed)
 }
 
+func (t *TileCollection) Size() int {
+	var count = 0
+	for _, c := range t.Tiles {
+		count += c
+	}
+	return count
+}
+
 // Transfers n randomly picked tiles from this tile collection to the target tile collection.
 func (t *TileCollection) Transfer(n int, target *TileCollection) {
 	var tileList = make([]Tile, 0)
