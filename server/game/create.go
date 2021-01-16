@@ -11,14 +11,11 @@ func NewGame(id uint64) *Game {
 
 	game := &Game{
 		Id:            id,
-		State:         StateNextRound,
 		PrevalentWind: East,
 		Wall:          tileSet,
 		Players:       players,
-		ActiveSeat:    -1,
+		ActiveSeat:    0,
 	}
-
-	game.Transition()
 
 	return game
 }

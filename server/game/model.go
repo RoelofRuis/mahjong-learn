@@ -1,7 +1,5 @@
 package game
 
-import "math/rand"
-
 type Tile int
 
 const (
@@ -49,6 +47,8 @@ const (
 	SeasonWinter        Tile = 63
 )
 
+type Seat int
+
 type Wind int
 
 const (
@@ -58,30 +58,10 @@ const (
 	North Wind = 3
 )
 
-type State int
-
-const (
-	// Internal States
-	StateNextRound    State = 0
-	StateNextTurn     State = 1
-	StateKongDeclared State = 2
-	StateRoundEnded   State = 3
-	StateGameEnded    State = 4
-
-	// Observable States
-	StateTileReceived  State = 10
-	StateTileDiscarded State = 11
-)
-
-func (s State) IsObservable() bool {
-	return s >= 10
-}
-
 type Game struct {
 	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
 	Id uint64
 
-	State         State
 	PrevalentWind Wind
 	Wall          *TileCollection
 	Players       map[Seat]Player
@@ -97,29 +77,6 @@ type Player struct {
 	Discarded *TileCollection
 }
 
-type Seat int
-
 type TileCollection struct {
 	Tiles map[Tile]int
-}
-
-// Transfers n randomly picked tiles from this tile collection to the target tile collection.
-func (t *TileCollection) Transfer(n int, target *TileCollection) {
-	var tileList = make([]Tile, 0)
-	for k, v := range t.Tiles {
-		for i := v; i > 0; i-- {
-			tileList = append(tileList, k)
-		}
-	}
-	for i := n; i > 0; i-- {
-		numTiles := len(tileList)
-		pos := rand.Intn(numTiles)
-		picked := tileList[pos]
-
-		tileList[pos] = tileList[numTiles-1]
-		tileList = tileList[:numTiles-1]
-
-		t.Tiles[picked]--
-		target.Tiles[picked]++
-	}
 }
