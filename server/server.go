@@ -76,6 +76,7 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 			data = &ErrorMessage{StatusCode: response.StatusCode, Error: response.Error.Error()}
 		}
 
+		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(response.StatusCode)
 
 		err := json.NewEncoder(w).Encode(data)
