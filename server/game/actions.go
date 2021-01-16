@@ -2,15 +2,32 @@ package game
 
 import "math/rand"
 
-func (g *Game) DealStartingHands() {
-	g.Wall.Transfer(13, g.Players[0].Concealed)
-	g.Wall.Transfer(13, g.Players[1].Concealed)
-	g.Wall.Transfer(13, g.Players[2].Concealed)
-	g.Wall.Transfer(13, g.Players[3].Concealed)
+func (g *Game) DealTiles(n int, seat Seat) {
+	player := g.Players[seat]
+	g.Wall.TransferRandom(n, player.Concealed)
+
+	for {
+		numExtra := player.ForceExposeTiles()
+		if numExtra == 0 {
+			break
+		}
+
+		g.Wall.TransferRandom(numExtra, player.Concealed)
+	}
 }
 
-func (g *Game) DealTile(seat Seat) {
-	g.Wall.Transfer(1, g.Players[seat].Concealed)
+func (p *Player) ForceExposeTiles() int {
+	var transferred = 0
+	for t, c := range p.Concealed.Tiles {
+		if IsBonusTile(t) && c > 0 {
+			exposed := NewEmptyTileCollection()
+			p.Concealed.Transfer(t, exposed)
+			p.Exposed = append(p.Exposed, exposed)
+			transferred++
+		}
+	}
+
+	return transferred
 }
 
 func (t *TileCollection) Size() int {
@@ -18,11 +35,22 @@ func (t *TileCollection) Size() int {
 	for _, c := range t.Tiles {
 		count += c
 	}
+
 	return count
 }
 
+func (t *TileCollection) Transfer(tile Tile, target *TileCollection) {
+	n, has := t.Tiles[tile]
+	if !has || n == 0{
+		return
+	}
+
+	t.Tiles[tile]--
+	target.Tiles[tile]++
+}
+
 // Transfers n randomly picked tiles from this tile collection to the target tile collection.
-func (t *TileCollection) Transfer(n int, target *TileCollection) {
+func (t *TileCollection) TransferRandom(n int, target *TileCollection) {
 	var tileList = make([]Tile, 0)
 	for k, v := range t.Tiles {
 		for i := v; i > 0; i-- {

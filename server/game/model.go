@@ -11,7 +11,7 @@ type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// Transfer to next state via action, or nil if player input is required.
+	// TransferRandom to next state via action, or nil if player input is required.
 	TransferAction Action
 	// Show required player actions. This requires TransferAction to be nil.
 	RequiredActions func(*Game) map[Seat][]Action
@@ -97,3 +97,7 @@ const (
 	SeasonAutumn        Tile = 62
 	SeasonWinter        Tile = 63
 )
+
+func IsBonusTile(t Tile) bool {
+	return t >= 50
+}

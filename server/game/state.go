@@ -35,7 +35,10 @@ var StateTileDealt = &State{
 }
 
 func Initialize(g *Game) *State {
-	g.DealStartingHands()
+	g.DealTiles(13, 0)
+	g.DealTiles(13, 1)
+	g.DealTiles(13, 2)
+	g.DealTiles(13, 3)
 	return StateNextTurn
 }
 
@@ -45,6 +48,6 @@ func TryDealTile(g *Game) *State {
 		return StateNextRound
 	}
 
-	g.DealTile(g.ActiveSeat)
+	g.DealTiles(1, g.ActiveSeat)
 	return StateTileDealt
 }
