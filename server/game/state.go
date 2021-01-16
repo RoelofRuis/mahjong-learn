@@ -6,44 +6,41 @@ type StateMachine struct {
 	Game *Game
 }
 
-type Action struct {
-	Update func(*Game) *State
-}
-
 type State struct {
 	// Name just to display human readable information.
 	Name string
 
 	// Transfer to next state via action, or nil if player input is required.
-	TransferAction *Action
+	TransferAction Action
 	// Show required player actions. This requires TransferAction to be nil.
 	RequiredActions func(*Game) map[Seat][]Action
 }
+
+type Action func(*Game) *State
 
 func (m *StateMachine) Transition() {
 	for {
 		if m.State.TransferAction == nil {
 			break
 		}
-		m.State = m.State.TransferAction.Update(m.Game)
+		m.State = m.State.TransferAction(m.Game)
 	}
 	// TODO: player actions
 }
 
 var StateNewGame = &State{
 	Name:            "New Game",
-	TransferAction:  nil,
+	TransferAction:  Initialize,
 	RequiredActions: nil,
+}
+
+func Initialize(g *Game) *State {
+	g.DealStartingHands()
+	return StateNextTurn
 }
 
 var StateNextTurn = &State{
 	Name:            "Next Turn",
 	TransferAction:  nil,
 	RequiredActions: nil,
-}
-
-var InitializeGame = &Action{
-	Update: func(*Game) *State {
-		return nil
-	},
 }
