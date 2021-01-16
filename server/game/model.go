@@ -23,7 +23,7 @@ type Game struct {
 
 	PrevalentWind Wind
 	Wall          *TileCollection
-	Players       map[Seat]Player
+	Players       map[Seat]*Player
 	ActiveSeat    Seat
 }
 

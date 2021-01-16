@@ -1,6 +1,8 @@
 package game
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 func (g *Game) DealTiles(n int, seat Seat) {
 	player := g.Players[seat]

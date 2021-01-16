@@ -1,7 +1,7 @@
 package game
 
 func NewGameStateMachine(id uint64) *StateMachine {
-	players := make(map[Seat]Player, 4)
+	players := make(map[Seat]*Player, 4)
 
 	players[0] = NewPlayer(East)
 	players[1] = NewPlayer(South)
@@ -23,8 +23,8 @@ func NewGameStateMachine(id uint64) *StateMachine {
 	}
 }
 
-func NewPlayer(seatWind Wind) Player {
-	return Player{
+func NewPlayer(seatWind Wind) *Player {
+	return &Player{
 		Score:     0,
 		SeatWind:  seatWind,
 		Concealed: NewEmptyTileCollection(),
