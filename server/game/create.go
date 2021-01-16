@@ -1,19 +1,21 @@
 package game
 
 func NewGame(id uint64) *Game {
-	players := make(map[int]Player, 4)
+	players := make(map[Seat]Player, 4)
 
-	players[0] = NewPlayer()
-	players[1] = NewPlayer()
-	players[2] = NewPlayer()
-	players[3] = NewPlayer()
+	players[0] = NewPlayer(East)
+	players[1] = NewPlayer(South)
+	players[2] = NewPlayer(West)
+	players[3] = NewPlayer(North)
 	tileSet := NewMahjongSet()
 
 	game := &Game{
-		Id:       id,
-		State:    StateNextRound,
-		Wall:     tileSet,
-		Players:  players,
+		Id:            id,
+		State:         StateNextRound,
+		PrevalentWind: East,
+		Wall:          tileSet,
+		Players:       players,
+		ActiveSeat:    -1,
 	}
 
 	game.Transition()
@@ -21,9 +23,10 @@ func NewGame(id uint64) *Game {
 	return game
 }
 
-func NewPlayer() Player {
+func NewPlayer(seatWind Wind) Player {
 	return Player{
 		Score:     0,
+		SeatWind:  seatWind,
 		Concealed: NewEmptyTileCollection(),
 		Exposed:   []*TileCollection{},
 		Discarded: NewEmptyTileCollection(),

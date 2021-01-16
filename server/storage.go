@@ -23,26 +23,26 @@ type GameStorage struct {
 }
 
 func (s *GameStorage) Get(id uint64) (*game.Game, error) {
-	var game *game.Game
+	var g *game.Game
 
 	s.gamesLock.RLock()
-	game, has := s.games[id]
+	g, has := s.games[id]
 	s.gamesLock.RUnlock()
 
 	if !has {
-		return game, errors.New("game does not exist")
+		return nil, errors.New("game does not exist")
 	}
 
-	return game, nil
+	return g, nil
 }
 
 func (s *GameStorage) StartNew() uint64 {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	game := game.NewGame(id)
+	g := game.NewGame(id)
 
 	s.gamesLock.Lock()
-	s.games[id] = game
+	s.games[id] = g
 	s.gamesLock.Unlock()
 
 	return id

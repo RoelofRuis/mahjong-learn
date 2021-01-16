@@ -27,13 +27,6 @@ func (g *Game) Transition() {
 		}
 		state = g.State
 	}
-
-}
-
-func (g *Game) PerformAction(a Action) error {
-	// TODO: implement
-	// Return error if an action is not allowed in the current state
-	return nil
 }
 
 func (g *Game) DealStartingHands() {
@@ -43,6 +36,6 @@ func (g *Game) DealStartingHands() {
 	g.Wall.Transfer(13, g.Players[3].Concealed)
 }
 
-func (g *Game) DealTile(player int) {
-	g.Wall.Transfer(1, g.Players[player].Concealed)
+func (g *Game) DealTile(seat Seat) {
+	g.Wall.Transfer(1, g.Players[seat].Concealed)
 }

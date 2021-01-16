@@ -3,6 +3,7 @@ package game
 import "math/rand"
 
 type Tile int
+
 const (
 	Bamboo1             Tile = 1
 	Bamboo2             Tile = 2
@@ -48,7 +49,17 @@ const (
 	SeasonWinter        Tile = 63
 )
 
+type Wind int
+
+const (
+	East  Wind = 0
+	South Wind = 1
+	West  Wind = 2
+	North Wind = 3
+)
+
 type State int
+
 const (
 	// Internal States
 	StateNextRound    State = 0
@@ -58,12 +69,9 @@ const (
 	StateGameEnded    State = 4
 
 	// Observable States
-	StateTileReceived State = 10
+	StateTileReceived  State = 10
 	StateTileDiscarded State = 11
 )
-
-type Action int
-
 
 func (s State) IsObservable() bool {
 	return s >= 10
@@ -73,18 +81,23 @@ type Game struct {
 	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
 	Id uint64
 
-	State State
-	Wall    *TileCollection
-	Players map[int]Player
+	State         State
+	PrevalentWind Wind
+	Wall          *TileCollection
+	Players       map[Seat]Player
+	ActiveSeat    Seat
 }
 
 type Player struct {
 	Score int
 
+	SeatWind  Wind
 	Concealed *TileCollection
 	Exposed   []*TileCollection
 	Discarded *TileCollection
 }
+
+type Seat int
 
 type TileCollection struct {
 	Tiles map[Tile]int
