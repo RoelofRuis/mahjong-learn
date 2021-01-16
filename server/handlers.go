@@ -38,14 +38,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleShow(r *http.Request, game *game.Game) *Response {
+func (s *Server) handleShow(r *http.Request, stateMachine *game.StateMachine) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
-		Data:       View(game),
+		Data:       View(stateMachine),
 	}
 }
 
-func (s *Server) handleAdvance(r *http.Request, game *game.Game) *Response {
+func (s *Server) handleAdvance(r *http.Request, stateMachine *game.StateMachine) *Response {
 	// TODO: implement
 	return &Response{}
 }

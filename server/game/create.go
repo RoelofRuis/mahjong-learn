@@ -1,6 +1,6 @@
 package game
 
-func NewGame(id uint64) *Game {
+func NewGameStateMachine(id uint64) *StateMachine {
 	players := make(map[Seat]Player, 4)
 
 	players[0] = NewPlayer(East)
@@ -9,7 +9,7 @@ func NewGame(id uint64) *Game {
 	players[3] = NewPlayer(North)
 	tileSet := NewMahjongSet()
 
-	game := &Game{
+	g := &Game{
 		Id:            id,
 		PrevalentWind: East,
 		Wall:          tileSet,
@@ -17,7 +17,10 @@ func NewGame(id uint64) *Game {
 		ActiveSeat:    0,
 	}
 
-	return game
+	return &StateMachine{
+		State: StateNewGame,
+		Game:  g,
+	}
 }
 
 func NewPlayer(seatWind Wind) Player {
@@ -42,6 +45,7 @@ func NewMahjongSet() *TileCollection {
 
 		RedDragon: 4, GreenDragon: 4, WhiteDragon: 4,
 		EastWind: 4, SouthWind: 4, WestWind: 4, NorthWind: 4,
+
 		FlowerPlumb: 1, FlowerOrchid: 1, FlowerChrysanthemum: 1, FlowerBamboo: 1,
 		SeasonSpring: 1, SeasonSummer: 1, SeasonAutumn: 1, SeasonWinter: 1,
 	}}

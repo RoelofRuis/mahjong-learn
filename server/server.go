@@ -57,8 +57,8 @@ func (s *Server) GetDomain(includeScheme bool) string {
 func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withGame(s.handleShow)))
-	s.Router.HandleFunc(s.Paths.Advance, s.asJsonResponse(s.withGame(s.handleAdvance)))
+	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withGameStateMachine(s.handleShow)))
+	s.Router.HandleFunc(s.Paths.Advance, s.asJsonResponse(s.withGameStateMachine(s.handleAdvance)))
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +87,7 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 	}
 }
 
-func (s *Server) withGame(f func(r *http.Request, game *game.Game) *Response) func(r *http.Request) *Response {
+func (s *Server) withGameStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) func(r *http.Request) *Response {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
@@ -110,7 +110,7 @@ func (s *Server) withGame(f func(r *http.Request, game *game.Game) *Response) fu
 			}
 		}
 
-		game, err := s.Games.Get(uint64(id))
+		g, err := s.Games.Get(uint64(id))
 		if err != nil {
 			return &Response{
 				StatusCode: http.StatusNotFound,
@@ -118,6 +118,6 @@ func (s *Server) withGame(f func(r *http.Request, game *game.Game) *Response) fu
 			}
 		}
 
-		return f(r, game)
+		return f(r, g)
 	}
 }
