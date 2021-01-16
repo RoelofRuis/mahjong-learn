@@ -1,6 +1,10 @@
 package game
 
+import "sync"
+
 type StateMachine struct {
+	sync.Mutex
+
 	State *State
 	Game  *Game
 }
@@ -18,7 +22,6 @@ type State struct {
 }
 
 type Game struct {
-	// FIXME: add lock to Game so we can modify data freely in a request and block simultaneous requests
 	Id uint64
 
 	PrevalentWind Wind

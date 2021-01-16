@@ -1,6 +1,7 @@
 package game
 
 func (m *StateMachine) Transition() {
+	m.Lock()
 	for {
 		if m.State.TransferAction == nil {
 			break
@@ -8,6 +9,7 @@ func (m *StateMachine) Transition() {
 		m.State = m.State.TransferAction(m.Game)
 	}
 	// TODO: player actions
+	m.Unlock()
 }
 
 var StateNewGame = &State{
