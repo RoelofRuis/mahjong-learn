@@ -30,10 +30,10 @@ var StateNextTurn = &State{
 	RequiredActions: nil,
 }
 
-var StateTileDealt = &State{
-	Name:            "Tile Dealt",
+var StateTileReceived = &State{
+	Name:            "Tile Received",
 	TransferAction:  nil,
-	RequiredActions: nil,
+	RequiredActions: ReactToTile,
 }
 
 func Initialize(g *Game) *State {
@@ -51,5 +51,18 @@ func TryDealTile(g *Game) *State {
 	}
 
 	g.DealTiles(1, g.ActiveSeat)
-	return StateTileDealt
+	return StateTileReceived
+}
+
+func ReactToTile(g *Game) map[Seat][]PlayerAction {
+	m := make(map[Seat][]PlayerAction, 1)
+	var a = []PlayerAction{
+		{
+			Name: "Discard a tile",
+		},
+	}
+
+	m[g.ActiveSeat] = a
+
+	return m
 }

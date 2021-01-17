@@ -9,6 +9,10 @@ type StateMachine struct {
 	Game  *Game
 }
 
+type PlayerAction struct {
+	Name string
+}
+
 type Action func(*Game) *State
 
 type State struct {
@@ -18,7 +22,7 @@ type State struct {
 	// TransferRandom to next state via action, or nil if player input is required.
 	TransferAction Action
 	// Show required player actions. This requires TransferAction to be nil.
-	RequiredActions func(*Game) map[Seat][]Action
+	RequiredActions func(*Game) map[Seat][]PlayerAction
 }
 
 type Game struct {
