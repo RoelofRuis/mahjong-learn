@@ -1,15 +1,23 @@
 package game
 
 func (m *StateMachine) Transition() {
-	m.Lock()
+	m.lock.Lock()
 	for {
-		if m.State.TransferAction == nil {
+		if m.state.TransferAction == nil {
 			break
 		}
-		m.State = m.State.TransferAction(m.Game)
+		m.state = m.state.TransferAction(m.game)
 	}
 	// TODO: player actions
-	m.Unlock()
+	m.lock.Unlock()
+}
+
+func (m *StateMachine) GetGame() Game {
+	return *m.game
+}
+
+func (m *StateMachine) GetState() State {
+	return *m.state
 }
 
 var StateNewGame = &State{

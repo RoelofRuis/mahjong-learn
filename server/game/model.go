@@ -3,10 +3,10 @@ package game
 import "sync"
 
 type StateMachine struct {
-	sync.Mutex
+	lock sync.Mutex
 
-	State *State
-	Game  *Game
+	state *State
+	game  *Game
 }
 
 type PlayerAction struct {

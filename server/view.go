@@ -82,10 +82,10 @@ type HumanView struct {
 }
 
 func View(stateMachine *game.StateMachine) *HumanView {
-	g := stateMachine.Game
+	g := stateMachine.GetGame()
 	return &HumanView{
 		Id:            g.Id,
-		StateName:     stateMachine.State.Name,
+		StateName:     stateMachine.GetState().Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
 		Wall:          Describe(g.Wall),
