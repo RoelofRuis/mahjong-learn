@@ -2,46 +2,54 @@ package game
 
 func (m *StateMachine) Transition() {
 	m.lock.Lock()
+	defer m.lock.Unlock()
+
 	for {
 		if m.state.TransferAction == nil {
 			break
 		}
 		m.state = m.state.TransferAction(m.game)
 	}
-	// TODO: player actions
-	m.lock.Unlock()
+	// TODO: handle player actions
 }
 
-func (m *StateMachine) GetGame() Game {
-	return *m.game
-}
+// If the StateMachine is viewed, internals should be exposed in a consistent manner, so one function returns everything.
+func (m *StateMachine) View() (Game, State, map[Seat][]PlayerAction) {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 
-func (m *StateMachine) GetState() State {
-	return *m.state
+	var playerActions map[Seat][]PlayerAction
+	if m.state.PlayerActions == nil {
+		playerActions = make(map[Seat][]PlayerAction, 0)
+	}
+
+	playerActions = m.state.PlayerActions(m.game)
+
+	return *m.game, *m.state, playerActions
 }
 
 var StateNewGame = &State{
-	Name:            "New Game",
-	TransferAction:  Initialize,
-	RequiredActions: nil,
+	Name:           "New Game",
+	TransferAction: Initialize,
+	PlayerActions:  nil,
 }
 
 var StateNextRound = &State{
-	Name:            "Next Round",
-	TransferAction:  nil,
-	RequiredActions: nil,
+	Name:           "Next Round",
+	TransferAction: nil,
+	PlayerActions:  nil,
 }
 
 var StateNextTurn = &State{
-	Name:            "Next Turn",
-	TransferAction:  TryDealTile,
-	RequiredActions: nil,
+	Name:           "Next Turn",
+	TransferAction: TryDealTile,
+	PlayerActions:  nil,
 }
 
 var StateTileReceived = &State{
-	Name:            "Tile Received",
-	TransferAction:  nil,
-	RequiredActions: ReactToTile,
+	Name:           "Tile Received",
+	TransferAction: nil,
+	PlayerActions:  ReactToTile,
 }
 
 func Initialize(g *Game) *State {

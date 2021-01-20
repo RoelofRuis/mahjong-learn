@@ -63,6 +63,7 @@ var WindNames = map[game.Wind]string{
 }
 
 type PlayerView struct {
+	Actions []string `json:"actions"`
 	Wind      string     `json:"wind"`
 	Concealed []string   `json:"hand"`
 	Exposed   [][]string `json:"exposed"`
@@ -70,49 +71,29 @@ type PlayerView struct {
 }
 
 type HumanView struct {
-	Id            uint64     `json:"id"`
-	StateName     string     `json:"state_name"`
-	PrevalentWind string     `json:"prevalent_wind"`
-	ActivePlayer  int        `json:"active_player"`
-	Wall          []string   `json:"wall"`
-	Player1       PlayerView `json:"player_1"`
-	Player2       PlayerView `json:"player_2"`
-	Player3       PlayerView `json:"player_3"`
-	Player4       PlayerView `json:"player_4"`
+	Id              uint64        `json:"id"`
+	StateName       string        `json:"state_name"`
+	PrevalentWind   string        `json:"prevalent_wind"`
+	ActivePlayer    int           `json:"active_player"`
+	Player1         PlayerView    `json:"player_1"`
+	Player2         PlayerView    `json:"player_2"`
+	Player3         PlayerView    `json:"player_3"`
+	Player4         PlayerView    `json:"player_4"`
+	Wall            []string      `json:"wall"`
 }
 
 func View(stateMachine *game.StateMachine) *HumanView {
-	g := stateMachine.GetGame()
+	g, s, a := stateMachine.View()
 	return &HumanView{
 		Id:            g.Id,
-		StateName:     stateMachine.GetState().Name,
+		StateName:     s.Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
+		Player1: DescribePlayer(g, a, 0),
+		Player2: DescribePlayer(g, a, 1),
+		Player3: DescribePlayer(g, a, 2),
+		Player4: DescribePlayer(g, a, 3),
 		Wall:          Describe(g.Wall),
-		Player1: PlayerView{
-			Wind:      WindNames[g.Players[0].SeatWind],
-			Concealed: Describe(g.Players[0].Concealed),
-			Exposed:   DescribeAll(g.Players[0].Exposed),
-			Discarded: Describe(g.Players[0].Discarded),
-		},
-		Player2: PlayerView{
-			Wind:      WindNames[g.Players[1].SeatWind],
-			Concealed: Describe(g.Players[1].Concealed),
-			Exposed:   DescribeAll(g.Players[1].Exposed),
-			Discarded: Describe(g.Players[1].Discarded),
-		},
-		Player3: PlayerView{
-			Wind:      WindNames[g.Players[2].SeatWind],
-			Concealed: Describe(g.Players[2].Concealed),
-			Exposed:   DescribeAll(g.Players[2].Exposed),
-			Discarded: Describe(g.Players[2].Discarded),
-		},
-		Player4: PlayerView{
-			Wind:      WindNames[g.Players[3].SeatWind],
-			Concealed: Describe(g.Players[3].Concealed),
-			Exposed:   DescribeAll(g.Players[3].Exposed),
-			Discarded: Describe(g.Players[3].Discarded),
-		},
 	}
 }
 
@@ -135,6 +116,27 @@ func Describe(t *game.TileCollection) []string {
 		descriptions = append(descriptions, text)
 	}
 	return descriptions
+}
+
+func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int) PlayerView {
+	seat := game.Seat(player)
+	actions, has := a[seat]
+	if ! has {
+		actions = make([]game.PlayerAction, 0)
+	}
+
+	actionList := make([]string, 0)
+	for _, a := range actions {
+		actionList = append(actionList, a.Name)
+	}
+
+	return PlayerView{
+		Actions: actionList,
+		Wind:      WindNames[g.Players[seat].SeatWind],
+		Concealed: Describe(g.Players[seat].Concealed),
+		Exposed:   DescribeAll(g.Players[seat].Exposed),
+		Discarded: Describe(g.Players[seat].Discarded),
+	}
 }
 
 func ToVector(t *game.TileCollection) []int {

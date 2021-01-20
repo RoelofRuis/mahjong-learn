@@ -3,7 +3,7 @@ package game
 import "sync"
 
 type StateMachine struct {
-	lock sync.Mutex
+	lock sync.RWMutex
 
 	state *State
 	game  *Game
@@ -11,6 +11,7 @@ type StateMachine struct {
 
 type PlayerAction struct {
 	Name string
+	TransferAction Action
 }
 
 type Action func(*Game) *State
@@ -22,7 +23,7 @@ type State struct {
 	// TransferRandom to next state via action, or nil if player input is required.
 	TransferAction Action
 	// Show required player actions. This requires TransferAction to be nil.
-	RequiredActions func(*Game) map[Seat][]PlayerAction
+	PlayerActions func(*Game) map[Seat][]PlayerAction
 }
 
 type Game struct {
