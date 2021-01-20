@@ -63,7 +63,7 @@ var WindNames = map[game.Wind]string{
 }
 
 type PlayerView struct {
-	Actions []string `json:"actions"`
+	Actions map[int]string `json:"actions"`
 	Wind      string     `json:"wind"`
 	Concealed []string   `json:"hand"`
 	Exposed   [][]string `json:"exposed"`
@@ -125,13 +125,13 @@ func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int
 		actions = make([]game.PlayerAction, 0)
 	}
 
-	actionList := make([]string, 0)
-	for _, a := range actions {
-		actionList = append(actionList, a.Name)
+	actionMap := make(map[int]string)
+	for i, a := range actions {
+		actionMap[i] = a.Name
 	}
 
 	return PlayerView{
-		Actions: actionList,
+		Actions: actionMap,
 		Wind:      WindNames[g.Players[seat].SeatWind],
 		Concealed: Describe(g.Players[seat].Concealed),
 		Exposed:   DescribeAll(g.Players[seat].Exposed),
