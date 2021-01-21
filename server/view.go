@@ -5,54 +5,49 @@ import (
 	"github.com/roelofruis/mahjong-learn/game"
 )
 
-type TileDescriptor struct {
-	Tile game.Tile
-	Name string
-}
-
-var TileDescriptors = []TileDescriptor{
-	{Tile: game.Bamboo1, Name: "Bamboo 1"},
-	{Tile: game.Bamboo2, Name: "Bamboo 2"},
-	{Tile: game.Bamboo3, Name: "Bamboo 3"},
-	{Tile: game.Bamboo4, Name: "Bamboo 4"},
-	{Tile: game.Bamboo5, Name: "Bamboo 5"},
-	{Tile: game.Bamboo6, Name: "Bamboo 6"},
-	{Tile: game.Bamboo7, Name: "Bamboo 7"},
-	{Tile: game.Bamboo8, Name: "Bamboo 8"},
-	{Tile: game.Bamboo9, Name: "Bamboo 1"},
-	{Tile: game.Circles1, Name: "Circles 1"},
-	{Tile: game.Circles2, Name: "Circles 2"},
-	{Tile: game.Circles3, Name: "Circles 3"},
-	{Tile: game.Circles4, Name: "Circles 4"},
-	{Tile: game.Circles5, Name: "Circles 5"},
-	{Tile: game.Circles6, Name: "Circles 6"},
-	{Tile: game.Circles7, Name: "Circles 7"},
-	{Tile: game.Circles8, Name: "Circles 8"},
-	{Tile: game.Circles9, Name: "Circles 9"},
-	{Tile: game.Characters1, Name: "Characters 1"},
-	{Tile: game.Characters2, Name: "Characters 2"},
-	{Tile: game.Characters3, Name: "Characters 3"},
-	{Tile: game.Characters4, Name: "Characters 4"},
-	{Tile: game.Characters5, Name: "Characters 5"},
-	{Tile: game.Characters6, Name: "Characters 6"},
-	{Tile: game.Characters7, Name: "Characters 7"},
-	{Tile: game.Characters8, Name: "Characters 8"},
-	{Tile: game.Characters9, Name: "Characters 9"},
-	{Tile: game.RedDragon, Name: "Red Dragon"},
-	{Tile: game.GreenDragon, Name: "Green Dragon"},
-	{Tile: game.WhiteDragon, Name: "White Dragon"},
-	{Tile: game.EastWind, Name: "East Wind"},
-	{Tile: game.SouthWind, Name: "South Wind"},
-	{Tile: game.WestWind, Name: "West Wind"},
-	{Tile: game.NorthWind, Name: "North Wind"},
-	{Tile: game.FlowerPlumb, Name: "Plumb (flower)"},
-	{Tile: game.FlowerOrchid, Name: "Orchid (flower)"},
-	{Tile: game.FlowerChrysanthemum, Name: "Chrysanthemum (flower)"},
-	{Tile: game.FlowerBamboo, Name: "Bamboo (flower)"},
-	{Tile: game.SeasonSpring, Name: "Spring (season)"},
-	{Tile: game.SeasonSummer, Name: "Summer (season)"},
-	{Tile: game.SeasonAutumn, Name: "Autumn (season)"},
-	{Tile: game.SeasonWinter, Name: "Winter (season)"},
+var TileOrder = []game.Tile{
+	game.Bamboo1,
+	game.Bamboo2,
+	game.Bamboo3,
+	game.Bamboo4,
+	game.Bamboo5,
+	game.Bamboo6,
+	game.Bamboo7,
+	game.Bamboo8,
+	game.Bamboo9,
+	game.Circles1,
+	game.Circles2,
+	game.Circles3,
+	game.Circles4,
+	game.Circles5,
+	game.Circles6,
+	game.Circles7,
+	game.Circles8,
+	game.Circles9,
+	game.Characters1,
+	game.Characters2,
+	game.Characters3,
+	game.Characters4,
+	game.Characters5,
+	game.Characters6,
+	game.Characters7,
+	game.Characters8,
+	game.Characters9,
+	game.RedDragon,
+	game.GreenDragon,
+	game.WhiteDragon,
+	game.EastWind,
+	game.SouthWind,
+	game.WestWind,
+	game.NorthWind,
+	game.FlowerPlumb,
+	game.FlowerOrchid,
+	game.FlowerChrysanthemum,
+	game.FlowerBamboo,
+	game.SeasonSpring,
+	game.SeasonSummer,
+	game.SeasonAutumn,
+	game.SeasonWinter,
 }
 
 var WindNames = map[game.Wind]string{
@@ -107,12 +102,12 @@ func DescribeAll(t []*game.TileCollection) [][]string {
 
 func Describe(t *game.TileCollection) []string {
 	descriptions := make([]string, 0)
-	for _, d := range TileDescriptors {
-		count, has := t.Tiles[d.Tile]
+	for _, tile := range TileOrder {
+		count, has := t.Tiles[tile]
 		if !has || count == 0 {
 			continue
 		}
-		text := fmt.Sprintf("%d× %s", count, d.Name)
+		text := fmt.Sprintf("%d× %s", count, game.TileNames[tile])
 		descriptions = append(descriptions, text)
 	}
 	return descriptions
@@ -140,9 +135,9 @@ func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int
 }
 
 func ToVector(t *game.TileCollection) []int {
-	tileVector := make([]int, len(TileDescriptors))
-	for i, d := range TileDescriptors {
-		count, has := t.Tiles[d.Tile]
+	tileVector := make([]int, len(TileOrder))
+	for i, tile := range TileOrder {
+		count, has := t.Tiles[tile]
 		if !has {
 			count = 0
 		}

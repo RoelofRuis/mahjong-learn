@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 func (m *StateMachine) Transition() {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -72,10 +74,15 @@ func TryDealTile(g *Game) *State {
 
 func ReactToTile(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 1)
-	var a = []PlayerAction{
-		{
-			Name: "Discard a tile",
-		},
+
+	a := make([]PlayerAction, 0)
+	// TODO: fix the order of returned tiles, otherwise actions are undefined
+	for t, c := range g.Players[g.ActiveSeat].Concealed.Tiles {
+		if c < 1 {
+			continue
+		}
+
+		a = append(a, PlayerAction{Name: fmt.Sprintf("Discard a %s", TileNames[t])})
 	}
 
 	m[g.ActiveSeat] = a
