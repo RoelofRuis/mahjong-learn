@@ -46,6 +46,23 @@ func (s *Server) handleShow(r *http.Request, stateMachine *game.StateMachine) *R
 }
 
 func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) *Response {
-	// TODO: implement
-	return &Response{}
+	err := stateMachine.Transition(nil)
+	if err != nil {
+		return &Response{
+			StatusCode: http.StatusBadRequest,
+			Error: err,
+		}
+	}
+
+	return &Response{
+		StatusCode: http.StatusAccepted,
+		Data: &struct {
+			Message  string
+			Id       uint64
+			Location string
+		}{
+			Message:  "Action executed",
+			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id),
+		},
+	}
 }
