@@ -23,12 +23,10 @@ func (m *StateMachine) View() (Game, State, map[Seat][]PlayerAction) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 
-	var playerActions map[Seat][]PlayerAction
-	if m.state.PlayerActions == nil {
-		playerActions = make(map[Seat][]PlayerAction, 0)
+	var playerActions = make(map[Seat][]PlayerAction)
+	if m.state.PlayerActions != nil {
+		playerActions = m.state.PlayerActions(m.game)
 	}
-
-	playerActions = m.state.PlayerActions(m.game)
 
 	return *m.game, *m.state, playerActions
 }
