@@ -5,17 +5,51 @@ import (
 	"sort"
 )
 
-func (m *StateMachine) Transition() {
+func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
+	if m.state.TransferAction == nil {
+		return m.executePlayerActions(selectedActions)
+	}
+
 	for {
 		if m.state.TransferAction == nil {
-			break
+			return nil
 		}
 		m.state = m.state.TransferAction(m.game)
 	}
-	// TODO: handle player actions
+}
+
+func (m *StateMachine) executePlayerActions(selectedActions map[Seat]int) error {
+	if selectedActions == nil {
+		return fmt.Errorf("a nil actions map was provided")
+	}
+
+	available := m.state.PlayerActions(m.game)
+
+	pickedActions := make(map[Seat]PlayerAction)
+	for seat, actions := range available {
+		selected, has := selectedActions[seat]
+		if !has {
+			return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
+		}
+		if selected < 0 || selected >= len(actions) {
+			return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions) - 1)
+		}
+		pickedActions[seat] = actions[selected]
+	}
+
+	if len(pickedActions) == 1 {
+		for _, a := range pickedActions {
+			m.state = a.TransferAction(m.game)
+			return nil
+		}
+	}
+
+	// TODO: if multiple seats declared an action, determine which actions to execute (maybe len 1 case can be merged eventually)
+
+	return nil
 }
 
 // If the StateMachine is viewed, internals should be exposed in a consistent manner, so one function returns everything.
