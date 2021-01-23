@@ -10,9 +10,19 @@ type StateMachine struct {
 }
 
 type PlayerAction struct {
+	// Used for sorting a list of actions, has to be unique within a list.
+	Index int
+	// Name to be displayed in human readable format.
 	Name string
+
+	// Transfer to next state via action if this player action is picked.
 	TransferAction Action
 }
+
+type ByIndex []PlayerAction
+func (a ByIndex) Len() int { return len(a) }
+func (a ByIndex) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByIndex) Less(i, j int) bool { return a[i].Index < a[j].Index }
 
 type Action func(*Game) *State
 
@@ -20,7 +30,7 @@ type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// TransferRandom to next state via action, or nil if player input is required.
+	// Transfer to next state via action, or nil if player input is required.
 	TransferAction Action
 	// Show required player actions. This requires TransferAction to be nil.
 	PlayerActions func(*Game) map[Seat][]PlayerAction

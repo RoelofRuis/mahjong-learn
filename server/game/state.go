@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 func (m *StateMachine) Transition() {
 	m.lock.Lock()
@@ -76,14 +79,15 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 1)
 
 	a := make([]PlayerAction, 0)
-	// TODO: fix the order of returned tiles, otherwise actions are undefined
 	for t, c := range g.Players[g.ActiveSeat].Concealed.Tiles {
 		if c < 1 {
 			continue
 		}
 
-		a = append(a, PlayerAction{Name: fmt.Sprintf("Discard a %s", TileNames[t])})
+		a = append(a, PlayerAction{Index: int(t), Name: fmt.Sprintf("Discard a %s", TileNames[t])})
 	}
+
+	sort.Sort(ByIndex(a))
 
 	m[g.ActiveSeat] = a
 
