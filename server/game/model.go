@@ -5,6 +5,8 @@ import "sync"
 type StateMachine struct {
 	lock sync.RWMutex
 
+	Id uint64
+
 	state *State
 	game  *Game
 }
@@ -37,8 +39,6 @@ type State struct {
 }
 
 type Game struct {
-	Id uint64
-
 	PrevalentWind Wind
 	Wall          *TileCollection
 	Players       map[Seat]*Player

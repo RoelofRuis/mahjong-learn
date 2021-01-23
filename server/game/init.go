@@ -10,7 +10,6 @@ func NewGameStateMachine(id uint64) *StateMachine {
 	tileSet := NewMahjongSet()
 
 	g := &Game{
-		Id:            id,
 		PrevalentWind: East,
 		Wall:          tileSet,
 		Players:       players,
@@ -18,6 +17,7 @@ func NewGameStateMachine(id uint64) *StateMachine {
 	}
 
 	return &StateMachine{
+		Id: id,
 		state: StateNewGame,
 		game:  g,
 	}
