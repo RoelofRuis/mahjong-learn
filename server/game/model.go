@@ -5,10 +5,14 @@ import "sync"
 type StateMachine struct {
 	lock sync.RWMutex
 
-	Id uint64
+	id uint64
 
 	state *State
 	game  *Game
+}
+
+func (m *StateMachine) Id() uint64 {
+	return m.id
 }
 
 type PlayerAction struct {

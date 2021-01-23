@@ -62,7 +62,7 @@ func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) 
 			Location string
 		}{
 			Message:  "Action executed",
-			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id),
+			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id()),
 		},
 	}
 }

@@ -80,7 +80,7 @@ type HumanView struct {
 func View(stateMachine *game.StateMachine) *HumanView {
 	g, s, a := stateMachine.View()
 	return &HumanView{
-		Id:            stateMachine.Id,
+		Id:            stateMachine.Id(),
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
