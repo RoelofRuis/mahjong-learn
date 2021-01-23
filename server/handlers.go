@@ -10,13 +10,13 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
 		Data: &struct {
-			Message  string
-			Version  string
-			Location string
+			Message string
+			Version string
+			NewGame string
 		}{
-			Message:  "Mahjong Game API",
-			Version:  "0.1",
-			Location: fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
+			Message: "Mahjong Game API",
+			Version: "0.1",
+			NewGame: fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
 		},
 	}
 }
@@ -45,7 +45,7 @@ func (s *Server) handleShow(r *http.Request, stateMachine *game.StateMachine) *R
 	}
 }
 
-func (s *Server) handleAdvance(r *http.Request, stateMachine *game.StateMachine) *Response {
+func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) *Response {
 	// TODO: implement
 	return &Response{}
 }

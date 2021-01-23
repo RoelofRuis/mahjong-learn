@@ -85,6 +85,8 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 		a = append(a, PlayerAction{Index: int(t), Name: fmt.Sprintf("Discard a %s", TileNames[t])})
 	}
 
+	// TODO: check whether player can declare kong or mahjong and add to available actions
+
 	sort.Sort(ByIndex(a))
 
 	m[g.ActiveSeat] = a

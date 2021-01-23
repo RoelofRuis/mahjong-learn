@@ -21,18 +21,18 @@ type Server struct {
 
 func NewPaths() *Paths {
 	return &Paths{
-		Index:   "/",
-		New:     "/new",
-		Game:    "/game/",
-		Advance: "/advance/",
+		Index:  "/",
+		New:    "/new",
+		Game:   "/game/",
+		Action: "/action/",
 	}
 }
 
 type Paths struct {
-	Index   string
-	New     string
-	Game    string
-	Advance string
+	Index  string
+	New    string
+	Game   string
+	Action string
 }
 
 type Response struct {
@@ -57,8 +57,8 @@ func (s *Server) GetDomain(includeScheme bool) string {
 func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withGameStateMachine(s.handleShow)))
-	s.Router.HandleFunc(s.Paths.Advance, s.asJsonResponse(s.withGameStateMachine(s.handleAdvance)))
+	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withStateMachine(s.handleShow)))
+	s.Router.HandleFunc(s.Paths.Action, s.asJsonResponse(s.withStateMachine(s.handleAction)))
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +87,7 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 	}
 }
 
-func (s *Server) withGameStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) func(r *http.Request) *Response {
+func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) func(r *http.Request) *Response {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
