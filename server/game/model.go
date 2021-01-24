@@ -71,14 +71,17 @@ type Action interface {
 type Discard struct {
 	Tile Tile
 }
+
 func (d Discard) ActionIndex() int { return 1 }
 
-type DoNothing struct {}
+type DoNothing struct{}
+
 func (d DoNothing) ActionIndex() int { return 2 }
 
 type Seat int
 
 type Wind int
+
 const (
 	East  Wind = 0
 	South Wind = 1
@@ -87,6 +90,7 @@ const (
 )
 
 type Tile int
+
 const (
 	Bamboo1             Tile = 1
 	Bamboo2             Tile = 2

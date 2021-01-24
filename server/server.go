@@ -21,16 +21,16 @@ type Server struct {
 
 func NewPaths() *Paths {
 	return &Paths{
-		Index:  "/",
-		New:    "/new",
-		Game:   "/game/",
+		Index: "/",
+		New:   "/new",
+		Game:  "/game/",
 	}
 }
 
 type Paths struct {
-	Index  string
-	New    string
-	Game   string
+	Index string
+	New   string
+	Game  string
 }
 
 type Response struct {
@@ -58,7 +58,7 @@ func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.handleMethods(map[string]RequestHandler{
-		http.MethodGet: s.withStateMachine(s.handleShow),
+		http.MethodGet:  s.withStateMachine(s.handleShow),
 		http.MethodPost: s.withStateMachine(s.handleAction),
 	})))
 }
@@ -133,9 +133,9 @@ func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandle
 	return func(r *http.Request) *Response {
 		handler, has := handlers[r.Method]
 		if !has {
-			return &Response {
+			return &Response{
 				StatusCode: http.StatusBadRequest,
-				Error: fmt.Errorf("endpoint is unable to handle %s requests", r.Method),
+				Error:      fmt.Errorf("endpoint is unable to handle %s requests", r.Method),
 			}
 		}
 
@@ -144,7 +144,7 @@ func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandle
 			if err != nil {
 				return &Response{
 					StatusCode: http.StatusBadRequest,
-					Error: fmt.Errorf("unable to parse form: %s", err.Error()),
+					Error:      fmt.Errorf("unable to parse form: %s", err.Error()),
 				}
 			}
 		}

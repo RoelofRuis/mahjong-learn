@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	stateNewGame *State
-	stateNextRound *State
-	stateNextTurn *State
-	stateTileReceived *State
+	stateNewGame       *State
+	stateNextRound     *State
+	stateNextTurn      *State
+	stateTileReceived  *State
 	stateTileDiscarded *State
 )
 
@@ -129,7 +129,7 @@ func tileReceivedActions(g *Game) map[Seat][]PlayerAction {
 		}
 
 		a = append(a, PlayerAction{
-			Name:           fmt.Sprintf("Discard a %s", TileNames[t]),
+			Name:   fmt.Sprintf("Discard a %s", TileNames[t]),
 			Action: Discard{Tile: t},
 		})
 	}
@@ -163,7 +163,7 @@ func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 		a := make([]PlayerAction, 0)
 
 		a = append(a, PlayerAction{
-			Name: fmt.Sprintf("Do nothing"),
+			Name:   fmt.Sprintf("Do nothing"),
 			Action: DoNothing{},
 		})
 
@@ -178,7 +178,7 @@ func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error) {
 	// TODO: handle actions
 
-	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1 % 4)
+	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1%4)
 
 	return stateNextTurn, nil
 }
