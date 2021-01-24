@@ -58,23 +58,23 @@ var WindNames = map[game.Wind]string{
 }
 
 type PlayerView struct {
-	Actions map[int]string `json:"actions"`
-	Wind      string     `json:"wind"`
-	Concealed []string   `json:"hand"`
-	Exposed   [][]string `json:"exposed"`
-	Discarded []string   `json:"discarded"`
+	Actions   map[int]string `json:"actions"`
+	Wind      string         `json:"wind"`
+	Concealed []string       `json:"hand"`
+	Exposed   [][]string     `json:"exposed"`
+	Discarded []string       `json:"discarded"`
 }
 
 type HumanView struct {
-	Id              uint64        `json:"id"`
-	StateName       string        `json:"state_name"`
-	PrevalentWind   string        `json:"prevalent_wind"`
-	ActivePlayer    int           `json:"active_player"`
-	Player1         PlayerView    `json:"player_1"`
-	Player2         PlayerView    `json:"player_2"`
-	Player3         PlayerView    `json:"player_3"`
-	Player4         PlayerView    `json:"player_4"`
-	Wall            []string      `json:"wall"`
+	Id            uint64     `json:"id"`
+	StateName     string     `json:"state_name"`
+	PrevalentWind string     `json:"prevalent_wind"`
+	ActivePlayer  int        `json:"active_player"`
+	Player1       PlayerView `json:"player_1"`
+	Player2       PlayerView `json:"player_2"`
+	Player3       PlayerView `json:"player_3"`
+	Player4       PlayerView `json:"player_4"`
+	Wall          []string   `json:"wall"`
 }
 
 func View(stateMachine *game.StateMachine) *HumanView {
@@ -84,10 +84,10 @@ func View(stateMachine *game.StateMachine) *HumanView {
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
-		Player1: DescribePlayer(g, a, 0),
-		Player2: DescribePlayer(g, a, 1),
-		Player3: DescribePlayer(g, a, 2),
-		Player4: DescribePlayer(g, a, 3),
+		Player1:       DescribePlayer(g, a, 0),
+		Player2:       DescribePlayer(g, a, 1),
+		Player3:       DescribePlayer(g, a, 2),
+		Player4:       DescribePlayer(g, a, 3),
 		Wall:          Describe(g.Wall),
 	}
 }
@@ -116,7 +116,7 @@ func Describe(t *game.TileCollection) []string {
 func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int) PlayerView {
 	seat := game.Seat(player)
 	actions, has := a[seat]
-	if ! has {
+	if !has {
 		actions = make([]game.PlayerAction, 0)
 	}
 
@@ -126,7 +126,7 @@ func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int
 	}
 
 	return PlayerView{
-		Actions: actionMap,
+		Actions:   actionMap,
 		Wind:      WindNames[g.Players[seat].SeatWind],
 		Concealed: Describe(g.Players[seat].Concealed),
 		Exposed:   DescribeAll(g.Players[seat].Exposed),

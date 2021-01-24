@@ -43,7 +43,7 @@ func (t *TileCollection) Size() int {
 
 func (t *TileCollection) Transfer(tile Tile, target *TileCollection) {
 	n, has := t.Tiles[tile]
-	if !has || n == 0{
+	if !has || n == 0 {
 		return
 	}
 

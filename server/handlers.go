@@ -50,7 +50,7 @@ func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) 
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
-			Error: err,
+			Error:      err,
 		}
 	}
 

@@ -35,7 +35,7 @@ func (m *StateMachine) executePlayerActions(selectedActions map[Seat]int) error 
 			return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
 		}
 		if selected < 0 || selected >= len(actions) {
-			return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions) - 1)
+			return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions)-1)
 		}
 		pickedActions[seat] = actions[selected]
 	}
@@ -90,9 +90,9 @@ var StateTileReceived = &State{
 }
 
 var StateTileDiscarded = &State{
-	Name: "Tile Discarded",
+	Name:           "Tile Discarded",
 	TransferAction: nil,
-	PlayerActions: ReactToDiscard,
+	PlayerActions:  ReactToDiscard,
 }
 
 func Initialize(g *Game) *State {
@@ -123,8 +123,8 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 		}
 
 		a = append(a, PlayerAction{
-			Index: int(t),
-			Name: fmt.Sprintf("Discard a %s", TileNames[t]),
+			Index:          int(t),
+			Name:           fmt.Sprintf("Discard a %s", TileNames[t]),
 			TransferAction: DiscardTile(t),
 		})
 	}

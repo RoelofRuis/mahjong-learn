@@ -17,7 +17,7 @@ func NewGameStateMachine(id uint64) *StateMachine {
 	}
 
 	return &StateMachine{
-		id: id,
+		id:    id,
 		state: StateNewGame,
 		game:  g,
 	}

@@ -26,8 +26,9 @@ type PlayerAction struct {
 }
 
 type ByIndex []PlayerAction
-func (a ByIndex) Len() int { return len(a) }
-func (a ByIndex) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+func (a ByIndex) Len() int           { return len(a) }
+func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByIndex) Less(i, j int) bool { return a[i].Index < a[j].Index }
 
 type Action func(*Game) *State
@@ -120,49 +121,49 @@ const (
 	SeasonWinter        Tile = 63
 )
 
-var TileNames = map[Tile]string {
-	Bamboo1: "Bamboo 1",
-	Bamboo2: "Bamboo 2",
-	Bamboo3: "Bamboo 3",
-	Bamboo4: "Bamboo 4",
-	Bamboo5: "Bamboo 5",
-	Bamboo6: "Bamboo 6",
-	Bamboo7: "Bamboo 7",
-	Bamboo8: "Bamboo 8",
-	Bamboo9: "Bamboo 1",
-	Circles1: "Circles 1",
-	Circles2: "Circles 2",
-	Circles3: "Circles 3",
-	Circles4: "Circles 4",
-	Circles5: "Circles 5",
-	Circles6: "Circles 6",
-	Circles7: "Circles 7",
-	Circles8: "Circles 8",
-	Circles9: "Circles 9",
-	Characters1: "Characters 1",
-	Characters2: "Characters 2",
-	Characters3: "Characters 3",
-	Characters4: "Characters 4",
-	Characters5: "Characters 5",
-	Characters6: "Characters 6",
-	Characters7: "Characters 7",
-	Characters8: "Characters 8",
-	Characters9: "Characters 9",
-	RedDragon: "Red Dragon",
-	GreenDragon: "Green Dragon",
-	WhiteDragon: "White Dragon",
-	EastWind: "East Wind",
-	SouthWind: "South Wind",
-	WestWind: "West Wind",
-	NorthWind: "North Wind",
-	FlowerPlumb: "Plumb (flower)",
-	FlowerOrchid: "Orchid (flower)",
+var TileNames = map[Tile]string{
+	Bamboo1:             "Bamboo 1",
+	Bamboo2:             "Bamboo 2",
+	Bamboo3:             "Bamboo 3",
+	Bamboo4:             "Bamboo 4",
+	Bamboo5:             "Bamboo 5",
+	Bamboo6:             "Bamboo 6",
+	Bamboo7:             "Bamboo 7",
+	Bamboo8:             "Bamboo 8",
+	Bamboo9:             "Bamboo 1",
+	Circles1:            "Circles 1",
+	Circles2:            "Circles 2",
+	Circles3:            "Circles 3",
+	Circles4:            "Circles 4",
+	Circles5:            "Circles 5",
+	Circles6:            "Circles 6",
+	Circles7:            "Circles 7",
+	Circles8:            "Circles 8",
+	Circles9:            "Circles 9",
+	Characters1:         "Characters 1",
+	Characters2:         "Characters 2",
+	Characters3:         "Characters 3",
+	Characters4:         "Characters 4",
+	Characters5:         "Characters 5",
+	Characters6:         "Characters 6",
+	Characters7:         "Characters 7",
+	Characters8:         "Characters 8",
+	Characters9:         "Characters 9",
+	RedDragon:           "Red Dragon",
+	GreenDragon:         "Green Dragon",
+	WhiteDragon:         "White Dragon",
+	EastWind:            "East Wind",
+	SouthWind:           "South Wind",
+	WestWind:            "West Wind",
+	NorthWind:           "North Wind",
+	FlowerPlumb:         "Plumb (flower)",
+	FlowerOrchid:        "Orchid (flower)",
 	FlowerChrysanthemum: "Chrysanthemum (flower)",
-	FlowerBamboo: "Bamboo (flower)",
-	SeasonSpring: "Spring (season)",
-	SeasonSummer: "Summer (season)",
-	SeasonAutumn: "Autumn (season)",
-	SeasonWinter: "Winter (season)",
+	FlowerBamboo:        "Bamboo (flower)",
+	SeasonSpring:        "Spring (season)",
+	SeasonSummer:        "Summer (season)",
+	SeasonAutumn:        "Autumn (season)",
+	SeasonWinter:        "Winter (season)",
 }
 
 func IsBonusTile(t Tile) bool {
