@@ -79,9 +79,10 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 			return err
 		}
 		m.state = state
+		playerActions = nil // only use player actions in first transition
 
-		// transition until we are in a state where another player action is required
-		if m.state.PlayerActions != nil {
+		// transition until we are in a state where we cannot transition further, or another player action is required
+		if m.state.Transition == nil || m.state.PlayerActions != nil {
 			return nil
 		}
 	}
