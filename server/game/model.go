@@ -16,8 +16,6 @@ func (m *StateMachine) Id() uint64 {
 }
 
 type PlayerAction struct {
-	// Used for sorting a list of actions, has to be unique within a list. (FIXME how else might this be determined..?)
-	Index int
 	// Name to be displayed in human readable format.
 	Name string
 
@@ -29,7 +27,7 @@ type ByIndex []PlayerAction
 
 func (a ByIndex) Len() int           { return len(a) }
 func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByIndex) Less(i, j int) bool { return a[i].Index < a[j].Index }
+func (a ByIndex) Less(i, j int) bool { return a[i].Action.ActionIndex() < a[j].Action.ActionIndex() }
 
 // Transfer to next state using given actions. Return next state or an error if transferring is not possible.
 type StateTransfer func(*Game, map[Seat]Action) (*State, error)
@@ -65,16 +63,18 @@ type TileCollection struct {
 	Tiles map[Tile]int
 }
 
-type Action struct {
-	Type ActionType
-	Args map[string]int
+type Action interface {
+	// ActionIndex, has to be unique among all defined actions (to guarantee a stable sorting)
+	ActionIndex() int
 }
 
-type ActionType int
-const (
-	Discard ActionType = 1
-	DoNothing ActionType = 10
-)
+type Discard struct {
+	Tile Tile
+}
+func (d Discard) ActionIndex() int { return 1 }
+
+type DoNothing struct {}
+func (d DoNothing) ActionIndex() int { return 2 }
 
 type Seat int
 

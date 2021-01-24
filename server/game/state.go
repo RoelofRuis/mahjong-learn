@@ -15,13 +15,19 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 			return nil // end state
 		}
 
-		// move forward without selecting actions
-		state, err := m.state.Transfer(m.game, nil)
-		if err != nil {
-			return err
+		for {
+			// move forward without selecting actions
+			state, err := m.state.Transfer(m.game, nil)
+			if err != nil {
+				return err
+			}
+			m.state = state
+
+			if m.state.PlayerActions != nil {
+				// move forward until we are in a state where a player action is required
+				return nil
+			}
 		}
-		m.state = state
-		return nil
 	}
 
 	if selectedActions == nil {
@@ -124,9 +130,8 @@ func TileReceivedReactions(g *Game) map[Seat][]PlayerAction {
 		}
 
 		a = append(a, PlayerAction{
-			Index:          int(t),
 			Name:           fmt.Sprintf("Discard a %s", TileNames[t]),
-			Action: Action{Type: Discard, Args: map[string]int{"tile": int(t)}},
+			Action: Discard{Tile: t},
 		})
 	}
 
@@ -140,10 +145,13 @@ func TileReceivedReactions(g *Game) map[Seat][]PlayerAction {
 }
 
 func HandleTileReceived(g *Game, actions map[Seat]Action) (*State, error) {
-	// TODO: this requires cleaning up!
-	g.Players[g.ActiveSeat].Concealed.Transfer(Tile(actions[g.ActiveSeat].Args["tile"]), g.Players[g.ActiveSeat].Discarded)
-
-	return StateTileDiscarded, nil
+	switch a := actions[g.ActiveSeat].(type) {
+	case Discard:
+		g.Players[g.ActiveSeat].Concealed.Transfer(a.Tile, g.Players[g.ActiveSeat].Discarded)
+		return StateTileDiscarded, nil
+	default:
+		return nil, fmt.Errorf("illegal action %+v", a)
+	}
 }
 
 func TileDiscardedReactions(g *Game) map[Seat][]PlayerAction {
@@ -153,9 +161,8 @@ func TileDiscardedReactions(g *Game) map[Seat][]PlayerAction {
 		a := make([]PlayerAction, 0)
 
 		a = append(a, PlayerAction{
-			Index: 0,
 			Name: fmt.Sprintf("Do nothing"),
-			Action: Action{Type: DoNothing, Args: map[string]int{}},
+			Action: DoNothing{},
 		})
 
 		// TODO: check whether player can declare pung, kong, chow or mahjong and add to available actions
