@@ -14,5 +14,11 @@ def send_data(game_id: int, data: map):
     request.urlopen(req)
 
 
+# start new game
 new_game()
+
+# pick the first action for player 1
 send_data(1, {"1": 0})
+
+# pick the first actions for all players
+send_data(1, {"1": 0, "2": 0, "3": 0, "4": 0})

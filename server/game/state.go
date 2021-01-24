@@ -30,6 +30,11 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		}
 	}
 
+	if m.state.Transition == nil {
+		// game is in an end state
+		return nil
+	}
+
 	if selectedActions == nil {
 		// actions are required but none provided
 		return fmt.Errorf("a nil actions map was provided")
