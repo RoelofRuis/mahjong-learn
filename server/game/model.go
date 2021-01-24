@@ -30,7 +30,7 @@ func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByIndex) Less(i, j int) bool { return a[i].Action.ActionIndex() < a[j].Action.ActionIndex() }
 
 // Transition to next state using given actions. Return next state or an error if transferring is not possible.
-type StateTransfer func(*Game, map[Seat]Action) (*State, error)
+type StateTransition func(*Game, map[Seat]Action) (*State, error)
 
 type State struct {
 	// Name just to display human readable information.
@@ -40,7 +40,7 @@ type State struct {
 	PlayerActions func(*Game) map[Seat][]PlayerAction
 
 	// Transition to next state. Selected actions are passed if applicable.
-	Transition StateTransfer
+	Transition StateTransition
 }
 
 type Game struct {

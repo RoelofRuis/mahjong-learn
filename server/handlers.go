@@ -70,7 +70,7 @@ func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) 
 			Id       uint64
 			Location string
 		}{
-			Message:  "StateTransfer executed",
+			Message:  "StateTransition executed",
 			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id()),
 		},
 	}
