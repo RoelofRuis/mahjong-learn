@@ -89,6 +89,12 @@ var StateTileReceived = &State{
 	PlayerActions:  ReactToTile,
 }
 
+var StateTileDiscarded = &State{
+	Name: "Tile Discarded",
+	TransferAction: nil,
+	PlayerActions: ReactToDiscard,
+}
+
 func Initialize(g *Game) *State {
 	g.DealTiles(13, 0)
 	g.DealTiles(13, 1)
@@ -116,7 +122,11 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 			continue
 		}
 
-		a = append(a, PlayerAction{Index: int(t), Name: fmt.Sprintf("Discard a %s", TileNames[t])})
+		a = append(a, PlayerAction{
+			Index: int(t),
+			Name: fmt.Sprintf("Discard a %s", TileNames[t]),
+			TransferAction: DiscardTile(t),
+		})
 	}
 
 	// TODO: check whether player can declare kong or mahjong and add to available actions
@@ -124,6 +134,22 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 	sort.Sort(ByIndex(a))
 
 	m[g.ActiveSeat] = a
+
+	return m
+}
+
+func DiscardTile(tile Tile) func(g *Game) *State {
+	return func(g *Game) *State {
+		g.Players[g.ActiveSeat].Concealed.Transfer(tile, g.Players[g.ActiveSeat].Discarded)
+
+		return StateTileDiscarded
+	}
+}
+
+func ReactToDiscard(g *Game) map[Seat][]PlayerAction {
+	m := make(map[Seat][]PlayerAction, 4)
+
+	// TODO: implement
 
 	return m
 }
