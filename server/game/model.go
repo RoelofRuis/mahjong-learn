@@ -36,7 +36,7 @@ type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// Required player actions. If nil the state is immediately transferred using Transition
+	// Required player actions. May be nil if this state requires no player actions.
 	PlayerActions func(*Game) map[Seat][]PlayerAction
 
 	// Transition to next state. Selected actions are passed if applicable.
