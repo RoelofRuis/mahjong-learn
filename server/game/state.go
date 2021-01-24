@@ -5,6 +5,46 @@ import (
 	"sort"
 )
 
+var (
+	stateNewGame *State
+	stateNextRound *State
+	stateNextTurn *State
+	stateTileReceived *State
+	stateTileDiscarded *State
+)
+
+func init() {
+	stateNewGame = &State{
+		Name:          "New Game",
+		PlayerActions: nil,
+		Transition:    initialize,
+	}
+
+	stateNextRound = &State{
+		Name:          "Next Round",
+		PlayerActions: nil,
+		Transition:    nil,
+	}
+
+	stateNextTurn = &State{
+		Name:          "Next Turn",
+		PlayerActions: nil,
+		Transition:    tryDealTile,
+	}
+
+	stateTileReceived = &State{
+		Name:          "Tile Received",
+		PlayerActions: tileReceivedActions,
+		Transition:    handleTileReceivedActions,
+	}
+
+	stateTileDiscarded = &State{
+		Name:          "Tile Discarded",
+		PlayerActions: tileDiscardedActions,
+		Transition:    handleTileDiscardedActions,
+	}
+}
+
 func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -75,57 +115,27 @@ func (m *StateMachine) View() (Game, State, map[Seat][]PlayerAction) {
 	return *m.game, *m.state, playerActions
 }
 
-var StateNewGame = &State{
-	Name:          "New Game",
-	PlayerActions: nil,
-	Transition:    Initialize,
-}
-
-var StateNextRound = &State{
-	Name:          "Next Round",
-	PlayerActions: nil,
-	Transition:    nil,
-}
-
-var StateNextTurn = &State{
-	Name:          "Next Turn",
-	PlayerActions: nil,
-	Transition:    TryDealTile,
-}
-
-var StateTileReceived = &State{
-	Name:          "Tile Received",
-	PlayerActions: TileReceivedReactions,
-	Transition:    HandleTileReceived,
-}
-
-var StateTileDiscarded = &State{
-	Name:          "Tile Discarded",
-	PlayerActions: TileDiscardedReactions,
-	Transition:    nil,
-}
-
-func Initialize(g *Game, _ map[Seat]Action) (*State, error) {
+func initialize(g *Game, _ map[Seat]Action) (*State, error) {
 	g.DealTiles(13, 0)
 	g.DealTiles(13, 1)
 	g.DealTiles(13, 2)
 	g.DealTiles(13, 3)
 
-	return StateNextTurn, nil
+	return stateNextTurn, nil
 }
 
-func TryDealTile(g *Game, _ map[Seat]Action) (*State, error) {
+func tryDealTile(g *Game, _ map[Seat]Action) (*State, error) {
 	if g.Wall.Size() <= 14 {
 		// tally scores?
-		return StateNextRound, nil
+		return stateNextRound, nil
 	}
 
 	g.DealTiles(1, g.ActiveSeat)
 
-	return StateTileReceived, nil
+	return stateTileReceived, nil
 }
 
-func TileReceivedReactions(g *Game) map[Seat][]PlayerAction {
+func tileReceivedActions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 1)
 
 	a := make([]PlayerAction, 0)
@@ -149,17 +159,20 @@ func TileReceivedReactions(g *Game) map[Seat][]PlayerAction {
 	return m
 }
 
-func HandleTileReceived(g *Game, actions map[Seat]Action) (*State, error) {
+func handleTileReceivedActions(g *Game, actions map[Seat]Action) (*State, error) {
 	switch a := actions[g.ActiveSeat].(type) {
 	case Discard:
 		g.Players[g.ActiveSeat].Concealed.Transfer(a.Tile, g.Players[g.ActiveSeat].Discarded)
-		return StateTileDiscarded, nil
+		return stateTileDiscarded, nil
+
+		// TODO: handle other possible cases
+
 	default:
 		return nil, fmt.Errorf("illegal action %+v", a)
 	}
 }
 
-func TileDiscardedReactions(g *Game) map[Seat][]PlayerAction {
+func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 4)
 
 	for i := 0; i < 4; i++ {
@@ -176,4 +189,10 @@ func TileDiscardedReactions(g *Game) map[Seat][]PlayerAction {
 	}
 
 	return m
+}
+
+func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error) {
+	// TODO: handle actions
+
+	return stateNextTurn, nil
 }
