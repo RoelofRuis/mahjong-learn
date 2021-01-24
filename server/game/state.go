@@ -178,5 +178,7 @@ func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error) {
 	// TODO: handle actions
 
+	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1 % 4)
+
 	return stateNextTurn, nil
 }
