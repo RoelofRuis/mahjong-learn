@@ -29,18 +29,18 @@ func (a ByIndex) Len() int           { return len(a) }
 func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByIndex) Less(i, j int) bool { return a[i].Action.ActionIndex() < a[j].Action.ActionIndex() }
 
-// Transfer to next state using given actions. Return next state or an error if transferring is not possible.
+// Transition to next state using given actions. Return next state or an error if transferring is not possible.
 type StateTransfer func(*Game, map[Seat]Action) (*State, error)
 
 type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// Required player actions. If nil the state is immediately transferred using Transfer
+	// Required player actions. If nil the state is immediately transferred using Transition
 	PlayerActions func(*Game) map[Seat][]PlayerAction
 
-	// Transfer to next state. Selected actions are passed if applicable.
-	Transfer StateTransfer
+	// Transition to next state. Selected actions are passed if applicable.
+	Transition StateTransfer
 }
 
 type Game struct {

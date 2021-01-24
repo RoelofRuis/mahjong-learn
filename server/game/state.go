@@ -11,13 +11,13 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 
 	if m.state.PlayerActions == nil {
 		// no player actions required
-		if m.state.Transfer == nil {
+		if m.state.Transition == nil {
 			return nil // end state
 		}
 
 		for {
 			// move forward without selecting actions
-			state, err := m.state.Transfer(m.game, nil)
+			state, err := m.state.Transition(m.game, nil)
 			if err != nil {
 				return err
 			}
@@ -48,7 +48,7 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		pickedActions[seat] = actions[selected].Action
 	}
 
-	state, err := m.state.Transfer(m.game, pickedActions)
+	state, err := m.state.Transition(m.game, pickedActions)
 	if err != nil {
 		return err
 	}
@@ -73,31 +73,31 @@ func (m *StateMachine) View() (Game, State, map[Seat][]PlayerAction) {
 var StateNewGame = &State{
 	Name:          "New Game",
 	PlayerActions: nil,
-	Transfer:      Initialize,
+	Transition:    Initialize,
 }
 
 var StateNextRound = &State{
 	Name:          "Next Round",
 	PlayerActions: nil,
-	Transfer:      nil,
+	Transition:    nil,
 }
 
 var StateNextTurn = &State{
 	Name:          "Next Turn",
 	PlayerActions: nil,
-	Transfer:      TryDealTile,
+	Transition:    TryDealTile,
 }
 
 var StateTileReceived = &State{
 	Name:          "Tile Received",
 	PlayerActions: TileReceivedReactions,
-	Transfer:      HandleTileReceived,
+	Transition:    HandleTileReceived,
 }
 
 var StateTileDiscarded = &State{
 	Name:          "Tile Discarded",
 	PlayerActions: TileDiscardedReactions,
-	Transfer:      nil,
+	Transition:    nil,
 }
 
 func Initialize(g *Game, _ map[Seat]Action) (*State, error) {
