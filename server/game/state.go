@@ -14,6 +14,7 @@ var (
 )
 
 func init() {
+	// initialize states here to prevent loop in references
 	stateNewGame = &State{
 		Name:          "New Game",
 		PlayerActions: nil,
