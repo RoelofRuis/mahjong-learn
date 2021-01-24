@@ -69,6 +69,11 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := f(r)
 
+		if response.StatusCode == 0 {
+			http.Error(w, fmt.Sprint("handler returned incomplete Response: status code was not set"), http.StatusInternalServerError)
+			return
+		}
+
 		var data = response.Data
 
 		if response.Error != nil {
