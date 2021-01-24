@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game"
 	"net/http"
+	"strconv"
 )
 
 func (s *Server) handleIndex(_ *http.Request) *Response {
@@ -46,7 +47,15 @@ func (s *Server) handleShow(r *http.Request, stateMachine *game.StateMachine) *R
 }
 
 func (s *Server) handleAction(r *http.Request, stateMachine *game.StateMachine) *Response {
-	err := stateMachine.Transition(nil)
+	actionMap := make(map[game.Seat]int)
+	for i, playerKey := range []string{"1", "2", "3", "4"} {
+		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
+		if err == nil {
+			actionMap[game.Seat(i)] = int(playerAction)
+		}
+	}
+
+	err := stateMachine.Transition(actionMap)
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
