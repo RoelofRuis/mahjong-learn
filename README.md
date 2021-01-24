@@ -5,6 +5,7 @@
 - `bin` precompiled binaries
 - `server` code for the mahjong server
 - `api` python api code to interact with the server
+- `ml` files related to rl algorithm
 
 ### Server
 
