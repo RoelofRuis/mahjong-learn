@@ -149,7 +149,17 @@ func DiscardTile(tile Tile) func(g *Game) *State {
 func ReactToDiscard(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 4)
 
-	// TODO: implement
+	for i := 0; i < 4; i++ {
+		a := make([]PlayerAction, 0)
+
+		a = append(a, PlayerAction{
+			Index: 0,
+			Name: fmt.Sprintf("Do nothing"),
+			TransferAction: nil, // TODO: what should go here? we need another mechanism to decide this...
+		})
+
+		m[Seat(i)] = a
+	}
 
 	return m
 }
