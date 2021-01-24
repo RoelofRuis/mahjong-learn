@@ -49,57 +49,41 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if m.state.PlayerActions == nil {
-		// no player actions required
-		if m.state.Transition == nil {
-			return nil // end state
-		}
-
-		for {
-			// move forward without selecting actions
-			state, err := m.state.Transition(m.game, nil)
-			if err != nil {
-				return err
-			}
-			m.state = state
-
-			if m.state.PlayerActions != nil {
-				// move forward until we are in a state where a player action is required
-				return nil
-			}
-		}
-	}
-
 	if m.state.Transition == nil {
-		// game is in an end state
-		return nil
+		return nil // we cannot transition from this state
 	}
 
-	if selectedActions == nil {
-		// actions are required but none provided
-		return fmt.Errorf("a nil actions map was provided")
-	}
+	playerActions := make(map[Seat]Action)
 
-	// collect selected actions for all players
-	pickedActions := make(map[Seat]Action)
-	for seat, actions := range m.state.PlayerActions(m.game) {
-		selected, has := selectedActions[seat]
-		if !has {
-			return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
+	if m.state.PlayerActions != nil {
+		if selectedActions == nil {
+			return fmt.Errorf("a nil actions map was provided")
 		}
-		if selected < 0 || selected >= len(actions) {
-			return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions)-1)
+
+		for seat, actions := range m.state.PlayerActions(m.game) {
+			selected, has := selectedActions[seat]
+			if !has {
+				return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
+			}
+			if selected < 0 || selected >= len(actions) {
+				return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions)-1)
+			}
+			playerActions[seat] = actions[selected].Action
 		}
-		pickedActions[seat] = actions[selected].Action
 	}
 
-	state, err := m.state.Transition(m.game, pickedActions)
-	if err != nil {
-		return err
-	}
-	m.state = state
+	for {
+		state, err := m.state.Transition(m.game, playerActions)
+		if err != nil {
+			return err
+		}
+		m.state = state
 
-	return nil
+		// transition until we are in a state where another player action is required
+		if m.state.PlayerActions != nil {
+			return nil
+		}
+	}
 }
 
 // If the StateMachine is viewed, internals should be exposed in a consistent manner, so one function returns everything.
