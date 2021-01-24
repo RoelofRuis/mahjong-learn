@@ -136,6 +136,30 @@ const (
 	SeasonWinter        Tile = 63
 )
 
+func IsBamboo(t Tile) bool {
+	return t > 0 && t < 10
+}
+
+func IsCircle(t Tile) bool {
+	return t > 10 && t < 20
+}
+
+func IsCharacter(t Tile) bool {
+	return t > 20 && t < 30
+}
+
+func IsDragon(t Tile) bool {
+	return t >= 30 && t <= 32
+}
+
+func IsWind(t Tile) bool {
+	return t >= 40 && t <= 43
+}
+
+func IsBonusTile(t Tile) bool {
+	return t >= 50
+}
+
 var TileNames = map[Tile]string{
 	Bamboo1:             "Bamboo 1",
 	Bamboo2:             "Bamboo 2",
@@ -179,8 +203,4 @@ var TileNames = map[Tile]string{
 	SeasonSummer:        "Summer (season)",
 	SeasonAutumn:        "Autumn (season)",
 	SeasonWinter:        "Winter (season)",
-}
-
-func IsBonusTile(t Tile) bool {
-	return t >= 50
 }
