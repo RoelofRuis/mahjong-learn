@@ -1,9 +1,18 @@
 from urllib import request, parse
 
-data = {"1": 1}
-data = parse.urlencode(data).encode()
+SERVER_PORT = 8000
+SERVER_URL = f"http://localhost:{SERVER_PORT}"
 
-req = request.Request("http://localhost:8000/game/1", method="POST", data=data)
-resp = request.urlopen(req)
 
-print(resp)
+def new_game():
+    request.urlopen(f"{SERVER_URL}/new")
+
+
+def send_data(game_id: int, data: map):
+    encoded_data = parse.urlencode(data).encode()
+    req = request.Request(f"{SERVER_URL}/game/{game_id}", method="POST", data=encoded_data)
+    request.urlopen(req)
+
+
+new_game()
+send_data(1, {"1": 0})
