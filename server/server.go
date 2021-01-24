@@ -54,18 +54,22 @@ func (s *Server) GetDomain(includeScheme bool) string {
 	return fmt.Sprintf("%s:%s", s.Host, s.Port)
 }
 
+type RequestHandler func(*http.Request) *Response
+
 func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.withStateMachine(s.handleShow)))
-	s.Router.HandleFunc(s.Paths.Action, s.asJsonResponse(s.withStateMachine(s.handleAction)))
+	s.Router.HandleFunc(s.Paths.Action, s.asJsonResponse(s.handleMethods(map[string]RequestHandler{
+		http.MethodPost: s.withStateMachine(s.handleAction),
+	})))
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Router.ServeHTTP(w, r)
 }
 
-func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerFunc {
+func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := f(r)
 
@@ -92,7 +96,7 @@ func (s *Server) asJsonResponse(f func(r *http.Request) *Response) http.HandlerF
 	}
 }
 
-func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) func(r *http.Request) *Response {
+func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
@@ -124,5 +128,29 @@ func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.Sta
 		}
 
 		return f(r, g)
+	}
+}
+
+func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandler {
+	return func(r *http.Request) *Response {
+		handler, has := handlers[r.Method]
+		if !has {
+			return &Response {
+				StatusCode: http.StatusBadRequest,
+				Error: fmt.Errorf("endpoint is unable to handle %s requests", r.Method),
+			}
+		}
+
+		if r.Method == http.MethodPost {
+			err := r.ParseForm()
+			if err != nil {
+				return &Response{
+					StatusCode: http.StatusBadRequest,
+					Error: fmt.Errorf("unable to parse form: %s", err.Error()),
+				}
+			}
+		}
+
+		return handler(r)
 	}
 }
