@@ -16,13 +16,13 @@ func (m *StateMachine) Id() uint64 {
 }
 
 type PlayerAction struct {
-	// Used for sorting a list of actions, has to be unique within a list.
+	// Used for sorting a list of actions, has to be unique within a list. (FIXME how else might this be determined..?)
 	Index int
 	// Name to be displayed in human readable format.
 	Name string
 
-	// Transfer to next state via action if this player action is picked.
-	TransferAction Action
+	// Selected action.
+	Action Action
 }
 
 type ByIndex []PlayerAction
@@ -31,16 +31,18 @@ func (a ByIndex) Len() int           { return len(a) }
 func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByIndex) Less(i, j int) bool { return a[i].Index < a[j].Index }
 
-type Action func(*Game) *State
+// Transfer to next state using given actions. Return next state or an error if transferring is not possible.
+type StateTransfer func(*Game, map[Seat]Action) (*State, error)
 
 type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// Transfer to next state via action, or nil if player input is required.
-	TransferAction Action
-	// Show required player actions. This requires TransferAction to be nil.
+	// Required player actions. If nil the state is immediately transferred using Transfer
 	PlayerActions func(*Game) map[Seat][]PlayerAction
+
+	// Transfer to next state. Selected actions are passed if applicable.
+	Transfer StateTransfer
 }
 
 type Game struct {
@@ -63,10 +65,20 @@ type TileCollection struct {
 	Tiles map[Tile]int
 }
 
+type Action struct {
+	Type ActionType
+	Args map[string]int
+}
+
+type ActionType int
+const (
+	Discard ActionType = 1
+	DoNothing ActionType = 10
+)
+
 type Seat int
 
 type Wind int
-
 const (
 	East  Wind = 0
 	South Wind = 1
@@ -75,7 +87,6 @@ const (
 )
 
 type Tile int
-
 const (
 	Bamboo1             Tile = 1
 	Bamboo2             Tile = 2

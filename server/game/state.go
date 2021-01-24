@@ -9,27 +9,29 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if m.state.TransferAction == nil {
-		return m.executePlayerActions(selectedActions)
-	}
-
-	for {
-		if m.state.TransferAction == nil {
-			return nil
+	if m.state.PlayerActions == nil {
+		// no player actions required
+		if m.state.Transfer == nil {
+			return nil // end state
 		}
-		m.state = m.state.TransferAction(m.game)
-	}
-}
 
-func (m *StateMachine) executePlayerActions(selectedActions map[Seat]int) error {
+		// move forward without selecting actions
+		state, err := m.state.Transfer(m.game, nil)
+		if err != nil {
+			return err
+		}
+		m.state = state
+		return nil
+	}
+
 	if selectedActions == nil {
+		// actions are required but none provided
 		return fmt.Errorf("a nil actions map was provided")
 	}
 
-	available := m.state.PlayerActions(m.game)
-
-	pickedActions := make(map[Seat]PlayerAction)
-	for seat, actions := range available {
+	// collect selected actions for all players
+	pickedActions := make(map[Seat]Action)
+	for seat, actions := range m.state.PlayerActions(m.game) {
 		selected, has := selectedActions[seat]
 		if !has {
 			return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
@@ -37,17 +39,14 @@ func (m *StateMachine) executePlayerActions(selectedActions map[Seat]int) error 
 		if selected < 0 || selected >= len(actions) {
 			return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions)-1)
 		}
-		pickedActions[seat] = actions[selected]
+		pickedActions[seat] = actions[selected].Action
 	}
 
-	if len(pickedActions) == 1 {
-		for _, a := range pickedActions {
-			m.state = a.TransferAction(m.game)
-			return nil
-		}
+	state, err := m.state.Transfer(m.game, pickedActions)
+	if err != nil {
+		return err
 	}
-
-	// TODO: if multiple seats declared an action, determine which actions to execute (maybe len 1 case can be merged eventually)
+	m.state = state
 
 	return nil
 }
@@ -66,54 +65,56 @@ func (m *StateMachine) View() (Game, State, map[Seat][]PlayerAction) {
 }
 
 var StateNewGame = &State{
-	Name:           "New Game",
-	TransferAction: Initialize,
-	PlayerActions:  nil,
+	Name:          "New Game",
+	PlayerActions: nil,
+	Transfer:      Initialize,
 }
 
 var StateNextRound = &State{
-	Name:           "Next Round",
-	TransferAction: nil,
-	PlayerActions:  nil,
+	Name:          "Next Round",
+	PlayerActions: nil,
+	Transfer:      nil,
 }
 
 var StateNextTurn = &State{
-	Name:           "Next Turn",
-	TransferAction: TryDealTile,
-	PlayerActions:  nil,
+	Name:          "Next Turn",
+	PlayerActions: nil,
+	Transfer:      TryDealTile,
 }
 
 var StateTileReceived = &State{
-	Name:           "Tile Received",
-	TransferAction: nil,
-	PlayerActions:  ReactToTile,
+	Name:          "Tile Received",
+	PlayerActions: TileReceivedReactions,
+	Transfer:      HandleTileReceived,
 }
 
 var StateTileDiscarded = &State{
-	Name:           "Tile Discarded",
-	TransferAction: nil,
-	PlayerActions:  ReactToDiscard,
+	Name:          "Tile Discarded",
+	PlayerActions: TileDiscardedReactions,
+	Transfer:      nil,
 }
 
-func Initialize(g *Game) *State {
+func Initialize(g *Game, _ map[Seat]Action) (*State, error) {
 	g.DealTiles(13, 0)
 	g.DealTiles(13, 1)
 	g.DealTiles(13, 2)
 	g.DealTiles(13, 3)
-	return StateNextTurn
+
+	return StateNextTurn, nil
 }
 
-func TryDealTile(g *Game) *State {
+func TryDealTile(g *Game, _ map[Seat]Action) (*State, error) {
 	if g.Wall.Size() <= 14 {
 		// tally scores?
-		return StateNextRound
+		return StateNextRound, nil
 	}
 
 	g.DealTiles(1, g.ActiveSeat)
-	return StateTileReceived
+
+	return StateTileReceived, nil
 }
 
-func ReactToTile(g *Game) map[Seat][]PlayerAction {
+func TileReceivedReactions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 1)
 
 	a := make([]PlayerAction, 0)
@@ -125,7 +126,7 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 		a = append(a, PlayerAction{
 			Index:          int(t),
 			Name:           fmt.Sprintf("Discard a %s", TileNames[t]),
-			TransferAction: DiscardTile(t),
+			Action: Action{Type: Discard, Args: map[string]int{"tile": int(t)}},
 		})
 	}
 
@@ -138,15 +139,14 @@ func ReactToTile(g *Game) map[Seat][]PlayerAction {
 	return m
 }
 
-func DiscardTile(tile Tile) func(g *Game) *State {
-	return func(g *Game) *State {
-		g.Players[g.ActiveSeat].Concealed.Transfer(tile, g.Players[g.ActiveSeat].Discarded)
+func HandleTileReceived(g *Game, actions map[Seat]Action) (*State, error) {
+	// TODO: this requires cleaning up!
+	g.Players[g.ActiveSeat].Concealed.Transfer(Tile(actions[g.ActiveSeat].Args["tile"]), g.Players[g.ActiveSeat].Discarded)
 
-		return StateTileDiscarded
-	}
+	return StateTileDiscarded, nil
 }
 
-func ReactToDiscard(g *Game) map[Seat][]PlayerAction {
+func TileDiscardedReactions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 4)
 
 	for i := 0; i < 4; i++ {
@@ -155,8 +155,10 @@ func ReactToDiscard(g *Game) map[Seat][]PlayerAction {
 		a = append(a, PlayerAction{
 			Index: 0,
 			Name: fmt.Sprintf("Do nothing"),
-			TransferAction: nil, // TODO: what should go here? we need another mechanism to decide this...
+			Action: Action{Type: DoNothing, Args: map[string]int{}},
 		})
+
+		// TODO: check whether player can declare pung, kong, chow or mahjong and add to available actions
 
 		m[Seat(i)] = a
 	}
