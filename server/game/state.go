@@ -50,8 +50,8 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if m.state.Transition == nil {
-		return nil // we cannot transition from this state
+	if m.state.IsTerminal() {
+		return nil
 	}
 
 	playerActions := make(map[Seat]Action)
@@ -81,8 +81,8 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		m.state = state
 		playerActions = nil // only use player actions in first transition
 
-		// transition until we are in a state where we cannot transition further, or another player action is required
-		if m.state.Transition == nil || m.state.PlayerActions != nil {
+		// transition until we are in a terminal state, or another player action is required
+		if m.state.IsTerminal() || m.state.PlayerActions != nil {
 			return nil
 		}
 	}

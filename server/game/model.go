@@ -43,6 +43,10 @@ type State struct {
 	Transition StateTransition
 }
 
+func (s *State) IsTerminal() bool {
+	return s.Transition == nil
+}
+
 type Game struct {
 	// TODO: make fields private and only allow access using methods
 	PrevalentWind Wind
