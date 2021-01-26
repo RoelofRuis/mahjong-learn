@@ -26,5 +26,9 @@ data:
 	- 1 als het spel is afgelopen, anders 0.
 
 vragen:
-    - Hoe regelen we een variable action space? (Bijv. de ene beurt kan ik kiezen uit 4 verschillende acties, en de volgende uit 9?) Ik las dat het mogelijk was om dit te embedden, heb jij hier ideeën over?
-    - Moet er een of andere heuristische functie zijn die de reward schat voor acties die geen scoreverandering opleveren? Dit is bij Mahjong het overgrote deel van de acties, scores worden alleen tussen de rondes verrekend. Zo nee, krijgen ze dan score 0 of is er nog een andere methode?
+- Hoe regelen we een variable action space? (Bijv. de ene beurt kan ik kiezen uit 4 verschillende acties, en de volgende uit 9?) Ik las dat het mogelijk was om dit te embedden, heb jij hier ideeën over?
+    - Ik zit met de perceptie om het te laten passen binnen 1 action space. Stel voor dat die 4 en 9 verschillende acties geen overlap hebben en het alle actie spaces zijn die nodig zijn, dan krijg je dus 1 action space met 13 acties. Doet hij een actie die niet mag op dat moment, dan krijgt hij straf reward en dan moet als dat nodig is het spel eindigen.
+    - Kan dit praktisch met Majong, anders moet ik terug naar de tekentafel?
+- Moet er een of andere heuristische functie zijn die de reward schat voor acties die geen scoreverandering opleveren? Dit is bij Mahjong het overgrote deel van de acties, scores worden alleen tussen de rondes verrekend. Zo nee, krijgen ze dan score 0 of is er nog een andere methode?:
+    - In reinforcement learning heb je in principe een discount factor voor dit doel, een factor die bepaalt hoeveel toekomstige reward op een actie wordt teruggevoerd. Ik kan op verschillende manieren die discount verwerken. Standaard Q-learning gebruikt zijn eigen model om op de volgende state een inschatting te maken. Krijg ik daar onvoldoende prestaties mee dan ga de daadwerkelijke reward verrekend met de discount terugvoeren in de pipeline. We krijgen dan wel een enorm sparse dataset maar ik ga ervanuit dat we ook gigantisch veel ervaringen kunnen verzamelen.
+    - Al met al hoef jij hier geen rekening mee te houden en eventuele versmering van de reward regel ik in de trainingspipeline.
