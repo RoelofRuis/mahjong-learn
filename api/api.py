@@ -14,28 +14,15 @@ def _do_request(url: str) -> dict:
         raise Exception("received non 200 response")
 
 
-def new_game():
+def new_game() -> dict:
     return _do_request(f"{SERVER_URL}/new")
 
 
-def get_state(game_id: int):
+def get_state(game_id: int) -> dict:
     return _do_request(f"{SERVER_URL}/game/{game_id}")
 
 
-def send_data(game_id: int, data: map):
+def send_actions(game_id: int, data: map):
     encoded_data = parse.urlencode(data).encode()
     req = request.Request(f"{SERVER_URL}/game/{game_id}", method="POST", data=encoded_data)
     request.urlopen(req)
-
-
-# start new game
-id = new_game()["id"]
-
-game_state = get_state(id)
-print(game_state)
-
-# pick the first action for player 1
-send_data(id, {"1": 0})
-
-# pick the first actions for all players
-send_data(id, {"2": 0, "3": 0, "4": 0})
