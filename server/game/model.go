@@ -61,7 +61,7 @@ type Player struct {
 
 	SeatWind  Wind
 	Concealed *TileCollection
-	Exposed   []*TileCollection // TODO: this should not be an ordinary tile collection
+	Exposed   []Combination
 	Discarded *TileCollection
 }
 
@@ -84,7 +84,46 @@ type DoNothing struct{}
 
 func (d DoNothing) ActionIndex() int { return 100 }
 
+type Combination interface {
+	CombinationIndex() int // TODO: meh, not sure if this is really required...
+}
+
+type Chow struct {
+	FirstTile Tile
+}
+
+func (c Chow) CombinationIndex() int {
+	return int(c.FirstTile)
+}
+
+type Pung struct {
+	Tile Tile
+}
+
+func (c Pung) CombinationIndex() int {
+	return int(c.Tile) + 100
+}
+
+type Kong struct {
+	Tile   Tile
+	Hidden bool
+}
+
+func (c Kong) CombinationIndex() int {
+	return int(c.Tile) + 200
+}
+
+type BonusTile struct {
+	Tile Tile
+}
+
+func (c BonusTile) CombinationIndex() int {
+	return int(c.Tile) + 300
+}
+
 type Seat int
+
+var SEATS = []Seat{Seat(0), Seat(1), Seat(2), Seat(3)}
 
 type Wind int
 

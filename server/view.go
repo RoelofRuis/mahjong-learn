@@ -61,7 +61,7 @@ type PlayerView struct {
 	Actions   map[int]string `json:"actions"`
 	Wind      string         `json:"wind"`
 	Concealed []string       `json:"hand"`
-	Exposed   [][]string     `json:"exposed"`
+	Exposed   []string       `json:"exposed"`
 	Discarded []string       `json:"discarded"`
 }
 
@@ -103,10 +103,26 @@ func DescribeActiveDiscard(t *game.Tile) string {
 	return game.TileNames[*t]
 }
 
-func DescribeAll(t []*game.TileCollection) [][]string {
-	descriptions := make([][]string, len(t))
-	for i, col := range t {
-		descriptions[i] = Describe(col)
+func DescribeCombinations(combinations []game.Combination) []string {
+	descriptions := make([]string, len(combinations))
+	for i, combi := range combinations {
+		switch c := combi.(type) {
+		case game.BonusTile:
+			descriptions[i] = fmt.Sprintf("Bonus tile %s", game.TileNames[c.Tile])
+
+		case game.Chow:
+			descriptions[i] = fmt.Sprintf("Chow %s", game.TileNames[c.FirstTile])
+
+		case game.Pung:
+			descriptions[i] = fmt.Sprintf("Pung %s", game.TileNames[c.Tile])
+
+		case game.Kong:
+			descriptions[i] = fmt.Sprintf("Kong %s", game.TileNames[c.Tile])
+
+		default:
+			// This should not happen..!
+			descriptions[i] = "unknown combination"
+		}
 	}
 	return descriptions
 }
@@ -140,7 +156,7 @@ func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int
 		Actions:   actionMap,
 		Wind:      WindNames[g.Players[seat].SeatWind],
 		Concealed: Describe(g.Players[seat].Concealed),
-		Exposed:   DescribeAll(g.Players[seat].Exposed),
+		Exposed:   DescribeCombinations(g.Players[seat].Exposed),
 		Discarded: Describe(g.Players[seat].Discarded),
 	}
 }

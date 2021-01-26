@@ -161,7 +161,7 @@ func handleTileReceivedActions(g *Game, actions map[Seat]Action) (*State, error)
 func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 4)
 
-	for _, s := range []Seat{Seat(0), Seat(1), Seat(2), Seat(3)} {
+	for _, s := range SEATS {
 		if s == g.ActiveSeat {
 			continue
 		}

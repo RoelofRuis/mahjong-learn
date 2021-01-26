@@ -28,7 +28,7 @@ func NewPlayer(seatWind Wind) *Player {
 		Score:     0,
 		SeatWind:  seatWind,
 		Concealed: NewEmptyTileCollection(),
-		Exposed:   []*TileCollection{},
+		Exposed:   []Combination{},
 		Discarded: NewEmptyTileCollection(),
 	}
 }

@@ -38,9 +38,9 @@ func (p *Player) ForceExposeTiles() int {
 	var transferred = 0
 	for t, c := range p.Concealed.Tiles {
 		if IsBonusTile(t) && c > 0 {
-			exposed := NewEmptyTileCollection()
-			p.Concealed.Transfer(t, exposed)
-			p.Exposed = append(p.Exposed, exposed)
+			p.Concealed.Remove(t)
+
+			p.Exposed = append(p.Exposed, BonusTile{t})
 			transferred++
 		}
 	}
