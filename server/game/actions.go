@@ -19,7 +19,7 @@ func (g *Game) DealTiles(n int, seat Seat) {
 }
 
 func (g *Game) NextSeatActivates() {
-	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1%4)
+	g.ActiveSeat = Seat((int(g.ActiveSeat) + 1) % 4)
 }
 
 func (g *Game) ActivePlayerDiscards(tile Tile) {
