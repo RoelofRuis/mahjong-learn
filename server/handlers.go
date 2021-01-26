@@ -11,15 +11,15 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
 		Data: &struct {
-			Message string `json:"message"`
-			Version string `json:"version"`
-			GamesStarted int `json:"games_started"`
-			NewGame string `json:"new_game"`
+			Message      string `json:"message"`
+			Version      string `json:"version"`
+			GamesStarted int    `json:"games_started"`
+			NewGame      string `json:"new_game"`
 		}{
-			Message: "Mahjong Game API",
-			Version: "0.1",
+			Message:      "Mahjong Game API",
+			Version:      "0.1",
 			GamesStarted: int(*s.Games.lastIndex),
-			NewGame: fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
+			NewGame:      fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
 		},
 	}
 }

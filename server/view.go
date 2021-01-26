@@ -67,7 +67,7 @@ type PlayerView struct {
 
 type HumanView struct {
 	Id            uint64     `json:"id"`
-	HasEnded bool `json:"has_ended"`
+	HasEnded      bool       `json:"has_ended"`
 	StateName     string     `json:"state_name"`
 	PrevalentWind string     `json:"prevalent_wind"`
 	ActivePlayer  int        `json:"active_player"`
@@ -83,7 +83,7 @@ func View(stateMachine *game.StateMachine) *HumanView {
 	g, s, a := stateMachine.View()
 	return &HumanView{
 		Id:            stateMachine.Id(),
-		HasEnded: 	   s.IsTerminal(),
+		HasEnded:      s.IsTerminal(),
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
