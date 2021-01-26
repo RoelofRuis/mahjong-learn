@@ -24,3 +24,7 @@ data:
 	- Denk aan straffen bij acties die op een bepaald moment niet hadden gemogen.
 - done:		
 	- 1 als het spel is afgelopen, anders 0.
+
+vragen:
+    - Hoe regelen we een variable action space? (Bijv. de ene beurt kan ik kiezen uit 4 verschillende acties, en de volgende uit 9?) Ik las dat het mogelijk was om dit te embedden, heb jij hier ideeën over?
+    - Moet er een of andere heuristische functie zijn die de reward schat voor acties die geen scoreverandering opleveren? Dit is bij Mahjong het overgrote deel van de acties, scores worden alleen tussen de rondes verrekend. Zo nee, krijgen ze dan score 0 of is er nog een andere methode?
