@@ -80,6 +80,7 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		}
 	}
 
+	transitions := 0
 	for {
 		state, err := m.state.Transition(m.game, playerActions)
 		if err != nil {
@@ -91,6 +92,12 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		// transition until we are in a terminal state, or another player action is required
 		if m.state.IsTerminal() || m.state.PlayerActions != nil {
 			return nil
+		}
+
+		transitions++
+		if transitions > 1000 {
+			// there is probably some infinite loop in the transition logic...
+			return fmt.Errorf("game took more than 1000 transition steps, there is probably an infinite loop in the game logic")
 		}
 	}
 }
