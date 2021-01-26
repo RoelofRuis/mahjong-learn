@@ -18,7 +18,7 @@ func (g *Game) DealTiles(n int, seat Seat) {
 	}
 }
 
-func (g *Game) NextSeatActivates() {
+func (g *Game) ActivateNextSeat() {
 	g.ActiveSeat = Seat((int(g.ActiveSeat) + 1) % 4)
 }
 
@@ -46,6 +46,13 @@ func (p *Player) ForceExposeTiles() int {
 	}
 
 	return transferred
+}
+
+func (p *Player) NextRoundWithWind(wind Wind) {
+	p.Discarded = NewEmptyTileCollection()
+	p.Concealed = NewEmptyTileCollection()
+	p.Exposed = NewEmptyCombinationList()
+	p.SeatWind = wind
 }
 
 func (t *TileCollection) Size() int {

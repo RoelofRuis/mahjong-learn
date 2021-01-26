@@ -3,11 +3,11 @@ package game
 func NewGameStateMachine(id uint64) *StateMachine {
 	players := make(map[Seat]*Player, 4)
 
+	tileSet := NewMahjongSet()
 	players[0] = NewPlayer(East)
 	players[1] = NewPlayer(South)
 	players[2] = NewPlayer(West)
 	players[3] = NewPlayer(North)
-	tileSet := NewMahjongSet()
 
 	g := &Game{
 		PrevalentWind: East,
@@ -28,9 +28,13 @@ func NewPlayer(seatWind Wind) *Player {
 		Score:     0,
 		SeatWind:  seatWind,
 		Concealed: NewEmptyTileCollection(),
-		Exposed:   []Combination{},
+		Exposed:   NewEmptyCombinationList(),
 		Discarded: NewEmptyTileCollection(),
 	}
+}
+
+func NewEmptyCombinationList() []Combination {
+	return []Combination{}
 }
 
 func NewEmptyTileCollection() *TileCollection {

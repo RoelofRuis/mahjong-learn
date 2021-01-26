@@ -11,6 +11,7 @@ var (
 	stateNextTurn      *State
 	stateTileReceived  *State
 	stateTileDiscarded *State
+	stateGameEnded     *State
 )
 
 func init() {
@@ -24,7 +25,7 @@ func init() {
 	stateNextRound = &State{
 		Name:          "Next Round",
 		PlayerActions: nil,
-		Transition:    nil,
+		Transition:    tryNextRound,
 	}
 
 	stateNextTurn = &State{
@@ -43,6 +44,12 @@ func init() {
 		Name:          "Tile Discarded",
 		PlayerActions: tileDiscardedActions,
 		Transition:    handleTileDiscardedActions,
+	}
+
+	stateGameEnded = &State{
+		Name:          "Game Ended",
+		PlayerActions: nil,
+		Transition:    nil,
 	}
 }
 
@@ -112,7 +119,6 @@ func initialize(g *Game, _ map[Seat]Action) (*State, error) {
 
 func tryDealTile(g *Game, _ map[Seat]Action) (*State, error) {
 	if g.Wall.Size() <= 14 {
-		// tally scores?
 		return stateNextRound, nil
 	}
 
@@ -185,7 +191,30 @@ func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error
 	// TODO: handle actions
 
 	g.ActivePlayerTakesDiscarded()
-	g.NextSeatActivates()
+	g.ActivateNextSeat()
 
 	return stateNextTurn, nil
+}
+
+func tryNextRound(g *Game, _ map[Seat]Action) (*State, error) {
+	if g.PrevalentWind == North && g.Players[3].SeatWind == North {
+		// Done if player 3 has been North
+		return stateGameEnded, nil
+	}
+
+	// TODO: tally scores
+
+	if g.Players[3].SeatWind == g.PrevalentWind {
+		g.PrevalentWind++
+	}
+
+	g.Wall = NewMahjongSet()
+	roundWind := g.Players[0].SeatWind
+
+	for i, s := range SEATS {
+		g.Players[s].NextRoundWithWind(Wind(int(g.PrevalentWind) + (int(roundWind)+i+1)%4))
+		g.DealTiles(13, s)
+	}
+
+	return stateGameEnded, nil
 }
