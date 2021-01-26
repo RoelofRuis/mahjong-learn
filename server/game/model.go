@@ -61,7 +61,7 @@ type Player struct {
 
 	SeatWind  Wind
 	Concealed *TileCollection
-	Exposed   []*TileCollection
+	Exposed   []*TileCollection // TODO: this should not be an ordinary tile collection
 	Discarded *TileCollection
 }
 

@@ -57,6 +57,10 @@ func (t *TileCollection) Size() int {
 	return count
 }
 
+func (t *TileCollection) Empty() {
+	t.Tiles = make(map[Tile]int)
+}
+
 func (t *TileCollection) Remove(tile Tile) {
 	n, has := t.Tiles[tile]
 	if !has || n < 1 {
