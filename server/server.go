@@ -59,7 +59,7 @@ func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.handleMethods(map[string]RequestHandler{
 		http.MethodGet:  s.withStateMachine(s.handleDisplay),
-		http.MethodPost: s.withStateMachine(s.handleTransition),
+		http.MethodPost: s.withStateMachine(s.handleActions),
 	})))
 }
 

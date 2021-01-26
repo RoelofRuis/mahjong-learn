@@ -11,9 +11,9 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 	return &Response{
 		StatusCode: http.StatusFound,
 		Data: &struct {
-			Message string
-			Version string
-			NewGame string
+			Message string `json:"message"`
+			Version string `json:"version"`
+			NewGame string `json:"new_game"`
 		}{
 			Message: "Mahjong Game API",
 			Version: "0.1",
@@ -28,9 +28,9 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	return &Response{
 		StatusCode: http.StatusCreated,
 		Data: &struct {
-			Message  string
-			Id       uint64
-			Location string
+			Message  string `json:"message"`
+			Id       uint64 `json:"id"`
+			Location string `json:"location"`
 		}{
 			Message:  "Game created",
 			Id:       id,
@@ -41,12 +41,12 @@ func (s *Server) handleNew(r *http.Request) *Response {
 
 func (s *Server) handleDisplay(r *http.Request, stateMachine *game.StateMachine) *Response {
 	return &Response{
-		StatusCode: http.StatusFound,
+		StatusCode: http.StatusOK,
 		Data:       View(stateMachine),
 	}
 }
 
-func (s *Server) handleTransition(r *http.Request, stateMachine *game.StateMachine) *Response {
+func (s *Server) handleActions(r *http.Request, stateMachine *game.StateMachine) *Response {
 	actionMap := make(map[game.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
@@ -66,11 +66,11 @@ func (s *Server) handleTransition(r *http.Request, stateMachine *game.StateMachi
 	return &Response{
 		StatusCode: http.StatusAccepted,
 		Data: &struct {
-			Message  string
-			Id       uint64
-			Location string
+			Message  string `json:"message"`
+			Id       uint64 `json:"id"`
+			Location string `json:"location"`
 		}{
-			Message:  "StateTransition executed",
+			Message:  "Actions executed",
 			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id()),
 		},
 	}
