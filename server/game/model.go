@@ -72,11 +72,11 @@ type Discard struct {
 	Tile Tile
 }
 
-func (d Discard) ActionIndex() int { return 1 }
+func (d Discard) ActionIndex() int { return int(d.Tile) }
 
 type DoNothing struct{}
 
-func (d DoNothing) ActionIndex() int { return 2 }
+func (d DoNothing) ActionIndex() int { return 100 }
 
 type Seat int
 
