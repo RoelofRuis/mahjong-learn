@@ -18,6 +18,22 @@ func (g *Game) DealTiles(n int, seat Seat) {
 	}
 }
 
+func (g *Game) NextSeatActivates() {
+	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1%4)
+}
+
+func (g *Game) ActivePlayerDiscards(tile Tile) {
+	g.Players[g.ActiveSeat].Concealed.Remove(tile)
+	g.ActiveDiscard = &tile
+}
+
+func (g *Game) ActivePlayerTakesDiscarded() {
+	if g.ActiveDiscard != nil {
+		g.Players[g.ActiveSeat].Discarded.Add(*g.ActiveDiscard)
+		g.ActiveDiscard = nil
+	}
+}
+
 func (p *Player) ForceExposeTiles() int {
 	var transferred = 0
 	for t, c := range p.Concealed.Tiles {
@@ -41,6 +57,18 @@ func (t *TileCollection) Size() int {
 	return count
 }
 
+func (t *TileCollection) Remove(tile Tile) {
+	n, has := t.Tiles[tile]
+	if !has || n < 1 {
+		return
+	}
+	t.Tiles[tile]--
+}
+
+func (t *TileCollection) Add(tile Tile) {
+	t.Tiles[tile]++
+}
+
 func (t *TileCollection) Transfer(tile Tile, target *TileCollection) {
 	n, has := t.Tiles[tile]
 	if !has || n == 0 {
@@ -48,7 +76,7 @@ func (t *TileCollection) Transfer(tile Tile, target *TileCollection) {
 	}
 
 	t.Tiles[tile]--
-	target.Tiles[tile]++
+	target.Add(tile)
 }
 
 // Transfers n randomly picked tiles from this tile collection to the target tile collection.

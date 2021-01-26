@@ -44,8 +44,10 @@ type State struct {
 }
 
 type Game struct {
+	// TODO: make fields private and only allow access using methods
 	PrevalentWind Wind
 	Wall          *TileCollection
+	ActiveDiscard *Tile
 	Players       map[Seat]*Player
 	ActiveSeat    Seat
 }

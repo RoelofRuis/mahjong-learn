@@ -148,7 +148,7 @@ func tileReceivedActions(g *Game) map[Seat][]PlayerAction {
 func handleTileReceivedActions(g *Game, actions map[Seat]Action) (*State, error) {
 	switch a := actions[g.ActiveSeat].(type) {
 	case Discard:
-		g.Players[g.ActiveSeat].Concealed.Transfer(a.Tile, g.Players[g.ActiveSeat].Discarded)
+		g.ActivePlayerDiscards(a.Tile)
 		return stateTileDiscarded, nil
 
 		// TODO: handle other possible cases
@@ -161,7 +161,11 @@ func handleTileReceivedActions(g *Game, actions map[Seat]Action) (*State, error)
 func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 	m := make(map[Seat][]PlayerAction, 4)
 
-	for i := 0; i < 4; i++ {
+	for _, s := range []Seat{Seat(0), Seat(1), Seat(2), Seat(3)} {
+		if s == g.ActiveSeat {
+			continue
+		}
+
 		a := make([]PlayerAction, 0)
 
 		a = append(a, PlayerAction{
@@ -171,7 +175,7 @@ func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 
 		// TODO: check whether player can declare pung, kong, chow or mahjong and add to available actions
 
-		m[Seat(i)] = a
+		m[s] = a
 	}
 
 	return m
@@ -180,7 +184,8 @@ func tileDiscardedActions(g *Game) map[Seat][]PlayerAction {
 func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error) {
 	// TODO: handle actions
 
-	g.ActiveSeat = Seat(int(g.ActiveSeat) + 1%4)
+	g.ActivePlayerTakesDiscarded()
+	g.NextSeatActivates()
 
 	return stateNextTurn, nil
 }

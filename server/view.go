@@ -70,6 +70,7 @@ type HumanView struct {
 	StateName     string     `json:"state_name"`
 	PrevalentWind string     `json:"prevalent_wind"`
 	ActivePlayer  int        `json:"active_player"`
+	ActiveDiscard string     `json:"active_discard"`
 	Player1       PlayerView `json:"player_1"`
 	Player2       PlayerView `json:"player_2"`
 	Player3       PlayerView `json:"player_3"`
@@ -84,12 +85,20 @@ func View(stateMachine *game.StateMachine) *HumanView {
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.PrevalentWind],
 		ActivePlayer:  int(g.ActiveSeat) + 1,
+		ActiveDiscard: DescribeActiveDiscard(g.ActiveDiscard),
 		Player1:       DescribePlayer(g, a, 0),
 		Player2:       DescribePlayer(g, a, 1),
 		Player3:       DescribePlayer(g, a, 2),
 		Player4:       DescribePlayer(g, a, 3),
 		Wall:          Describe(g.Wall),
 	}
+}
+
+func DescribeActiveDiscard(t *game.Tile) string {
+	if t == nil {
+		return "none"
+	}
+	return game.TileNames[*t]
 }
 
 func DescribeAll(t []*game.TileCollection) [][]string {
