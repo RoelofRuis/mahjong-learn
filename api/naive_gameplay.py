@@ -7,6 +7,10 @@ while True:
     game_state = api.get_state(id)
     state_name = game_state["state_name"]
     active_player = game_state["active_player"]
+    has_ended = game_state["has_ended"]
+    if has_ended:
+        break
+
     print(f"{state_name}: {active_player}")
 
     # pick the first action for player 1
