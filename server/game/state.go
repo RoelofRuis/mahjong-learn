@@ -228,5 +228,5 @@ func tryNextRound(g *Game, _ map[Seat]Action) (*State, error) {
 		g.DealTiles(13, s)
 	}
 
-	return stateNextRound, nil
+	return stateNextTurn, nil
 }
