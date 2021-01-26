@@ -209,24 +209,25 @@ func handleTileDiscardedActions(g *Game, actions map[Seat]Action) (*State, error
 }
 
 func tryNextRound(g *Game, _ map[Seat]Action) (*State, error) {
-	if g.PrevalentWind == North && g.Players[3].SeatWind == North {
+	if g.PrevalentWind == North && g.Players[1].SeatWind == North {
 		// Done if player 3 has been North
 		return stateGameEnded, nil
 	}
 
 	// TODO: tally scores
 
-	if g.Players[3].SeatWind == g.PrevalentWind {
+	// FIXME: not sure if it is player 1 or player 3 that gets to be prevalent wind last...
+	if g.Players[1].SeatWind == g.PrevalentWind {
 		g.PrevalentWind++
 	}
 
 	g.Wall = NewMahjongSet()
-	roundWind := g.Players[0].SeatWind
 
-	for i, s := range SEATS {
-		g.Players[s].NextRoundWithWind(Wind(int(g.PrevalentWind) + (int(roundWind)+i+1)%4))
+	for _, s := range SEATS {
+		g.Players[s].PrepareNextRound()
 		g.DealTiles(13, s)
 	}
+
 
 	return stateNextTurn, nil
 }

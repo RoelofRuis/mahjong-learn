@@ -48,11 +48,11 @@ func (p *Player) ForceExposeTiles() int {
 	return transferred
 }
 
-func (p *Player) NextRoundWithWind(wind Wind) {
+func (p *Player) PrepareNextRound() {
 	p.Discarded = NewEmptyTileCollection()
 	p.Concealed = NewEmptyTileCollection()
 	p.Exposed = NewEmptyCombinationList()
-	p.SeatWind = wind
+	p.SeatWind = (p.SeatWind + 1) % 4
 }
 
 func (t *TileCollection) Size() int {
