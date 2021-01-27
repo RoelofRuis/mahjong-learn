@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game"
+	"github.com/roelofruis/mahjong-learn/game/model"
 	"net/http"
 	"strconv"
 )
@@ -49,11 +50,11 @@ func (s *Server) handleDisplay(r *http.Request, stateMachine *game.StateMachine)
 }
 
 func (s *Server) handleActions(r *http.Request, stateMachine *game.StateMachine) *Response {
-	actionMap := make(map[game.Seat]int)
+	actionMap := make(map[model.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
 		if err == nil {
-			actionMap[game.Seat(i)] = int(playerAction)
+			actionMap[model.Seat(i)] = int(playerAction)
 		}
 	}
 

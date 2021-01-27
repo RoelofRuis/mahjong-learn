@@ -1,138 +1,4 @@
-package game
-
-import "sync"
-
-type StateMachine struct {
-	lock sync.RWMutex
-
-	id uint64
-
-	state *State
-	game  *Game
-}
-
-func (m *StateMachine) Id() uint64 {
-	return m.id
-}
-
-type PlayerAction struct {
-	// Name to be displayed in human readable format.
-	Name string
-
-	// Selected action.
-	Action Action
-}
-
-type ByIndex []PlayerAction
-
-func (a ByIndex) Len() int           { return len(a) }
-func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByIndex) Less(i, j int) bool { return a[i].Action.ActionIndex() < a[j].Action.ActionIndex() }
-
-// Transition to next state using given actions. Return next state or an error if transferring is not possible.
-type StateTransition func(*Game, map[Seat]Action) (*State, error)
-
-type State struct {
-	// Name just to display human readable information.
-	Name string
-
-	// Required player actions. May be nil if this state requires no player actions.
-	PlayerActions func(*Game) map[Seat][]PlayerAction
-
-	// Transition to next state. Selected actions are passed if applicable.
-	Transition StateTransition
-}
-
-func (s *State) IsTerminal() bool {
-	return s.Transition == nil
-}
-
-type Game struct {
-	// TODO: make fields private and only allow access using methods
-	PrevalentWind Wind
-	Wall          *TileCollection
-	ActiveDiscard *Tile
-	Players       map[Seat]*Player
-	ActiveSeat    Seat
-}
-
-type Player struct {
-	Score int
-
-	SeatWind  Wind
-	Concealed *TileCollection
-	Exposed   []Combination
-	Discarded *TileCollection
-}
-
-type TileCollection struct {
-	Tiles map[Tile]int
-}
-
-type Action interface {
-	// ActionIndex, has to be unique among all defined actions (to guarantee a stable sorting)
-	ActionIndex() int
-}
-
-type Discard struct {
-	Tile Tile
-}
-
-func (d Discard) ActionIndex() int { return int(d.Tile) }
-
-type DoNothing struct{}
-
-func (d DoNothing) ActionIndex() int { return 100 }
-
-type Combination interface {
-	CombinationIndex() int // TODO: meh, not sure if this is really required...
-}
-
-type Chow struct {
-	FirstTile Tile
-}
-
-func (c Chow) CombinationIndex() int {
-	return int(c.FirstTile)
-}
-
-type Pung struct {
-	Tile Tile
-}
-
-func (c Pung) CombinationIndex() int {
-	return int(c.Tile) + 100
-}
-
-type Kong struct {
-	Tile   Tile
-	Hidden bool
-}
-
-func (c Kong) CombinationIndex() int {
-	return int(c.Tile) + 200
-}
-
-type BonusTile struct {
-	Tile Tile
-}
-
-func (c BonusTile) CombinationIndex() int {
-	return int(c.Tile) + 300
-}
-
-type Seat int
-
-var SEATS = []Seat{Seat(0), Seat(1), Seat(2), Seat(3)}
-
-type Wind int
-
-const (
-	East  Wind = 0
-	South Wind = 1
-	West  Wind = 2
-	North Wind = 3
-)
+package model
 
 type Tile int
 
@@ -248,4 +114,46 @@ var TileNames = map[Tile]string{
 	SeasonSummer:        "Summer (season)",
 	SeasonAutumn:        "Autumn (season)",
 	SeasonWinter:        "Winter (season)",
+}
+
+
+type Combination interface {
+	CombinationIndex() int // TODO: meh, not sure if this is really required...
+}
+
+func NewEmptyCombinationList() []Combination {
+	return []Combination{}
+}
+
+type Chow struct {
+	FirstTile Tile
+}
+
+func (c Chow) CombinationIndex() int {
+	return int(c.FirstTile)
+}
+
+type Pung struct {
+	Tile Tile
+}
+
+func (c Pung) CombinationIndex() int {
+	return int(c.Tile) + 100
+}
+
+type Kong struct {
+	Tile   Tile
+	Hidden bool
+}
+
+func (c Kong) CombinationIndex() int {
+	return int(c.Tile) + 200
+}
+
+type BonusTile struct {
+	Tile Tile
+}
+
+func (c BonusTile) CombinationIndex() int {
+	return int(c.Tile) + 300
 }

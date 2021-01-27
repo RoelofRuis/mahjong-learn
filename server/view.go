@@ -3,58 +3,59 @@ package main
 import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game"
+	"github.com/roelofruis/mahjong-learn/game/model"
 )
 
-var TileOrder = []game.Tile{
-	game.Bamboo1,
-	game.Bamboo2,
-	game.Bamboo3,
-	game.Bamboo4,
-	game.Bamboo5,
-	game.Bamboo6,
-	game.Bamboo7,
-	game.Bamboo8,
-	game.Bamboo9,
-	game.Circles1,
-	game.Circles2,
-	game.Circles3,
-	game.Circles4,
-	game.Circles5,
-	game.Circles6,
-	game.Circles7,
-	game.Circles8,
-	game.Circles9,
-	game.Characters1,
-	game.Characters2,
-	game.Characters3,
-	game.Characters4,
-	game.Characters5,
-	game.Characters6,
-	game.Characters7,
-	game.Characters8,
-	game.Characters9,
-	game.RedDragon,
-	game.GreenDragon,
-	game.WhiteDragon,
-	game.EastWind,
-	game.SouthWind,
-	game.WestWind,
-	game.NorthWind,
-	game.FlowerPlumb,
-	game.FlowerOrchid,
-	game.FlowerChrysanthemum,
-	game.FlowerBamboo,
-	game.SeasonSpring,
-	game.SeasonSummer,
-	game.SeasonAutumn,
-	game.SeasonWinter,
+var TileOrder = []model.Tile{
+	model.Bamboo1,
+	model.Bamboo2,
+	model.Bamboo3,
+	model.Bamboo4,
+	model.Bamboo5,
+	model.Bamboo6,
+	model.Bamboo7,
+	model.Bamboo8,
+	model.Bamboo9,
+	model.Circles1,
+	model.Circles2,
+	model.Circles3,
+	model.Circles4,
+	model.Circles5,
+	model.Circles6,
+	model.Circles7,
+	model.Circles8,
+	model.Circles9,
+	model.Characters1,
+	model.Characters2,
+	model.Characters3,
+	model.Characters4,
+	model.Characters5,
+	model.Characters6,
+	model.Characters7,
+	model.Characters8,
+	model.Characters9,
+	model.RedDragon,
+	model.GreenDragon,
+	model.WhiteDragon,
+	model.EastWind,
+	model.SouthWind,
+	model.WestWind,
+	model.NorthWind,
+	model.FlowerPlumb,
+	model.FlowerOrchid,
+	model.FlowerChrysanthemum,
+	model.FlowerBamboo,
+	model.SeasonSpring,
+	model.SeasonSummer,
+	model.SeasonAutumn,
+	model.SeasonWinter,
 }
 
-var WindNames = map[game.Wind]string{
-	game.East:  "East",
-	game.South: "South",
-	game.West:  "West",
-	game.North: "North",
+var WindNames = map[model.Wind]string{
+	model.East:  "East",
+	model.South: "South",
+	model.West:  "West",
+	model.North: "North",
 }
 
 type PlayerView struct {
@@ -85,39 +86,39 @@ func View(stateMachine *game.StateMachine) *HumanView {
 		Id:            stateMachine.Id(),
 		HasEnded:      s.IsTerminal(),
 		StateName:     s.Name,
-		PrevalentWind: WindNames[g.PrevalentWind],
-		ActivePlayer:  int(g.ActiveSeat) + 1,
-		ActiveDiscard: DescribeActiveDiscard(g.ActiveDiscard),
+		PrevalentWind: WindNames[g.GetPrevalentWind()],
+		ActivePlayer:  int(g.GetActiveSeat()) + 1,
+		ActiveDiscard: DescribeActiveDiscard(g.GetActiveDiscard()),
 		Player1:       DescribePlayer(g, a, 0),
 		Player2:       DescribePlayer(g, a, 1),
 		Player3:       DescribePlayer(g, a, 2),
 		Player4:       DescribePlayer(g, a, 3),
-		Wall:          Describe(g.Wall),
+		Wall:          Describe(g.GetWall()),
 	}
 }
 
-func DescribeActiveDiscard(t *game.Tile) string {
+func DescribeActiveDiscard(t *model.Tile) string {
 	if t == nil {
 		return "none"
 	}
-	return game.TileNames[*t]
+	return model.TileNames[*t]
 }
 
-func DescribeCombinations(combinations []game.Combination) []string {
+func DescribeCombinations(combinations []model.Combination) []string {
 	descriptions := make([]string, len(combinations))
 	for i, combi := range combinations {
 		switch c := combi.(type) {
-		case game.BonusTile:
-			descriptions[i] = fmt.Sprintf("Bonus tile %s", game.TileNames[c.Tile])
+		case model.BonusTile:
+			descriptions[i] = fmt.Sprintf("Bonus tile %s", model.TileNames[c.Tile])
 
-		case game.Chow:
-			descriptions[i] = fmt.Sprintf("Chow %s", game.TileNames[c.FirstTile])
+		case model.Chow:
+			descriptions[i] = fmt.Sprintf("Chow %s", model.TileNames[c.FirstTile])
 
-		case game.Pung:
-			descriptions[i] = fmt.Sprintf("Pung %s", game.TileNames[c.Tile])
+		case model.Pung:
+			descriptions[i] = fmt.Sprintf("Pung %s", model.TileNames[c.Tile])
 
-		case game.Kong:
-			descriptions[i] = fmt.Sprintf("Kong %s", game.TileNames[c.Tile])
+		case model.Kong:
+			descriptions[i] = fmt.Sprintf("Kong %s", model.TileNames[c.Tile])
 
 		default:
 			// This should not happen..!
@@ -127,21 +128,21 @@ func DescribeCombinations(combinations []game.Combination) []string {
 	return descriptions
 }
 
-func Describe(t *game.TileCollection) []string {
+func Describe(t *model.TileCollection) []string {
 	descriptions := make([]string, 0)
 	for _, tile := range TileOrder {
-		count, has := t.Tiles[tile]
-		if !has || count == 0 {
+		count := t.NumOf(tile)
+		if count == 0 {
 			continue
 		}
-		text := fmt.Sprintf("%d× %s", count, game.TileNames[tile])
+		text := fmt.Sprintf("%d× %s", count, model.TileNames[tile])
 		descriptions = append(descriptions, text)
 	}
 	return descriptions
 }
 
-func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int) PlayerView {
-	seat := game.Seat(player)
+func DescribePlayer(g model.Game, a map[model.Seat][]game.PlayerAction, player int) PlayerView {
+	seat := model.Seat(player)
 	actions, has := a[seat]
 	if !has {
 		actions = make([]game.PlayerAction, 0)
@@ -154,21 +155,17 @@ func DescribePlayer(g game.Game, a map[game.Seat][]game.PlayerAction, player int
 
 	return PlayerView{
 		Actions:   actionMap,
-		Wind:      WindNames[g.Players[seat].SeatWind],
-		Concealed: Describe(g.Players[seat].Concealed),
-		Exposed:   DescribeCombinations(g.Players[seat].Exposed),
-		Discarded: Describe(g.Players[seat].Discarded),
+		Wind:      WindNames[g.GetPlayerAtSeat(seat).GetSeatWind()],
+		Concealed: Describe(g.GetPlayerAtSeat(seat).GetConcealedTiles()),
+		Exposed:   DescribeCombinations(g.GetPlayerAtSeat(seat).GetExposedCombinations()),
+		Discarded: Describe(g.GetPlayerAtSeat(seat).GetDiscardedTiles()),
 	}
 }
 
-func ToVector(t *game.TileCollection) []int {
+func ToVector(t *model.TileCollection) []int {
 	tileVector := make([]int, len(TileOrder))
 	for i, tile := range TileOrder {
-		count, has := t.Tiles[tile]
-		if !has {
-			count = 0
-		}
-		tileVector[i] = count
+		tileVector[i] = t.NumOf(tile)
 	}
 	return tileVector
 }
