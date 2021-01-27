@@ -53,6 +53,8 @@ func init() {
 	}
 }
 
+var TransitionLimit = 10
+
 func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -95,14 +97,14 @@ func (m *StateMachine) Transition(selectedActions map[Seat]int) error {
 		}
 
 		stateHistory = append(stateHistory, m.state.Name)
-		if len(stateHistory) > 10 {
+		if len(stateHistory) > TransitionLimit {
 			// there is probably some infinite loop in the transition logic...
 			stateDebug := ""
 			for _, s := range stateHistory {
 				stateDebug += fmt.Sprintf("%s\n", s)
 			}
-			return fmt.Errorf("game took more than 1000 transition steps. " +
-				"There is probably an infinite loop in the game logic.\nVisited stateds were:\n%s", stateDebug)
+			return fmt.Errorf("game took more than %d transition steps. " +
+				"There is probably an infinite loop in the game logic.\nVisited stateds were:\n%s", TransitionLimit, stateDebug)
 		}
 	}
 }
