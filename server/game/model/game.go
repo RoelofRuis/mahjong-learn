@@ -39,6 +39,8 @@ func NewGame() *Game {
 	}
 }
 
+// Getters
+
 func (g *Game) GetWallSize() int {
 	return g.wall.Size()
 }
@@ -66,6 +68,8 @@ func (g *Game) GetActiveDiscard() *Tile {
 func (g *Game) GetWall() *TileCollection {
 	return g.wall
 }
+
+// State modifiers
 
 func (g *Game) DealTiles(n int, seat Seat) {
 	player := g.players[seat]

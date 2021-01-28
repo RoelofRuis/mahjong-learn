@@ -24,6 +24,8 @@ func NewMahjongSet() *TileCollection {
 	}}
 }
 
+// Getters
+
 func (t *TileCollection) AsMap() map[Tile]int {
 	return t.tiles
 }
@@ -44,6 +46,8 @@ func (t *TileCollection) Size() int {
 
 	return count
 }
+
+// State Modifiers
 
 func (t *TileCollection) Empty() {
 	t.tiles = make(map[Tile]int)

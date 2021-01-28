@@ -150,8 +150,7 @@ func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) 
 
 	// TODO: tally scores
 
-	// FIXME: not sure if it is player 1 or player 3 that gets to be prevalent wind last...
-	if g.GetPlayerAtSeat(model.Seat(1)).GetSeatWind() == g.GetPrevalentWind() {
+	if g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == g.GetPrevalentWind() {
 		g.SetNextPrevalentWind()
 	}
 

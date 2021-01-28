@@ -19,6 +19,8 @@ func NewPlayer(seatWind Wind) *Player {
 	}
 }
 
+// Getters
+
 func (p *Player) GetConcealedTiles() *TileCollection {
 	return p.concealed
 }
@@ -35,6 +37,8 @@ func (p *Player) GetDiscardedTiles() *TileCollection {
 	return p.discarded
 }
 
+// State modifiers
+
 func (p *Player) ForceExposeTiles() int {
 	var transferred = 0
 	for t, c := range p.concealed.tiles {
@@ -50,8 +54,8 @@ func (p *Player) ForceExposeTiles() int {
 }
 
 func (p *Player) PrepareNextRound() {
-	p.discarded = NewEmptyTileCollection()
-	p.concealed = NewEmptyTileCollection()
+	p.discarded.Empty()
+	p.concealed.Empty()
 	p.exposed = NewEmptyCombinationList()
-	p.seatWind = (p.seatWind + 1) % 4
+	p.seatWind = (p.seatWind + 5) % 4
 }
