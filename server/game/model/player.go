@@ -37,6 +37,14 @@ func (p *Player) GetDiscardedTiles() *TileCollection {
 	return p.discarded
 }
 
+func (p *Player) CanPung(t Tile) bool {
+	return p.concealed.NumOf(t) == 2
+}
+
+func (p *Player) CanKong(t Tile) bool {
+	return p.concealed.NumOf(t) == 3
+}
+
 // State modifiers
 
 func (p *Player) ForceExposeTiles() int {

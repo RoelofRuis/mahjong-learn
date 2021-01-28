@@ -17,6 +17,17 @@ type StateMachine struct {
 	game  *model.Game
 }
 
+type State struct {
+	// Name just to display human readable information.
+	Name string
+
+	// Required player actions. May be nil if this state requires no player actions.
+	PlayerActions func(*model.Game) map[model.Seat][]model.Action
+
+	// Transition to next state. Selected actions are passed if applicable.
+	Transition func(*model.Game, map[model.Seat]model.Action) (*State, error)
+}
+
 func NewGameStateMachine(id uint64) *StateMachine {
 	return &StateMachine{
 		id:    id,
@@ -97,18 +108,4 @@ func (m *StateMachine) View() (model.Game, State, map[model.Seat][]model.Action)
 	}
 
 	return *m.game, *m.state, playerActions
-}
-
-// Transition to next state using given actions. Return next state or an error if transferring is not possible.
-type StateTransition func(*model.Game, map[model.Seat]model.Action) (*State, error)
-
-type State struct {
-	// Name just to display human readable information.
-	Name string
-
-	// Required player actions. May be nil if this state requires no player actions.
-	PlayerActions func(*model.Game) map[model.Seat][]model.Action
-
-	// Transition to next state. Selected actions are passed if applicable.
-	Transition StateTransition
 }

@@ -20,4 +20,12 @@ func (d Discard) ActionIndex() int { return int(d.Tile) }
 
 type DoNothing struct{}
 
-func (d DoNothing) ActionIndex() int { return 100 }
+func (d DoNothing) ActionIndex() int { return 0 }
+
+type DeclarePung struct {}
+
+func (d DeclarePung) ActionIndex() int { return 1 }
+
+type DeclareKong struct {}
+
+func (d DeclareKong) ActionIndex() int { return 2 }

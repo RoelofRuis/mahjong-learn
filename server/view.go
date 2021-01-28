@@ -168,6 +168,11 @@ func DescribeAction(action model.Action) string {
 		return "Do nothing"
 	case model.Discard:
 		return fmt.Sprintf("Discard a %s", model.TileNames[a.Tile])
+	case model.DeclarePung:
+		return "Declare a pung"
+	case model.DeclareKong:
+		return "Declare a kong"
+
 
 	default:
 		// This should not happen..!

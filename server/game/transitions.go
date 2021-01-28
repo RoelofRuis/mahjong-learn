@@ -110,16 +110,27 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
 	m := make(map[model.Seat][]model.Action, 4)
 
+	activeDiscard := *g.GetActiveDiscard()
+
 	for _, s := range model.SEATS {
 		if s == g.GetActiveSeat() {
+			// active seat has discarded and cannot perform an action
 			continue
 		}
 
-		a := make([]model.Action, 0)
+		player := g.GetPlayerAtSeat(s)
 
+		a := make([]model.Action, 0)
 		a = append(a, model.DoNothing{})
 
-		// TODO: check whether player can declare pung, kong, chow or mahjong and add to available actions
+		if player.CanPung(activeDiscard) {
+			a = append(a, model.DeclarePung{})
+		}
+		if player.CanKong(activeDiscard) {
+			a = append(a, model.DeclareKong{})
+		}
+
+		// TODO: check whether player can declare chow or mahjong and add to available actions
 
 		m[s] = a
 	}
