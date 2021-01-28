@@ -84,7 +84,7 @@ func View(stateMachine *game.StateMachine) *HumanView {
 	g, s, a := stateMachine.View()
 	return &HumanView{
 		Id:            stateMachine.Id(),
-		HasEnded:      s.IsTerminal(),
+		HasEnded:      s.Transition == nil,
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.GetPrevalentWind()],
 		ActivePlayer:  int(g.GetActiveSeat()) + 1,
