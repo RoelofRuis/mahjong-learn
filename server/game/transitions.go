@@ -137,7 +137,7 @@ func handleTileDiscardedActions(g *model.Game, _ map[model.Seat]model.Action) (*
 }
 
 func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
-	if g.GetPrevalentWind() == model.North && g.GetPlayerAtSeat(model.Seat(1)).GetSeatWind() == model.North {
+	if g.GetPrevalentWind() == model.North && g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == model.North {
 		// Done if player 3 has been North
 		return stateGameEnded, nil
 	}
@@ -154,7 +154,6 @@ func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) 
 		g.GetPlayerAtSeat(s).PrepareNextRound()
 		g.DealTiles(13, s)
 	}
-
 
 	return stateNextTurn, nil
 }
