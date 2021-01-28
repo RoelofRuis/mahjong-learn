@@ -141,16 +141,16 @@ func Describe(t *model.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g model.Game, a map[model.Seat][]game.PlayerAction, player int) PlayerView {
+func DescribePlayer(g model.Game, a map[model.Seat][]model.Action, player int) PlayerView {
 	seat := model.Seat(player)
 	actions, has := a[seat]
 	if !has {
-		actions = make([]game.PlayerAction, 0)
+		actions = make([]model.Action, 0)
 	}
 
 	actionMap := make(map[int]string)
 	for i, a := range actions {
-		actionMap[i] = a.Name
+		actionMap[i] = DescribeAction(a)
 	}
 
 	return PlayerView{
@@ -159,6 +159,19 @@ func DescribePlayer(g model.Game, a map[model.Seat][]game.PlayerAction, player i
 		Concealed: Describe(g.GetPlayerAtSeat(seat).GetConcealedTiles()),
 		Exposed:   DescribeCombinations(g.GetPlayerAtSeat(seat).GetExposedCombinations()),
 		Discarded: Describe(g.GetPlayerAtSeat(seat).GetDiscardedTiles()),
+	}
+}
+
+func DescribeAction(action model.Action) string {
+	switch a := action.(type) {
+	case model.DoNothing:
+		return "Do nothing"
+	case model.Discard:
+		return fmt.Sprintf("Discard a %s", model.TileNames[a.Tile])
+
+	default:
+		// This should not happen..!
+		return "unknown action"
 	}
 }
 

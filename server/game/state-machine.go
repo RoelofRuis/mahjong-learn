@@ -55,7 +55,7 @@ func (m *StateMachine) Transition(selectedActions map[model.Seat]int) error {
 			if selected < 0 || selected >= len(actions) {
 				return fmt.Errorf("selected action for seat [%d] is out of range (%d not in 0 to %d)", seat, selected, len(actions)-1)
 			}
-			playerActions[seat] = actions[selected].Action
+			playerActions[seat] = actions[selected]
 		}
 	}
 
@@ -87,11 +87,11 @@ func (m *StateMachine) Transition(selectedActions map[model.Seat]int) error {
 }
 
 // If the StateMachine is viewed, internals should be exposed in a consistent manner, so one function returns everything.
-func (m *StateMachine) View() (model.Game, State, map[model.Seat][]PlayerAction) {
+func (m *StateMachine) View() (model.Game, State, map[model.Seat][]model.Action) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 
-	var playerActions = make(map[model.Seat][]PlayerAction)
+	var playerActions = make(map[model.Seat][]model.Action)
 	if m.state.PlayerActions != nil {
 		playerActions = m.state.PlayerActions(m.game)
 	}
@@ -107,7 +107,7 @@ type State struct {
 	Name string
 
 	// Required player actions. May be nil if this state requires no player actions.
-	PlayerActions func(*model.Game) map[model.Seat][]PlayerAction
+	PlayerActions func(*model.Game) map[model.Seat][]model.Action
 
 	// Transition to next state. Selected actions are passed if applicable.
 	Transition StateTransition
@@ -116,17 +116,3 @@ type State struct {
 func (s *State) IsTerminal() bool {
 	return s.Transition == nil
 }
-
-type PlayerAction struct {
-	// Name to be displayed in human readable format.
-	Name string
-
-	// Selected action.
-	Action model.Action
-}
-
-type ByIndex []PlayerAction
-
-func (a ByIndex) Len() int           { return len(a) }
-func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByIndex) Less(i, j int) bool { return a[i].Action.ActionIndex() < a[j].Action.ActionIndex() }

@@ -5,6 +5,13 @@ type Action interface {
 	ActionIndex() int
 }
 
+type ByIndex []Action
+
+func (a ByIndex) Len() int           { return len(a) }
+func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByIndex) Less(i, j int) bool { return a[i].ActionIndex() < a[j].ActionIndex() }
+
+
 type Discard struct {
 	Tile Tile
 }

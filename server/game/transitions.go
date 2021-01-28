@@ -73,24 +73,21 @@ func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
 	return stateTileReceived, nil
 }
 
-func tileReceivedActions(g *model.Game) map[model.Seat][]PlayerAction {
-	actionMap := make(map[model.Seat][]PlayerAction, 1)
+func tileReceivedActions(g *model.Game) map[model.Seat][]model.Action {
+	actionMap := make(map[model.Seat][]model.Action, 1)
 
-	availableActions := make([]PlayerAction, 0)
+	availableActions := make([]model.Action, 0)
 	for t, c := range g.GetActivePlayer().GetConcealedTiles().AsMap() {
 		if c < 1 {
 			continue
 		}
 
-		availableActions = append(availableActions, PlayerAction{
-			Name:   fmt.Sprintf("Discard a %s", model.TileNames[t]),
-			Action: model.Discard{Tile: t},
-		})
+		availableActions = append(availableActions, model.Discard{Tile: t})
 	}
 
 	// TODO: check whether player can declare kong or mahjong and add to available actions
 
-	sort.Sort(ByIndex(availableActions))
+	sort.Sort(model.ByIndex(availableActions))
 
 	actionMap[g.GetActiveSeat()] = availableActions
 
@@ -110,20 +107,17 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 	}
 }
 
-func tileDiscardedActions(g *model.Game) map[model.Seat][]PlayerAction {
-	m := make(map[model.Seat][]PlayerAction, 4)
+func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
+	m := make(map[model.Seat][]model.Action, 4)
 
 	for _, s := range model.SEATS {
 		if s == g.GetActiveSeat() {
 			continue
 		}
 
-		a := make([]PlayerAction, 0)
+		a := make([]model.Action, 0)
 
-		a = append(a, PlayerAction{
-			Name:   fmt.Sprintf("Do nothing"),
-			Action: model.DoNothing{},
-		})
+		a = append(a, model.DoNothing{})
 
 		// TODO: check whether player can declare pung, kong, chow or mahjong and add to available actions
 
