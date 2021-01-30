@@ -80,7 +80,7 @@ var TileNames = map[Tile]string{
 	Bamboo6:             "Bamboo 6",
 	Bamboo7:             "Bamboo 7",
 	Bamboo8:             "Bamboo 8",
-	Bamboo9:             "Bamboo 1",
+	Bamboo9:             "Bamboo 9",
 	Circles1:            "Circles 1",
 	Circles2:            "Circles 2",
 	Circles3:            "Circles 3",
