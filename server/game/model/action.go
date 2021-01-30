@@ -18,6 +18,16 @@ type Discard struct {
 
 func (d Discard) ActionIndex() int { return int(d.Tile) }
 
+type DeclareConcealedKong struct {
+	Tile Tile
+}
+
+func (d DeclareConcealedKong) ActionIndex() int { return int(d.Tile) + 100 }
+
+type DeclareMahjong struct {}
+
+func (d DeclareMahjong) ActionIndex() int { return -1 }
+
 type DoNothing struct{}
 
 func (d DoNothing) ActionIndex() int { return 0 }

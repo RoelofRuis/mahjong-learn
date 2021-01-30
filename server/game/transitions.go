@@ -76,16 +76,20 @@ func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
 func tileReceivedActions(g *model.Game) map[model.Seat][]model.Action {
 	actionMap := make(map[model.Seat][]model.Action, 1)
 
+	activePlayer := g.GetActivePlayer()
 	availableActions := make([]model.Action, 0)
-	for t, c := range g.GetActivePlayer().GetConcealedTiles().AsMap() {
-		if c < 1 {
-			continue
-		}
 
+	for _, t := range activePlayer.PossibleDiscards() {
 		availableActions = append(availableActions, model.Discard{Tile: t})
 	}
 
-	// TODO: check whether player can declare kong or mahjong and add to available actions
+	for _, t := range activePlayer.PossibleHiddenKongs() {
+		availableActions = append(availableActions, model.DeclareConcealedKong{Tile: t})
+	}
+
+	if activePlayer.CanDeclareMahjong() {
+		availableActions = append(availableActions, model.DeclareMahjong{})
+	}
 
 	sort.Sort(model.ByIndex(availableActions))
 
@@ -112,21 +116,14 @@ func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
 
 	activeDiscard := *g.GetActiveDiscard()
 
-	for _, s := range model.SEATS {
-		if s == g.GetActiveSeat() {
-			// active seat has discarded and cannot perform an action
-			continue
-		}
-
-		player := g.GetPlayerAtSeat(s)
-
+	for s, p := range g.GetReactingPlayers() {
 		a := make([]model.Action, 0)
 		a = append(a, model.DoNothing{})
 
-		if player.CanPung(activeDiscard) {
+		if p.CanPung(activeDiscard) {
 			a = append(a, model.DeclarePung{})
 		}
-		if player.CanKong(activeDiscard) {
+		if p.CanKong(activeDiscard) {
 			a = append(a, model.DeclareKong{})
 		}
 
@@ -160,11 +157,7 @@ func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) 
 	}
 
 	g.ResetWall()
-
-	for _, s := range model.SEATS {
-		g.GetPlayerAtSeat(s).PrepareNextRound()
-		g.DealTiles(13, s)
-	}
+	g.PrepareNextRound()
 
 	return stateNextTurn, nil
 }

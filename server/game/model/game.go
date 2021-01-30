@@ -2,8 +2,6 @@ package model
 
 type Seat int
 
-var SEATS = []Seat{Seat(0), Seat(1), Seat(2), Seat(3)}
-
 type Wind int
 
 const (
@@ -49,6 +47,16 @@ func (g *Game) GetActiveSeat() Seat {
 	return g.activeSeat
 }
 
+func (g *Game) GetReactingPlayers() map[Seat]*Player {
+	reactingPlayers := make(map[Seat]*Player, 3)
+	for s, p := range g.players {
+		if s != g.activeSeat {
+			reactingPlayers[s] = p
+		}
+	}
+	return reactingPlayers
+}
+
 func (g *Game) GetActivePlayer() *Player {
 	return g.GetPlayerAtSeat(g.activeSeat)
 }
@@ -91,6 +99,13 @@ func (g *Game) SetNextPrevalentWind() {
 
 func (g *Game) ResetWall() {
 	g.wall = NewMahjongSet()
+}
+
+func (g *Game) PrepareNextRound() {
+	for s, p := range g.players {
+		p.PrepareNextRound()
+		g.DealTiles(13, s)
+	}
 }
 
 func (g *Game) ActivateNextSeat() {

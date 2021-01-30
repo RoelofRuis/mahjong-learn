@@ -26,10 +26,6 @@ func NewMahjongSet() *TileCollection {
 
 // Getters
 
-func (t *TileCollection) AsMap() map[Tile]int {
-	return t.tiles
-}
-
 func (t *TileCollection) NumOf(tile Tile) int {
 	count, has := t.tiles[tile]
 	if !has {
