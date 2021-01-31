@@ -5,7 +5,8 @@ import strategy
 WAIT_FOR_KEY = True
 
 # select the strategy to use, see strategy file for options
-ACTION_SELECTION_STRATEGY = strategy.pick_first_action
+# IMPORTANT: make sure to provide the function reference, so without the '()'!
+ACTION_SELECTION_STRATEGY = strategy.pick_random_action
 
 # start new game
 id = api.new_game()["id"]
