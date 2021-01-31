@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game"
 	"github.com/roelofruis/mahjong-learn/game/model"
@@ -214,31 +215,24 @@ func DescribePlayer(g model.Game, actions []model.Action, seat model.Seat) Playe
 
 func DescribeAction(action model.Action) string {
 	switch a := action.(type) {
-	case model.DoNothing:
-		return "Do nothing"
 	case model.Discard:
 		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])
 	case model.DeclareConcealedKong:
 		return fmt.Sprintf("Declare a concealed Kong of %s", TileNames[a.Tile])
 	case model.ExposedPungToKong:
 		return fmt.Sprintf("Add to exposed pung of %s", TileNames[a.Tile])
+	case model.DoNothing:
+		return "Do nothing"
 	case model.DeclareChow:
-		return fmt.Sprintf("Declare chow starting at %s", TileNames[a.Tile])
+		return fmt.Sprintf("Declare chow up from %s", TileNames[a.Tile])
 	case model.DeclarePung:
 		return "Declare a pung"
 	case model.DeclareKong:
 		return "Declare a kong"
+	case model.DeclareMahjong:
+		return "Declare mahjong"
 
 	default:
-		// This should not happen..!
-		return "unknown action"
+		panic(errors.New("unknown action")) // This should never happen..!
 	}
-}
-
-func ToVector(t *model.TileCollection) []int {
-	tileVector := make([]int, len(TileOrder))
-	for i, tile := range TileOrder {
-		tileVector[i] = t.NumOf(tile)
-	}
-	return tileVector
 }

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game/model"
 )
@@ -15,7 +16,7 @@ var (
 )
 
 func init() {
-	// initialize states here to prevent loop in references
+	// initialize states in `init` to prevent loops in references
 	stateNewGame = &State{
 		Name:          "New Game",
 		PlayerActions: nil,
@@ -85,7 +86,14 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 		g.ActivePlayerDiscards(a.Tile)
 		return stateTileDiscarded, nil
 
-		// TODO: handle other possible cases
+	case model.DeclareConcealedKong:
+		panic(errors.New("not implemented")) // TODO: implement
+
+	case model.ExposedPungToKong:
+		panic(errors.New("not implemented")) // TODO: implement
+
+	case model.DeclareMahjong:
+		panic(errors.New("not implemented")) // TODO: implement
 
 	default:
 		return nil, fmt.Errorf("illegal action %+v", a)
@@ -115,12 +123,12 @@ func handleTileDiscardedActions(g *model.Game, _ map[model.Seat]model.Action) (*
 }
 
 func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
+	// TODO: tally scores
+
+	// Game ends if player 3 has been North
 	if g.GetPrevalentWind() == model.North && g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == model.North {
-		// Done if player 3 has been North
 		return stateGameEnded, nil
 	}
-
-	// TODO: tally scores
 
 	if g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == g.GetPrevalentWind() {
 		g.SetNextPrevalentWind()

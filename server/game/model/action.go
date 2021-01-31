@@ -13,6 +13,7 @@ func (a ByIndex) Len() int           { return len(a) }
 func (a ByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByIndex) Less(i, j int) bool { return a[i].ActionIndex() < a[j].ActionIndex() }
 
+// Tile received actions
 type Discard struct{ Tile Tile }
 
 func (d Discard) ActionIndex() int { return int(d.Tile) }
@@ -25,10 +26,7 @@ type ExposedPungToKong struct{ Tile Tile }
 
 func (d ExposedPungToKong) ActionIndex() int { return int(d.Tile) + 200 }
 
-type DeclareMahjong struct{}
-
-func (d DeclareMahjong) ActionIndex() int { return -1 }
-
+// Tile discarded actions
 type DoNothing struct{}
 
 func (d DoNothing) ActionIndex() int { return 0 }
@@ -44,6 +42,13 @@ func (d DeclarePung) ActionIndex() int { return 100 }
 type DeclareKong struct{}
 
 func (d DeclareKong) ActionIndex() int { return 101 }
+
+// Both received and discarded actions
+type DeclareMahjong struct{}
+
+func (d DeclareMahjong) ActionIndex() int { return -1 }
+
+// Player actions
 
 func (p *Player) GetTileReceivedActions() []Action {
 	availableActions := make([]Action, 0)
@@ -91,7 +96,7 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []Acti
 		}
 	}
 
-	// TODO: add mahjong
+	// TODO: add declare mahjong
 
 	sort.Sort(ByIndex(availableActions))
 
