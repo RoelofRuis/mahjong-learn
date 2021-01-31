@@ -5,7 +5,7 @@ type Player struct {
 
 	seatWind  Wind
 	concealed *TileCollection
-	exposed   []Combination
+	exposed   *CombinationCollection
 	discarded *TileCollection
 }
 
@@ -14,7 +14,7 @@ func NewPlayer(seatWind Wind) *Player {
 		score:     0,
 		seatWind:  seatWind,
 		concealed: NewEmptyTileCollection(),
-		exposed:   NewEmptyCombinationList(),
+		exposed:   NewCombinationCollection(),
 		discarded: NewEmptyTileCollection(),
 	}
 }
@@ -30,7 +30,7 @@ func (p *Player) GetSeatWind() Wind {
 }
 
 func (p *Player) GetExposedCombinations() []Combination {
-	return p.exposed
+	return p.exposed.combinations
 }
 
 func (p *Player) GetDiscardedTiles() *TileCollection {
@@ -44,8 +44,7 @@ func (p *Player) ForceExposeTiles() int {
 	for t, c := range p.concealed.tiles {
 		if IsBonusTile(t) && c > 0 {
 			p.concealed.Remove(t)
-
-			p.exposed = append(p.exposed, BonusTile{t})
+			p.exposed.Add(BonusTile{t})
 			transferred++
 		}
 	}
@@ -56,6 +55,6 @@ func (p *Player) ForceExposeTiles() int {
 func (p *Player) PrepareNextRound() {
 	p.discarded.Empty()
 	p.concealed.Empty()
-	p.exposed = NewEmptyCombinationList()
+	p.exposed.Empty()
 	p.seatWind = (p.seatWind + 5) % 4
 }

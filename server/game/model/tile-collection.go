@@ -91,3 +91,58 @@ func (t *TileCollection) TransferRandom(n int, target *TileCollection) {
 		target.tiles[picked]++
 	}
 }
+
+
+type CombinationCollection struct {
+	combinations []Combination
+}
+
+func NewCombinationCollection() *CombinationCollection {
+	return &CombinationCollection{combinations: []Combination{}}
+}
+
+func (c CombinationCollection) Empty() {
+	c.combinations = []Combination{}
+}
+
+func (c CombinationCollection) Add(combination Combination) {
+	c.combinations = append(c.combinations, combination)
+}
+
+
+type Combination interface {
+	CombinationIndex() int // TODO: meh, not sure if this is really required...
+}
+
+type Chow struct {
+	FirstTile Tile
+}
+
+func (c Chow) CombinationIndex() int {
+	return int(c.FirstTile)
+}
+
+type Pung struct {
+	Tile Tile
+}
+
+func (c Pung) CombinationIndex() int {
+	return int(c.Tile) + 100
+}
+
+type Kong struct {
+	Tile   Tile
+	Hidden bool
+}
+
+func (c Kong) CombinationIndex() int {
+	return int(c.Tile) + 200
+}
+
+type BonusTile struct {
+	Tile Tile
+}
+
+func (c BonusTile) CombinationIndex() int {
+	return int(c.Tile) + 300
+}
