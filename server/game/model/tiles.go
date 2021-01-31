@@ -59,6 +59,10 @@ func IsCharacter(t Tile) bool {
 	return t > 20 && t < 30
 }
 
+func IsSuit(t Tile) bool {
+	return t < 30
+}
+
 func IsDragon(t Tile) bool {
 	return t >= 30 && t <= 32
 }

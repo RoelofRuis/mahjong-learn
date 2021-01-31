@@ -98,7 +98,8 @@ func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
 	activeDiscard := *g.GetActiveDiscard()
 
 	for s, p := range g.GetReactingPlayers() {
-		m[s] = p.GetTileDiscardedActions(activeDiscard)
+		isNextSeat := (g.GetActiveSeat() + 1)%4 == s
+		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextSeat)
 	}
 
 	return m

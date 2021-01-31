@@ -222,6 +222,8 @@ func DescribeAction(action model.Action) string {
 		return fmt.Sprintf("Declare a concealed Kong of %s", TileNames[a.Tile])
 	case model.ExposedPungToKong:
 		return fmt.Sprintf("Add to exposed pung of %s", TileNames[a.Tile])
+	case model.DeclareChow:
+		return fmt.Sprintf("Declare chow starting at %s", TileNames[a.Tile])
 	case model.DeclarePung:
 		return "Declare a pung"
 	case model.DeclareKong:
