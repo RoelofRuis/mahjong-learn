@@ -10,21 +10,19 @@ print(f"game: {id}")
 while True:
     game_state = api.get_state(id)
     state_name = game_state["state_name"]
-    active_player = game_state["active_player"]
+    active_players = game_state["active_players"]
     has_ended = game_state["has_ended"]
     if has_ended:
         break
 
-    print(f"State: {state_name} (player {active_player} to move)")
+    print(f"State: {state_name} (player(s) {active_players} to move)")
 
     if WAIT_FOR_KEY:
         input("Press enter to execute next move")
 
-    # pick the first action for player 1
-    api.send_actions(id, {f"{active_player}": 0})
+    for p in active_players:
+        actions = dict()
 
-    if WAIT_FOR_KEY:
-        input("Press enter to execute next move")
-
-    # pick the first actions for other players
-    api.send_actions(id, {f"{p}": 0 for p in [1, 2, 3, 4] if p != active_player})
+        # just pick the first action for now
+        actions[f"{p}"] = 0
+        api.send_actions(id, actions)

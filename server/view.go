@@ -117,28 +117,35 @@ type HumanView struct {
 	HasEnded      bool       `json:"has_ended"`
 	StateName     string     `json:"state_name"`
 	PrevalentWind string     `json:"prevalent_wind"`
-	ActivePlayer  int        `json:"active_player"`
+	ActivePlayers  []int     `json:"active_players"`
 	ActiveDiscard string     `json:"active_discard"`
-	Player1       PlayerView `json:"player_1"`
-	Player2       PlayerView `json:"player_2"`
-	Player3       PlayerView `json:"player_3"`
-	Player4       PlayerView `json:"player_4"`
+	Players       map[int]PlayerView `json:"players"`
 	Wall          []string   `json:"wall"`
 }
 
 func View(stateMachine *game.StateMachine) *HumanView {
 	g, s, a := stateMachine.View()
+
+	var activePlayers []int
+	playerViews := make(map[int]PlayerView, 4)
+	for _, seat := range []int{0, 1, 2, 3} {
+		actions, has := a[model.Seat(seat)]
+		if !has {
+			actions = make([]model.Action, 0)
+		} else {
+			activePlayers = append(activePlayers, seat + 1)
+		}
+		playerViews[seat + 1] = DescribePlayer(g, actions, model.Seat(seat))
+	}
+
 	return &HumanView{
 		Id:            stateMachine.Id(),
 		HasEnded:      s.Transition == nil,
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.GetPrevalentWind()],
-		ActivePlayer:  int(g.GetActiveSeat()) + 1,
+		ActivePlayers: activePlayers,
 		ActiveDiscard: DescribeTilePointer(g.GetActiveDiscard()),
-		Player1:       DescribePlayer(g, a, 0),
-		Player2:       DescribePlayer(g, a, 1),
-		Player3:       DescribePlayer(g, a, 2),
-		Player4:       DescribePlayer(g, a, 3),
+		Players:       playerViews,
 		Wall:          Describe(g.GetWall()),
 	}
 }
@@ -187,13 +194,7 @@ func Describe(t *model.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g model.Game, a map[model.Seat][]model.Action, player int) PlayerView {
-	seat := model.Seat(player)
-	actions, has := a[seat]
-	if !has {
-		actions = make([]model.Action, 0)
-	}
-
+func DescribePlayer(g model.Game, actions []model.Action, seat model.Seat) PlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = DescribeAction(a)
