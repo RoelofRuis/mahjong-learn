@@ -23,6 +23,12 @@ type DeclareConcealedKong struct {
 
 func (d DeclareConcealedKong) ActionIndex() int { return int(d.Tile) + 100 }
 
+type ExposedPungToKong struct {
+	Tile Tile
+}
+
+func (d ExposedPungToKong) ActionIndex() int { return int(d.Tile) + 200 }
+
 type DeclareMahjong struct{}
 
 func (d DeclareMahjong) ActionIndex() int { return -1 }

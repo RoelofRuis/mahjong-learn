@@ -2,6 +2,7 @@ package model
 
 import "math/rand"
 
+// TODO: optimize to remove tiles with count 0 from the map (Then fix TileReceivedActions filtering > 0!)
 type TileCollection struct {
 	tiles map[Tile]int
 }

@@ -73,10 +73,8 @@ func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
 }
 
 func tileReceivedActions(g *model.Game) map[model.Seat][]model.Action {
-	availableActions := g.GetActivePlayer().GetTileReceivedActions()
-
 	actionMap := make(map[model.Seat][]model.Action, 1)
-	actionMap[g.GetActiveSeat()] = availableActions
+	actionMap[g.GetActiveSeat()] = g.GetActivePlayer().GetTileReceivedActions()
 
 	return actionMap
 }

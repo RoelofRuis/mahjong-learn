@@ -107,7 +107,7 @@ type PlayerView struct {
 	Actions   map[int]string `json:"actions"`
 	Wind      string         `json:"wind"`
 	Received  string         `json:"received"`
-	Concealed []string       `json:"hand"`
+	Concealed []string       `json:"concealed"`
 	Exposed   []string       `json:"exposed"`
 	Discarded []string       `json:"discarded"`
 }

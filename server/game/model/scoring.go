@@ -7,15 +7,24 @@ import "sort"
 func (p *Player) GetTileReceivedActions() []Action {
 	availableActions := make([]Action, 0)
 
+	receivedTile := *p.received
+
+	availableActions = append(availableActions, Discard{Tile: receivedTile})
+
 	for t, c := range p.concealed.tiles {
-		if c > 0 {
+		if c > 0 && t != receivedTile {
+			// a player can discard any tile he has at least one of
 			availableActions = append(availableActions, Discard{Tile: t})
 		}
-		if c == 4 {
+		if c == 4 || (c == 3 && t == receivedTile) {
+			// a player can declare a concealed kong of four equal tiles
 			availableActions = append(availableActions, DeclareConcealedKong{Tile: t})
 		}
+	}
 
-		// TODO: add to exposed pung to make kong
+	if p.exposed.Contains(Pung{Tile: receivedTile}) {
+		// add to an exposed pung to make a kong
+		availableActions = append(availableActions, ExposedPungToKong{Tile: receivedTile})
 	}
 
 	// TODO: add declare mahjong
