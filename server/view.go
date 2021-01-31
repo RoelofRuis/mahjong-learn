@@ -218,6 +218,10 @@ func DescribeAction(action model.Action) string {
 		return "Do nothing"
 	case model.Discard:
 		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])
+	case model.DeclareConcealedKong:
+		return fmt.Sprintf("Declare a concealed Kong of %s", TileNames[a.Tile])
+	case model.ExposedPungToKong:
+		return fmt.Sprintf("Add to exposed pung of %s", TileNames[a.Tile])
 	case model.DeclarePung:
 		return "Declare a pung"
 	case model.DeclareKong:
