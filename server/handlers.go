@@ -10,7 +10,7 @@ import (
 
 func (s *Server) handleIndex(_ *http.Request) *Response {
 	return &Response{
-		StatusCode: http.StatusFound,
+		StatusCode: http.StatusOK,
 		Data: &struct {
 			Message      string `json:"message"`
 			Version      string `json:"version"`

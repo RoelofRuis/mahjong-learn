@@ -39,11 +39,6 @@ type Response struct {
 	Error      error
 }
 
-type ErrorMessage struct {
-	Error      string
-	StatusCode int
-}
-
 func (s *Server) GetDomain(includeScheme bool) string {
 	if includeScheme {
 		return fmt.Sprintf("http://%s:%s", s.Host, s.Port)
@@ -80,7 +75,13 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 
 		if response.Error != nil {
 			log.Printf("Handler returned error: %s", response.Error.Error())
-			data = &ErrorMessage{StatusCode: response.StatusCode, Error: response.Error.Error()}
+			data = struct {
+				Error      string `json:"error"`
+				StatusCode int `json:"status_code"`
+			}{
+				Error: response.Error.Error(),
+				StatusCode: response.StatusCode,
+			}
 		}
 
 		w.Header().Add("Content-Type", "application/json")
@@ -134,7 +135,7 @@ func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandle
 		handler, has := handlers[r.Method]
 		if !has {
 			return &Response{
-				StatusCode: http.StatusBadRequest,
+				StatusCode: http.StatusMethodNotAllowed,
 				Error:      fmt.Errorf("endpoint is unable to handle %s requests", r.Method),
 			}
 		}
