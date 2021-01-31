@@ -113,14 +113,14 @@ type PlayerView struct {
 }
 
 type HumanView struct {
-	Id            uint64     `json:"id"`
-	HasEnded      bool       `json:"has_ended"`
-	StateName     string     `json:"state_name"`
-	PrevalentWind string     `json:"prevalent_wind"`
-	ActivePlayers  []int     `json:"active_players"`
-	ActiveDiscard string     `json:"active_discard"`
+	Id            uint64             `json:"id"`
+	HasEnded      bool               `json:"has_ended"`
+	StateName     string             `json:"state_name"`
+	PrevalentWind string             `json:"prevalent_wind"`
+	ActivePlayers []int              `json:"active_players"`
+	ActiveDiscard string             `json:"active_discard"`
 	Players       map[int]PlayerView `json:"players"`
-	Wall          []string   `json:"wall"`
+	Wall          []string           `json:"wall"`
 }
 
 func View(stateMachine *game.StateMachine) *HumanView {
@@ -133,9 +133,9 @@ func View(stateMachine *game.StateMachine) *HumanView {
 		if !has {
 			actions = make([]model.Action, 0)
 		} else {
-			activePlayers = append(activePlayers, seat + 1)
+			activePlayers = append(activePlayers, seat+1)
 		}
-		playerViews[seat + 1] = DescribePlayer(g, actions, model.Seat(seat))
+		playerViews[seat+1] = DescribePlayer(g, actions, model.Seat(seat))
 	}
 
 	return &HumanView{
