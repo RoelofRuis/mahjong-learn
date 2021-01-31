@@ -54,10 +54,10 @@ func init() {
 }
 
 func initialize(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
-	g.DealTiles(13, 0)
-	g.DealTiles(13, 1)
-	g.DealTiles(13, 2)
-	g.DealTiles(13, 3)
+	g.DealConcealed(13, 0)
+	g.DealConcealed(13, 1)
+	g.DealConcealed(13, 2)
+	g.DealConcealed(13, 3)
 
 	return stateNextTurn, nil
 }
@@ -67,7 +67,7 @@ func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
 		return stateNextRound, nil
 	}
 
-	g.DealTiles(1, g.GetActiveSeat())
+	g.DealToActivePlayer()
 
 	return stateTileReceived, nil
 }

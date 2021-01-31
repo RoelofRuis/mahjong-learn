@@ -106,6 +106,7 @@ var WindNames = map[model.Wind]string{
 type PlayerView struct {
 	Actions   map[int]string `json:"actions"`
 	Wind      string         `json:"wind"`
+	Received  string         `json:"received"`
 	Concealed []string       `json:"hand"`
 	Exposed   []string       `json:"exposed"`
 	Discarded []string       `json:"discarded"`
@@ -133,7 +134,7 @@ func View(stateMachine *game.StateMachine) *HumanView {
 		StateName:     s.Name,
 		PrevalentWind: WindNames[g.GetPrevalentWind()],
 		ActivePlayer:  int(g.GetActiveSeat()) + 1,
-		ActiveDiscard: DescribeActiveDiscard(g.GetActiveDiscard()),
+		ActiveDiscard: DescribeTilePointer(g.GetActiveDiscard()),
 		Player1:       DescribePlayer(g, a, 0),
 		Player2:       DescribePlayer(g, a, 1),
 		Player3:       DescribePlayer(g, a, 2),
@@ -142,7 +143,7 @@ func View(stateMachine *game.StateMachine) *HumanView {
 	}
 }
 
-func DescribeActiveDiscard(t *model.Tile) string {
+func DescribeTilePointer(t *model.Tile) string {
 	if t == nil {
 		return "none"
 	}
@@ -198,12 +199,15 @@ func DescribePlayer(g model.Game, a map[model.Seat][]model.Action, player int) P
 		actionMap[i] = DescribeAction(a)
 	}
 
+	p := g.GetPlayerAtSeat(seat)
+
 	return PlayerView{
 		Actions:   actionMap,
-		Wind:      WindNames[g.GetPlayerAtSeat(seat).GetSeatWind()],
-		Concealed: Describe(g.GetPlayerAtSeat(seat).GetConcealedTiles()),
-		Exposed:   DescribeCombinations(g.GetPlayerAtSeat(seat).GetExposedCombinations()),
-		Discarded: Describe(g.GetPlayerAtSeat(seat).GetDiscardedTiles()),
+		Wind:      WindNames[p.GetSeatWind()],
+		Received:  DescribeTilePointer(p.GetReceivedTile()),
+		Concealed: Describe(p.GetConcealedTiles()),
+		Exposed:   DescribeCombinations(p.GetExposedCombinations()),
+		Discarded: Describe(p.GetDiscardedTiles()),
 	}
 }
 

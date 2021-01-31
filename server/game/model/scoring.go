@@ -2,6 +2,8 @@ package model
 
 import "sort"
 
+// TODO: maybe move these functions to `action.go`
+
 func (p *Player) GetTileReceivedActions() []Action {
 	availableActions := make([]Action, 0)
 
@@ -12,6 +14,7 @@ func (p *Player) GetTileReceivedActions() []Action {
 		if c == 4 {
 			availableActions = append(availableActions, DeclareConcealedKong{Tile: t})
 		}
+
 		// TODO: add to exposed pung to make kong
 	}
 

@@ -3,6 +3,7 @@ package model
 type Player struct {
 	score int
 
+	received  *Tile
 	seatWind  Wind
 	concealed *TileCollection
 	exposed   *CombinationCollection
@@ -12,6 +13,7 @@ type Player struct {
 func NewPlayer(seatWind Wind) *Player {
 	return &Player{
 		score:     0,
+		received:  nil,
 		seatWind:  seatWind,
 		concealed: NewEmptyTileCollection(),
 		exposed:   NewCombinationCollection(),
@@ -37,24 +39,6 @@ func (p *Player) GetDiscardedTiles() *TileCollection {
 	return p.discarded
 }
 
-// State modifiers
-
-func (p *Player) ForceExposeTiles() int {
-	var transferred = 0
-	for t, c := range p.concealed.tiles {
-		if IsBonusTile(t) && c > 0 {
-			p.concealed.Remove(t)
-			p.exposed.Add(BonusTile{t})
-			transferred++
-		}
-	}
-
-	return transferred
-}
-
-func (p *Player) PrepareNextRound() {
-	p.discarded.Empty()
-	p.concealed.Empty()
-	p.exposed.Empty()
-	p.seatWind = (p.seatWind + 5) % 4
+func (p *Player) GetReceivedTile() *Tile {
+	return p.received
 }

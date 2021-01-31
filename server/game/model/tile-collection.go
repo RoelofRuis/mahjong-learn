@@ -61,35 +61,19 @@ func (t *TileCollection) Add(tile Tile) {
 	t.tiles[tile]++
 }
 
-func (t *TileCollection) Transfer(tile Tile, target *TileCollection) {
-	n, has := t.tiles[tile]
-	if !has || n == 0 {
-		return
-	}
-
-	t.tiles[tile]--
-	target.Add(tile)
-}
-
-// Transfers n randomly picked tiles from this tile collection to the target tile collection.
-func (t *TileCollection) TransferRandom(n int, target *TileCollection) {
+func (t *TileCollection) RemoveRandom() Tile {
 	var tileList = make([]Tile, 0)
 	for k, v := range t.tiles {
 		for i := v; i > 0; i-- {
 			tileList = append(tileList, k)
 		}
 	}
-	for i := n; i > 0; i-- {
-		numTiles := len(tileList)
-		pos := rand.Intn(numTiles)
-		picked := tileList[pos]
+	pos := rand.Intn(len(tileList))
+	picked := tileList[pos]
 
-		tileList[pos] = tileList[numTiles-1]
-		tileList = tileList[:numTiles-1]
+	t.tiles[picked]--
 
-		t.tiles[picked]--
-		target.tiles[picked]++
-	}
+	return picked
 }
 
 type CombinationCollection struct {
@@ -100,11 +84,24 @@ func NewCombinationCollection() *CombinationCollection {
 	return &CombinationCollection{combinations: []Combination{}}
 }
 
-func (c CombinationCollection) Empty() {
+// Getters
+
+func (c CombinationCollection) Contains(check Combination) bool {
+	for _, comb := range c.combinations {
+		if comb == check {
+			return true
+		}
+	}
+	return false
+}
+
+// State modifiers
+
+func (c *CombinationCollection) Empty() {
 	c.combinations = []Combination{}
 }
 
-func (c CombinationCollection) Add(combination Combination) {
+func (c *CombinationCollection) Add(combination Combination) {
 	c.combinations = append(c.combinations, combination)
 }
 

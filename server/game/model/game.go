@@ -77,19 +77,37 @@ func (g *Game) GetWall() *TileCollection {
 	return g.wall
 }
 
-// State modifiers
+// State Updates
 
-func (g *Game) DealTiles(n int, seat Seat) {
-	player := g.players[seat]
-	g.wall.TransferRandom(n, player.concealed)
+func (g *Game) DealToActivePlayer() {
+	activePlayer := g.GetActivePlayer()
 
 	for {
-		numExtra := player.ForceExposeTiles()
-		if numExtra == 0 {
+		wallTile := g.wall.RemoveRandom()
+
+		if !IsBonusTile(wallTile) {
+			activePlayer.received = &wallTile
 			break
 		}
 
-		g.wall.TransferRandom(numExtra, player.concealed)
+		activePlayer.exposed.Add(BonusTile{wallTile})
+	}
+}
+
+func (g *Game) DealConcealed(n int, s Seat) {
+	activePlayer := g.players[s]
+
+	for i := n; i > 0; i-- {
+		for {
+			wallTile := g.wall.RemoveRandom()
+
+			if !IsBonusTile(wallTile) {
+				activePlayer.concealed.Add(wallTile)
+				break
+			}
+
+			activePlayer.exposed.Add(BonusTile{wallTile})
+		}
 	}
 }
 
@@ -103,8 +121,12 @@ func (g *Game) ResetWall() {
 
 func (g *Game) PrepareNextRound() {
 	for s, p := range g.players {
-		p.PrepareNextRound()
-		g.DealTiles(13, s)
+		p.received = nil
+		p.discarded.Empty()
+		p.concealed.Empty()
+		p.exposed.Empty()
+		p.seatWind = (p.seatWind + 5) % 4
+		g.DealConcealed(13, s)
 	}
 }
 
@@ -113,13 +135,22 @@ func (g *Game) ActivateNextSeat() {
 }
 
 func (g *Game) ActivePlayerDiscards(tile Tile) {
-	g.players[g.activeSeat].concealed.Remove(tile)
+	activePlayer := g.GetActivePlayer()
+
+	// transfer received tile to hand
+	activePlayer.concealed.Add(*activePlayer.received)
+	activePlayer.received = nil
+
+	// remove selected tile from hand
+	activePlayer.concealed.Remove(tile)
+
+	// set active discard to selected tile
 	g.activeDiscard = &tile
 }
 
 func (g *Game) ActivePlayerTakesDiscarded() {
 	if g.activeDiscard != nil {
-		g.players[g.activeSeat].discarded.Add(*g.activeDiscard)
+		g.GetActivePlayer().discarded.Add(*g.activeDiscard)
 		g.activeDiscard = nil
 	}
 }
