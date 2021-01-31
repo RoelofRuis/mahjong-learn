@@ -51,6 +51,51 @@ var TileOrder = []model.Tile{
 	model.SeasonWinter,
 }
 
+var TileNames = map[model.Tile]string{
+	model.Bamboo1:             "Bamboo 1",
+	model.Bamboo2:             "Bamboo 2",
+	model.Bamboo3:             "Bamboo 3",
+	model.Bamboo4:             "Bamboo 4",
+	model.Bamboo5:             "Bamboo 5",
+	model.Bamboo6:             "Bamboo 6",
+	model.Bamboo7:             "Bamboo 7",
+	model.Bamboo8:             "Bamboo 8",
+	model.Bamboo9:             "Bamboo 9",
+	model.Circles1:            "Circles 1",
+	model.Circles2:            "Circles 2",
+	model.Circles3:            "Circles 3",
+	model.Circles4:            "Circles 4",
+	model.Circles5:            "Circles 5",
+	model.Circles6:            "Circles 6",
+	model.Circles7:            "Circles 7",
+	model.Circles8:            "Circles 8",
+	model.Circles9:            "Circles 9",
+	model.Characters1:         "Characters 1",
+	model.Characters2:         "Characters 2",
+	model.Characters3:         "Characters 3",
+	model.Characters4:         "Characters 4",
+	model.Characters5:         "Characters 5",
+	model.Characters6:         "Characters 6",
+	model.Characters7:         "Characters 7",
+	model.Characters8:         "Characters 8",
+	model.Characters9:         "Characters 9",
+	model.RedDragon:           "Red Dragon",
+	model.GreenDragon:         "Green Dragon",
+	model.WhiteDragon:         "White Dragon",
+	model.EastWind:            "East Wind",
+	model.SouthWind:           "South Wind",
+	model.WestWind:            "West Wind",
+	model.NorthWind:           "North Wind",
+	model.FlowerPlumb:         "Plumb (flower)",
+	model.FlowerOrchid:        "Orchid (flower)",
+	model.FlowerChrysanthemum: "Chrysanthemum (flower)",
+	model.FlowerBamboo:        "Bamboo (flower)",
+	model.SeasonSpring:        "Spring (season)",
+	model.SeasonSummer:        "Summer (season)",
+	model.SeasonAutumn:        "Autumn (season)",
+	model.SeasonWinter:        "Winter (season)",
+}
+
 var WindNames = map[model.Wind]string{
 	model.East:  "East",
 	model.South: "South",
@@ -101,7 +146,7 @@ func DescribeActiveDiscard(t *model.Tile) string {
 	if t == nil {
 		return "none"
 	}
-	return model.TileNames[*t]
+	return TileNames[*t]
 }
 
 func DescribeCombinations(combinations []model.Combination) []string {
@@ -109,16 +154,16 @@ func DescribeCombinations(combinations []model.Combination) []string {
 	for i, combi := range combinations {
 		switch c := combi.(type) {
 		case model.BonusTile:
-			descriptions[i] = fmt.Sprintf("Bonus tile %s", model.TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Bonus tile %s", TileNames[c.Tile])
 
 		case model.Chow:
-			descriptions[i] = fmt.Sprintf("Chow %s", model.TileNames[c.FirstTile])
+			descriptions[i] = fmt.Sprintf("Chow %s", TileNames[c.FirstTile])
 
 		case model.Pung:
-			descriptions[i] = fmt.Sprintf("Pung %s", model.TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Pung %s", TileNames[c.Tile])
 
 		case model.Kong:
-			descriptions[i] = fmt.Sprintf("Kong %s", model.TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Kong %s", TileNames[c.Tile])
 
 		default:
 			// This should not happen..!
@@ -135,7 +180,7 @@ func Describe(t *model.TileCollection) []string {
 		if count == 0 {
 			continue
 		}
-		text := fmt.Sprintf("%d× %s", count, model.TileNames[tile])
+		text := fmt.Sprintf("%d× %s", count, TileNames[tile])
 		descriptions = append(descriptions, text)
 	}
 	return descriptions
@@ -167,7 +212,7 @@ func DescribeAction(action model.Action) string {
 	case model.DoNothing:
 		return "Do nothing"
 	case model.Discard:
-		return fmt.Sprintf("Discard a %s", model.TileNames[a.Tile])
+		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])
 	case model.DeclarePung:
 		return "Declare a pung"
 	case model.DeclareKong:

@@ -3,7 +3,6 @@ package game
 import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game/model"
-	"sort"
 )
 
 var (
@@ -74,25 +73,9 @@ func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
 }
 
 func tileReceivedActions(g *model.Game) map[model.Seat][]model.Action {
+	availableActions := g.GetActivePlayer().GetTileReceivedActions()
+
 	actionMap := make(map[model.Seat][]model.Action, 1)
-
-	activePlayer := g.GetActivePlayer()
-	availableActions := make([]model.Action, 0)
-
-	for _, t := range activePlayer.PossibleDiscards() {
-		availableActions = append(availableActions, model.Discard{Tile: t})
-	}
-
-	for _, t := range activePlayer.PossibleHiddenKongs() {
-		availableActions = append(availableActions, model.DeclareConcealedKong{Tile: t})
-	}
-
-	if activePlayer.CanDeclareMahjong() {
-		availableActions = append(availableActions, model.DeclareMahjong{})
-	}
-
-	sort.Sort(model.ByIndex(availableActions))
-
 	actionMap[g.GetActiveSeat()] = availableActions
 
 	return actionMap
@@ -112,24 +95,12 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 }
 
 func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
-	m := make(map[model.Seat][]model.Action, 4)
+	m := make(map[model.Seat][]model.Action, 3)
 
 	activeDiscard := *g.GetActiveDiscard()
 
 	for s, p := range g.GetReactingPlayers() {
-		a := make([]model.Action, 0)
-		a = append(a, model.DoNothing{})
-
-		if p.CanPung(activeDiscard) {
-			a = append(a, model.DeclarePung{})
-		}
-		if p.CanKong(activeDiscard) {
-			a = append(a, model.DeclareKong{})
-		}
-
-		// TODO: check whether player can declare chow or mahjong and add to available actions
-
-		m[s] = a
+		m[s] = p.GetTileDiscardedActions(activeDiscard)
 	}
 
 	return m
