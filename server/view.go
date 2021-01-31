@@ -218,7 +218,6 @@ func DescribeAction(action model.Action) string {
 	case model.DeclareKong:
 		return "Declare a kong"
 
-
 	default:
 		// This should not happen..!
 		return "unknown action"

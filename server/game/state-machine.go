@@ -30,7 +30,7 @@ type State struct {
 
 func NewGameStateMachine(id uint64) *StateMachine {
 	return &StateMachine{
-		id:    id,
+		id: id,
 
 		transitionLimit: 10,
 
@@ -91,7 +91,7 @@ func (m *StateMachine) Transition(selectedActions map[model.Seat]int) error {
 			for _, s := range stateHistory {
 				stateDebug += fmt.Sprintf("%s\n", s)
 			}
-			return fmt.Errorf("game took more than %d transition steps. " +
+			return fmt.Errorf("game took more than %d transition steps. "+
 				"There is probably an infinite loop in the game logic.\nVisited stateds were:\n%s", m.transitionLimit, stateDebug)
 		}
 	}

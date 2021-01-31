@@ -92,7 +92,6 @@ func (t *TileCollection) TransferRandom(n int, target *TileCollection) {
 	}
 }
 
-
 type CombinationCollection struct {
 	combinations []Combination
 }
@@ -108,7 +107,6 @@ func (c CombinationCollection) Empty() {
 func (c CombinationCollection) Add(combination Combination) {
 	c.combinations = append(c.combinations, combination)
 }
-
 
 type Combination interface {
 	CombinationIndex() int // TODO: meh, not sure if this is really required...
