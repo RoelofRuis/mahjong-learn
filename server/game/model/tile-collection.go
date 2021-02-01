@@ -49,6 +49,10 @@ func (t *TileCollection) Empty() {
 	t.tiles = make(map[Tile]uint8)
 }
 
+func (t *TileCollection) RemoveAll(tile Tile) {
+	delete(t.tiles, tile)
+}
+
 func (t *TileCollection) Remove(tile Tile) {
 	n, has := t.tiles[tile]
 	if !has {
@@ -105,6 +109,14 @@ func (c *CombinationCollection) Empty() {
 	c.combinations = []Combination{}
 }
 
+func (c *CombinationCollection) Replace(old Combination, new Combination) {
+	for i, comb := range c.combinations {
+		if comb == old {
+			c.combinations[i] = new
+		}
+	}
+}
+
 func (c *CombinationCollection) Add(combination Combination) {
 	c.combinations = append(c.combinations, combination)
 }
@@ -130,8 +142,8 @@ func (c Pung) CombinationIndex() int {
 }
 
 type Kong struct {
-	Tile   Tile
-	Hidden bool
+	Tile      Tile
+	Concealed bool
 }
 
 func (c Kong) CombinationIndex() int {

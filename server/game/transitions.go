@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/game/model"
 )
@@ -87,13 +86,18 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 		return stateTileDiscarded, nil
 
 	case model.DeclareConcealedKong:
-		panic(errors.New("not implemented")) // TODO: implement
+		g.ActivePlayerDeclaresConcealedKong(a.Tile)
+		g.DealToActivePlayer()
+		return stateTileReceived, nil
 
 	case model.ExposedPungToKong:
-		panic(errors.New("not implemented")) // TODO: implement
+		g.ActivePlayerAddsToExposedPung()
+		g.DealToActivePlayer()
+		return stateTileReceived, nil
 
 	case model.DeclareMahjong:
-		panic(errors.New("not implemented")) // TODO: implement
+		// TODO: make sure no more logic is needed here...
+		return stateNextRound, nil
 
 	default:
 		return nil, fmt.Errorf("illegal action %+v", a)

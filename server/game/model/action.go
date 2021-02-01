@@ -24,9 +24,9 @@ type DeclareConcealedKong struct{ Tile Tile }
 
 func (d DeclareConcealedKong) ActionIndex() int { return int(d.Tile) + 100 }
 
-type ExposedPungToKong struct{ Tile Tile }
+type ExposedPungToKong struct{}
 
-func (d ExposedPungToKong) ActionIndex() int { return int(d.Tile) + 200 }
+func (d ExposedPungToKong) ActionIndex() int { return 200 }
 
 // Tile discarded actions
 type DoNothing struct{}
@@ -69,7 +69,7 @@ func (p *Player) GetTileReceivedActions() []Action {
 	}
 
 	if p.exposed.Contains(Pung{Tile: receivedTile}) {
-		availableActions = append(availableActions, ExposedPungToKong{Tile: receivedTile})
+		availableActions = append(availableActions, ExposedPungToKong{})
 	}
 
 	// TODO: add declare mahjong

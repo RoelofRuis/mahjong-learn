@@ -134,18 +134,38 @@ func (g *Game) ActivateNextSeat() {
 	g.activeSeat = Seat((int(g.activeSeat) + 1) % 4)
 }
 
+func (g *Game) ActivePlayerDeclaresConcealedKong(tile Tile) {
+	activePlayer := g.GetActivePlayer()
+
+	activePlayer.concealed.RemoveAll(tile)
+	activePlayer.exposed.Add(Kong{
+		Tile:      tile,
+		Concealed: false,
+	})
+
+	activePlayer.received = nil
+}
+
+func (g *Game) ActivePlayerAddsToExposedPung() {
+	activePlayer := g.GetActivePlayer()
+
+	activePlayer.exposed.Replace(
+		Pung{Tile: *activePlayer.received},
+		Kong{Tile: *activePlayer.received, Concealed: false},
+	)
+
+	activePlayer.received = nil
+}
+
 func (g *Game) ActivePlayerDiscards(tile Tile) {
 	activePlayer := g.GetActivePlayer()
 
-	// transfer received tile to hand
 	activePlayer.concealed.Add(*activePlayer.received)
-	activePlayer.received = nil
-
-	// remove selected tile from hand
 	activePlayer.concealed.Remove(tile)
 
-	// set active discard to selected tile
 	g.activeDiscard = &tile
+
+	activePlayer.received = nil
 }
 
 func (g *Game) ActivePlayerTakesDiscarded() {
