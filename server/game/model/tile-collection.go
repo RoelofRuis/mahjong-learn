@@ -2,17 +2,16 @@ package model
 
 import "math/rand"
 
-// TODO: optimize to remove tiles with count 0 from the map (Then fix TileReceivedActions filtering > 0!)
 type TileCollection struct {
-	tiles map[Tile]int
+	tiles map[Tile]uint8
 }
 
 func NewEmptyTileCollection() *TileCollection {
-	return &TileCollection{tiles: make(map[Tile]int)}
+	return &TileCollection{tiles: make(map[Tile]uint8)}
 }
 
 func NewMahjongSet() *TileCollection {
-	return &TileCollection{tiles: map[Tile]int{
+	return &TileCollection{tiles: map[Tile]uint8{
 		Bamboo1: 4, Bamboo2: 4, Bamboo3: 4, Bamboo4: 4, Bamboo5: 4, Bamboo6: 4, Bamboo7: 4, Bamboo8: 4, Bamboo9: 4,
 		Circles1: 4, Circles2: 4, Circles3: 4, Circles4: 4, Circles5: 4, Circles6: 4, Circles7: 4, Circles8: 4, Circles9: 4,
 		Characters1: 4, Characters2: 4, Characters3: 4, Characters4: 4, Characters5: 4, Characters6: 4, Characters7: 4, Characters8: 4, Characters9: 4,
@@ -30,15 +29,15 @@ func NewMahjongSet() *TileCollection {
 func (t *TileCollection) NumOf(tile Tile) int {
 	count, has := t.tiles[tile]
 	if !has {
-		return 0
+		count = 0
 	}
-	return count
+	return int(count)
 }
 
 func (t *TileCollection) Size() int {
 	var count = 0
 	for _, c := range t.tiles {
-		count += c
+		count += int(c)
 	}
 
 	return count
@@ -47,15 +46,19 @@ func (t *TileCollection) Size() int {
 // State Modifiers
 
 func (t *TileCollection) Empty() {
-	t.tiles = make(map[Tile]int)
+	t.tiles = make(map[Tile]uint8)
 }
 
 func (t *TileCollection) Remove(tile Tile) {
 	n, has := t.tiles[tile]
-	if !has || n < 1 {
+	if !has {
 		return
 	}
-	t.tiles[tile]--
+	if n == 1 {
+		delete(t.tiles, tile)
+	} else {
+		t.tiles[tile]--
+	}
 }
 
 func (t *TileCollection) Add(tile Tile) {

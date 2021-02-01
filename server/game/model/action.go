@@ -58,7 +58,7 @@ func (p *Player) GetTileReceivedActions() []Action {
 	availableActions = append(availableActions, Discard{Tile: receivedTile})
 
 	for t, c := range p.concealed.tiles {
-		if c > 0 && t != receivedTile {
+		if t != receivedTile {
 			availableActions = append(availableActions, Discard{Tile: t})
 		}
 		if c == 4 || (c == 3 && t == receivedTile) {
