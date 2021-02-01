@@ -1,6 +1,8 @@
 package model
 
-import "sort"
+import (
+	"sort"
+)
 
 type Action interface {
 	// ActionIndex, has to be unique among all defined actions (to guarantee a stable sorting)
@@ -104,10 +106,29 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []Acti
 }
 
 func possibleChows(hand *TileCollection, tile Tile) []Tile {
+	tileList := make([]Tile, 0)
+
 	if !IsSuit(tile) {
 		return nil
 	}
 
-	// TODO: calculate chow possibilities
-	return nil
+	suitType := int(tile) / 10
+	suitNumber := int(tile) % 10
+	for _, i := range []int{1, 2, 3, 4, 5, 6, 7} {
+		diff := suitNumber - i
+		if diff >= 0 && diff <= 2 {
+			if i != suitNumber && hand.NumOf(Tile((suitType * 10) + i)) == 0 {
+				continue
+			}
+			if i + 1 != suitNumber && hand.NumOf(Tile((suitType * 10) + i + 1)) == 0 {
+				continue
+			}
+			if i + 2 != suitNumber && hand.NumOf(Tile((suitType * 10) + i + 2)) == 0 {
+				continue
+			}
+			tileList = append(tileList, Tile((suitType * 10) + i))
+		}
+	}
+
+	return tileList
 }
