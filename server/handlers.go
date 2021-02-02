@@ -42,14 +42,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplay(r *http.Request, stateMachine *game.StateMachine) *Response {
+func (s *Server) handleDisplay(r *http.Request, stateMachine *game.Game) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
 		Data:       View(stateMachine),
 	}
 }
 
-func (s *Server) handleActions(r *http.Request, stateMachine *game.StateMachine) *Response {
+func (s *Server) handleActions(r *http.Request, stateMachine *game.Game) *Response {
 	actionMap := make(map[model.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)

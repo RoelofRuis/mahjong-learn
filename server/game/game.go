@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type StateMachine struct {
+type Game struct {
 	lock sync.RWMutex
 
 	id uint64
@@ -14,7 +14,7 @@ type StateMachine struct {
 	transitionLimit int
 
 	state *State
-	game  *model.Game
+	game  *model.Table
 }
 
 type State struct {
@@ -22,14 +22,14 @@ type State struct {
 	Name string
 
 	// Required player actions. May be nil if this state requires no player actions.
-	PlayerActions func(*model.Game) map[model.Seat][]model.Action
+	PlayerActions func(*model.Table) map[model.Seat][]model.Action
 
 	// Transition to next state. Selected actions are passed if applicable.
-	Transition func(*model.Game, map[model.Seat]model.Action) (*State, error)
+	Transition func(*model.Table, map[model.Seat]model.Action) (*State, error)
 }
 
-func NewGameStateMachine(id uint64) *StateMachine {
-	return &StateMachine{
+func NewGameStateMachine(id uint64) *Game {
+	return &Game{
 		id: id,
 
 		transitionLimit: 10,
@@ -39,11 +39,11 @@ func NewGameStateMachine(id uint64) *StateMachine {
 	}
 }
 
-func (m *StateMachine) Id() uint64 {
+func (m *Game) Id() uint64 {
 	return m.id
 }
 
-func (m *StateMachine) Transition(selectedActions map[model.Seat]int) error {
+func (m *Game) Transition(selectedActions map[model.Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -97,8 +97,8 @@ func (m *StateMachine) Transition(selectedActions map[model.Seat]int) error {
 	}
 }
 
-// If the StateMachine is viewed, internals should be exposed in a consistent manner, so one function returns everything.
-func (m *StateMachine) View() (model.Game, State, map[model.Seat][]model.Action) {
+// If the Game is viewed, internals should be exposed in a consistent manner, so one function returns everything.
+func (m *Game) View() (model.Table, State, map[model.Seat][]model.Action) {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 

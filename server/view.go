@@ -124,7 +124,7 @@ type HumanView struct {
 	Wall          []string           `json:"wall"`
 }
 
-func View(stateMachine *game.StateMachine) *HumanView {
+func View(stateMachine *game.Game) *HumanView {
 	g, s, a := stateMachine.View()
 
 	var activePlayers []int
@@ -195,7 +195,7 @@ func Describe(t *model.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g model.Game, actions []model.Action, seat model.Seat) PlayerView {
+func DescribePlayer(g model.Table, actions []model.Action, seat model.Seat) PlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = DescribeAction(a)

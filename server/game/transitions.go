@@ -54,56 +54,56 @@ func init() {
 	}
 }
 
-func initialize(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
-	g.DealConcealed(13, 0)
-	g.DealConcealed(13, 1)
-	g.DealConcealed(13, 2)
-	g.DealConcealed(13, 3)
+func initialize(t *model.Table, _ map[model.Seat]model.Action) (*State, error) {
+	t.DealConcealed(13, 0)
+	t.DealConcealed(13, 1)
+	t.DealConcealed(13, 2)
+	t.DealConcealed(13, 3)
 
 	return stateNextTurn, nil
 }
 
-func tryDealTile(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
-	if g.GetWallSize() <= 14 {
+func tryDealTile(t *model.Table, _ map[model.Seat]model.Action) (*State, error) {
+	if t.GetWallSize() <= 14 {
 		return stateNextRound, nil
 	}
 
-	g.DealToActivePlayer()
+	t.DealToActivePlayer()
 
 	return stateMustDiscard, nil
 }
 
-func mustDiscardActions(g *model.Game) map[model.Seat][]model.Action {
+func mustDiscardActions(t *model.Table) map[model.Seat][]model.Action {
 	actionMap := make(map[model.Seat][]model.Action, 1)
 
 	// TODO: probably move this to game
 	var availableActions []model.Action
-	if g.GetActivePlayer().GetReceivedTile() == nil {
-		availableActions = g.GetActivePlayer().GetDiscardAfterCombinationActions()
+	if t.GetActivePlayer().GetReceivedTile() == nil {
+		availableActions = t.GetActivePlayer().GetDiscardAfterCombinationActions()
 	} else {
-		availableActions = g.GetActivePlayer().GetTileReceivedActions()
+		availableActions = t.GetActivePlayer().GetTileReceivedActions()
 	}
 
 	sort.Sort(model.ByActionOrder(availableActions))
-	actionMap[g.GetActiveSeat()] = availableActions
+	actionMap[t.GetActiveSeat()] = availableActions
 
 	return actionMap
 }
 
-func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Action) (*State, error) {
-	switch a := actions[g.GetActiveSeat()].(type) {
+func handleTileReceivedActions(t *model.Table, actions map[model.Seat]model.Action) (*State, error) {
+	switch a := actions[t.GetActiveSeat()].(type) {
 	case model.Discard:
-		g.ActivePlayerDiscards(a.Tile)
+		t.ActivePlayerDiscards(a.Tile)
 		return stateTileDiscarded, nil
 
 	case model.DeclareConcealedKong:
-		g.ActivePlayerDeclaresConcealedKong(a.Tile)
-		g.DealToActivePlayer()
+		t.ActivePlayerDeclaresConcealedKong(a.Tile)
+		t.DealToActivePlayer()
 		return stateMustDiscard, nil
 
 	case model.ExposedPungToKong:
-		g.ActivePlayerAddsToExposedPung()
-		g.DealToActivePlayer()
+		t.ActivePlayerAddsToExposedPung()
+		t.DealToActivePlayer()
 		return stateMustDiscard, nil
 
 	case model.DeclareMahjong:
@@ -115,23 +115,23 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 	}
 }
 
-func tileDiscardedActions(g *model.Game) map[model.Seat][]model.Action {
+func tileDiscardedActions(t *model.Table) map[model.Seat][]model.Action {
 	m := make(map[model.Seat][]model.Action, 3)
 
-	activeDiscard := *g.GetActiveDiscard()
+	activeDiscard := *t.GetActiveDiscard()
 
-	for s, p := range g.GetReactingPlayers() {
-		isNextSeat := (g.GetActiveSeat() + 1)%4 == s
+	for s, p := range t.GetReactingPlayers() {
+		isNextSeat := (t.GetActiveSeat() + 1)%4 == s
 		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextSeat)
 	}
 
 	return m
 }
 
-func handleTileDiscardedActions(g *model.Game, actions map[model.Seat]model.Action) (*State, error) {
+func handleTileDiscardedActions(t *model.Table, actions map[model.Seat]model.Action) (*State, error) {
 	var bestValue = 0
 	var bestSeat model.Seat
-	for _, seatIndex := range []model.Seat{ (g.GetActiveSeat() + 1) % 4, (g.GetActiveSeat() + 2) % 4, (g.GetActiveSeat() + 3) % 4 } {
+	for _, seatIndex := range []model.Seat{ (t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4 } {
 		var value int
 		switch actions[seatIndex].(type) {
 		case model.DoNothing:
@@ -156,24 +156,24 @@ func handleTileDiscardedActions(g *model.Game, actions map[model.Seat]model.Acti
 
 	switch a := bestAction.(type) {
 	case model.DoNothing:
-		g.ActivePlayerTakesDiscarded()
-		g.ActivateSeat(bestSeat)
+		t.ActivePlayerTakesDiscarded()
+		t.ActivateSeat(bestSeat)
 		return stateNextTurn, nil
 
 	case model.DeclareChow:
-		g.ActivateSeat(bestSeat)
-		g.ActivePlayerTakesChow(a.Tile)
+		t.ActivateSeat(bestSeat)
+		t.ActivePlayerTakesChow(a.Tile)
 		return stateMustDiscard, nil
 
 	case model.DeclarePung:
-		g.ActivateSeat(bestSeat)
-		g.ActivePlayerTakesPung()
+		t.ActivateSeat(bestSeat)
+		t.ActivePlayerTakesPung()
 		return stateMustDiscard, nil
 
 	case model.DeclareKong:
-		g.ActivateSeat(bestSeat)
-		g.ActivePlayerTakesKong()
-		g.DealToActivePlayer()
+		t.ActivateSeat(bestSeat)
+		t.ActivePlayerTakesKong()
+		t.DealToActivePlayer()
 		return stateMustDiscard, nil
 
 	case model.DeclareMahjong:
@@ -184,20 +184,20 @@ func handleTileDiscardedActions(g *model.Game, actions map[model.Seat]model.Acti
 	panic(fmt.Sprintf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction))
 }
 
-func tryNextRound(g *model.Game, _ map[model.Seat]model.Action) (*State, error) {
+func tryNextRound(t *model.Table, _ map[model.Seat]model.Action) (*State, error) {
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
-	if g.GetPrevalentWind() == model.North && g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == model.North {
+	if t.GetPrevalentWind() == model.North && t.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == model.North {
 		return stateGameEnded, nil
 	}
 
-	if g.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == g.GetPrevalentWind() {
-		g.SetNextPrevalentWind()
+	if t.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
+		t.SetNextPrevalentWind()
 	}
 
-	g.ResetWall()
-	g.PrepareNextRound()
+	t.ResetWall()
+	t.PrepareNextRound()
 
 	return stateNextTurn, nil
 }

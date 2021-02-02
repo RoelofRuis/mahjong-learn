@@ -95,7 +95,7 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	}
 }
 
-func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.StateMachine) *Response) RequestHandler {
+func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.Game) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
