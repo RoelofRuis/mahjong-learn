@@ -1,5 +1,7 @@
 package model
 
+import "sort"
+
 type Player struct {
 	score int
 
@@ -32,6 +34,8 @@ func (p *Player) GetSeatWind() Wind {
 }
 
 func (p *Player) GetExposedCombinations() []Combination {
+	sort.Sort(ByCombinationOrder(p.exposed.combinations))
+
 	return p.exposed.combinations
 }
 

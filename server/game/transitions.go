@@ -96,7 +96,7 @@ func handleTileReceivedActions(g *model.Game, actions map[model.Seat]model.Actio
 		return stateTileReceived, nil
 
 	case model.DeclareMahjong:
-		// TODO: make sure no more logic is needed here...
+		// TODO: double check no more logic is needed here
 		return stateNextRound, nil
 
 	default:

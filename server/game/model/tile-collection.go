@@ -122,38 +122,33 @@ func (c *CombinationCollection) Add(combination Combination) {
 }
 
 type Combination interface {
-	CombinationIndex() int // TODO: meh, not sure if this is really required...
+	// has to be unique among all defined combinations (to guarantee a stable sorting)
+	CombinationOrder() int
 }
 
-type Chow struct {
-	FirstTile Tile
-}
+type Chow struct { FirstTile Tile }
 
-func (c Chow) CombinationIndex() int {
-	return int(c.FirstTile)
-}
+func (c Chow) CombinationOrder() int { return int(c.FirstTile) }
 
-type Pung struct {
-	Tile Tile
-}
+type Pung struct { Tile Tile }
 
-func (c Pung) CombinationIndex() int {
-	return int(c.Tile) + 100
-}
+func (c Pung) CombinationOrder() int { return int(c.Tile) + 100 }
 
 type Kong struct {
 	Tile      Tile
 	Concealed bool
 }
 
-func (c Kong) CombinationIndex() int {
-	return int(c.Tile) + 200
-}
+func (c Kong) CombinationOrder() int { return int(c.Tile) + 200 }
 
 type BonusTile struct {
 	Tile Tile
 }
 
-func (c BonusTile) CombinationIndex() int {
-	return int(c.Tile) + 300
-}
+func (c BonusTile) CombinationOrder() int { return int(c.Tile) + 300 }
+
+type ByCombinationOrder []Combination
+
+func (a ByCombinationOrder) Len() int           { return len(a) }
+func (a ByCombinationOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByCombinationOrder) Less(i, j int) bool { return a[i].CombinationOrder() < a[j].CombinationOrder() }
