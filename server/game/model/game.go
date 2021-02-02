@@ -130,8 +130,8 @@ func (g *Game) PrepareNextRound() {
 	}
 }
 
-func (g *Game) ActivateNextSeat() {
-	g.activeSeat = Seat((int(g.activeSeat) + 1) % 4)
+func (g *Game) ActivateSeat(seat Seat) {
+	g.activeSeat = seat
 }
 
 func (g *Game) ActivePlayerDeclaresConcealedKong(tile Tile) {
@@ -160,17 +160,49 @@ func (g *Game) ActivePlayerAddsToExposedPung() {
 func (g *Game) ActivePlayerDiscards(tile Tile) {
 	activePlayer := g.GetActivePlayer()
 
-	activePlayer.concealed.Add(*activePlayer.received)
+	if activePlayer.received != nil {
+		activePlayer.concealed.Add(*activePlayer.received)
+		activePlayer.received = nil
+	}
+
 	activePlayer.concealed.Remove(tile)
 
 	g.activeDiscard = &tile
-
-	activePlayer.received = nil
 }
 
 func (g *Game) ActivePlayerTakesDiscarded() {
 	if g.activeDiscard != nil {
 		g.GetActivePlayer().discarded.Add(*g.activeDiscard)
+		g.activeDiscard = nil
+	}
+}
+
+func (g *Game) ActivePlayerTakesChow(tile Tile) {
+	if g.activeDiscard != nil {
+		activePlayer := g.GetActivePlayer()
+		activePlayer.concealed.Remove(tile)
+		activePlayer.concealed.Remove(tile + 1)
+		activePlayer.concealed.Remove(tile + 2)
+		activePlayer.exposed.Add(Chow{FirstTile: tile})
+		g.activeDiscard = nil
+	}
+}
+
+func (g *Game) ActivePlayerTakesPung() {
+	if g.activeDiscard != nil {
+		activePlayer := g.GetActivePlayer()
+		activePlayer.concealed.Remove(*g.activeDiscard)
+		activePlayer.concealed.Remove(*g.activeDiscard)
+		activePlayer.exposed.Add(Pung{Tile: *g.activeDiscard})
+		g.activeDiscard = nil
+	}
+}
+
+func (g *Game) ActivePlayerTakesKong() {
+	if g.activeDiscard != nil {
+		activePlayer := g.GetActivePlayer()
+		activePlayer.concealed.RemoveAll(*g.activeDiscard)
+		activePlayer.exposed.Add(Kong{Tile: *g.activeDiscard, Concealed: false})
 		g.activeDiscard = nil
 	}
 }

@@ -52,6 +52,21 @@ func (d DeclareMahjong) ActionOrder() int { return -1 }
 
 // Player actions
 
+func (p *Player) GetDiscardAfterCombinationActions() []Action {
+	availableActions := make([]Action, 0)
+
+	for t, c := range p.concealed.tiles {
+		availableActions = append(availableActions, Discard{Tile: t})
+		if c == 4 {
+			availableActions = append(availableActions, DeclareConcealedKong{Tile: t})
+		}
+	}
+
+	// TODO: add declare mahjong
+
+	return availableActions
+}
+
 func (p *Player) GetTileReceivedActions() []Action {
 	availableActions := make([]Action, 0)
 
@@ -73,8 +88,6 @@ func (p *Player) GetTileReceivedActions() []Action {
 	}
 
 	// TODO: add declare mahjong
-
-	sort.Sort(ByActionOrder(availableActions))
 
 	return availableActions
 }
