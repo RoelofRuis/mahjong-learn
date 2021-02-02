@@ -19,7 +19,7 @@ type Table struct {
 	activeSeat    Seat
 }
 
-func NewGame() *Table {
+func NewTable() *Table {
 	players := make(map[Seat]*Player, 4)
 
 	wall := NewMahjongSet()

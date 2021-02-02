@@ -14,7 +14,7 @@ type Game struct {
 	transitionLimit int
 
 	state *State
-	game  *model.Table
+	table *model.Table
 }
 
 type State struct {
@@ -28,14 +28,14 @@ type State struct {
 	Transition func(*model.Table, map[model.Seat]model.Action) (*State, error)
 }
 
-func NewGameStateMachine(id uint64) *Game {
+func NewGame(id uint64) *Game {
 	return &Game{
 		id: id,
 
 		transitionLimit: 10,
 
 		state: stateNewGame,
-		game:  model.NewGame(),
+		table: model.NewTable(),
 	}
 }
 
@@ -58,7 +58,7 @@ func (m *Game) Transition(selectedActions map[model.Seat]int) error {
 			return fmt.Errorf("a nil actions map was provided")
 		}
 
-		for seat, actions := range m.state.PlayerActions(m.game) {
+		for seat, actions := range m.state.PlayerActions(m.table) {
 			selected, has := selectedActions[seat]
 			if !has {
 				return fmt.Errorf("state requires action for seat [%d] but no action was given", seat)
@@ -72,7 +72,7 @@ func (m *Game) Transition(selectedActions map[model.Seat]int) error {
 
 	var stateHistory []string
 	for {
-		state, err := m.state.Transition(m.game, playerActions)
+		state, err := m.state.Transition(m.table, playerActions)
 		if err != nil {
 			return err
 		}
@@ -91,8 +91,8 @@ func (m *Game) Transition(selectedActions map[model.Seat]int) error {
 			for _, s := range stateHistory {
 				stateDebug += fmt.Sprintf("%s\n", s)
 			}
-			return fmt.Errorf("game took more than %d transition steps. "+
-				"There is probably an infinite loop in the game logic.\nVisited stateds were:\n%s", m.transitionLimit, stateDebug)
+			return fmt.Errorf("transitioning took more than %d steps. "+
+				"There is probably an infinite loop in the state transitions.\nVisited stateds were:\n%s", m.transitionLimit, stateDebug)
 		}
 	}
 }
@@ -104,8 +104,8 @@ func (m *Game) View() (model.Table, State, map[model.Seat][]model.Action) {
 
 	var playerActions = make(map[model.Seat][]model.Action)
 	if m.state.PlayerActions != nil {
-		playerActions = m.state.PlayerActions(m.game)
+		playerActions = m.state.PlayerActions(m.table)
 	}
 
-	return *m.game, *m.state, playerActions
+	return *m.table, *m.state, playerActions
 }

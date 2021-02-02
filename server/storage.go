@@ -39,7 +39,7 @@ func (s *GameStorage) Get(id uint64) (*game.Game, error) {
 func (s *GameStorage) StartNew() uint64 {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	m := game.NewGameStateMachine(id)
+	m := game.NewGame(id)
 	_ = m.Transition(nil)
 
 	s.gamesLock.Lock()
