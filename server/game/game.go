@@ -29,7 +29,7 @@ type State struct {
 }
 
 func NewGame(id uint64) *Game {
-	return &Game{
+	game := &Game{
 		id: id,
 
 		transitionLimit: 10,
@@ -37,6 +37,13 @@ func NewGame(id uint64) *Game {
 		state: stateNewGame,
 		table: model.NewTable(),
 	}
+
+	err := game.Transition(nil)
+	if err != nil {
+		panic(err) // TODO: clean return instead of panic!
+	}
+
+	return game
 }
 
 func (m *Game) Id() uint64 {

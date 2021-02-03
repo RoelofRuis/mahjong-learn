@@ -180,6 +180,7 @@ func (t *Table) ActivePlayerTakesDiscarded() {
 func (t *Table) ActivePlayerTakesChow(tile Tile) {
 	if t.activeDiscard != nil {
 		activePlayer := t.GetActivePlayer()
+		activePlayer.concealed.Add(*t.activeDiscard)
 		activePlayer.concealed.Remove(tile)
 		activePlayer.concealed.Remove(tile + 1)
 		activePlayer.concealed.Remove(tile + 2)

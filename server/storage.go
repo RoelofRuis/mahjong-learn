@@ -40,7 +40,6 @@ func (s *GameStorage) StartNew() uint64 {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
 	m := game.NewGame(id)
-	_ = m.Transition(nil)
 
 	s.gamesLock.Lock()
 	s.games[id] = m
