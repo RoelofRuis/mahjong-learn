@@ -38,7 +38,7 @@ func init() {
 	stateMustDiscard = &State{
 		Name:          "Must Discard",
 		PlayerActions: mustDiscardActions,
-		Transition:    handleTileReceivedActions,
+		Transition:    handleMustDiscardActions,
 	}
 
 	stateTileDiscarded = &State{
@@ -90,7 +90,7 @@ func mustDiscardActions(t *model.Table) map[model.Seat][]model.Action {
 	return actionMap
 }
 
-func handleTileReceivedActions(t *model.Table, actions map[model.Seat]model.Action) (*State, error) {
+func handleMustDiscardActions(t *model.Table, actions map[model.Seat]model.Action) (*State, error) {
 	switch a := actions[t.GetActiveSeat()].(type) {
 	case model.Discard:
 		t.ActivePlayerDiscards(a.Tile)
