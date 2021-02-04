@@ -1,18 +1,47 @@
-package model
+package game
 
 import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/driver"
-	"sort"
 )
 
+// TODO: refactor to remove panic calls!
+
+type MahjongGame struct {
+	Id uint64
+
+	Table *Table
+
+	Driver *driver.GameDriver
+}
+
+func NewMahjongGame(id uint64) *MahjongGame {
+	table := NewTable()
+	state := stateNewGame(table)
+
+	gameDriver := driver.NewGameDriver(state, 10)
+
+	err := gameDriver.Transition(nil)
+	if err != nil {
+		panic(err) // TODO: clean return instead of panic!
+	}
+
+	return &MahjongGame{
+		Id:     id,
+		Table:  table,
+		Driver: gameDriver,
+	}
+}
+
+type MahjongState func(table *Table) *driver.State
+
 var (
-	stateNewGame       func(table *Table) *driver.State
-	stateNextRound     func(table *Table) *driver.State
-	stateNextTurn      func(table *Table) *driver.State
-	stateMustDiscard   func(table *Table) *driver.State
-	stateTileDiscarded func(table *Table) *driver.State
-	stateGameEnded     func(table *Table) *driver.State
+	stateNewGame       MahjongState
+	stateNextRound     MahjongState
+	stateNextTurn      MahjongState
+	stateMustDiscard   MahjongState
+	stateTileDiscarded MahjongState
+	stateGameEnded     MahjongState
 )
 
 func init() {
@@ -88,16 +117,12 @@ func (t *Table) tryDealTile(_ map[driver.Seat]driver.Action) (*driver.State, err
 func (t *Table) mustDiscardActions() map[driver.Seat][]driver.Action {
 	actionMap := make(map[driver.Seat][]driver.Action, 1)
 
-	// TODO: probably move this to game
-	var availableActions []driver.Action
+	// TODO: probably move this to game..?
 	if t.GetActivePlayer().GetReceivedTile() == nil {
-		availableActions = t.GetActivePlayer().GetDiscardAfterCombinationActions()
+		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
 	} else {
-		availableActions = t.GetActivePlayer().GetTileReceivedActions()
+		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetTileReceivedActions()
 	}
-
-	sort.Sort(ByActionOrder(availableActions))
-	actionMap[t.GetActiveSeat()] = availableActions
 
 	return actionMap
 }
@@ -106,21 +131,21 @@ func (t *Table) handleMustDiscardActions(actions map[driver.Seat]driver.Action) 
 	switch a := actions[t.GetActiveSeat()].(type) {
 	case Discard:
 		t.ActivePlayerDiscards(a.Tile)
-		return stateTileDiscarded, nil
+		return stateTileDiscarded(t), nil
 
 	case DeclareConcealedKong:
 		t.ActivePlayerDeclaresConcealedKong(a.Tile)
 		t.DealToActivePlayer()
-		return stateMustDiscard, nil
+		return stateMustDiscard(t), nil
 
 	case ExposedPungToKong:
 		t.ActivePlayerAddsToExposedPung()
 		t.DealToActivePlayer()
-		return stateMustDiscard, nil
+		return stateMustDiscard(t), nil
 
 	case DeclareMahjong:
 		// TODO: double check no more logic is needed here
-		return stateNextRound, nil
+		return stateNextRound(t), nil
 
 	default:
 		return nil, fmt.Errorf("illegal action %+v", a)
@@ -146,15 +171,15 @@ func (t *Table) handleTileDiscardedActions(actions map[driver.Seat]driver.Action
 	for _, seatIndex := range []driver.Seat{ (t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4 } {
 		var value int
 		switch actions[seatIndex].(type) {
-		case model.DoNothing:
+		case DoNothing:
 			value = 1
-		case model.DeclareChow:
+		case DeclareChow:
 			value = 2
-		case model.DeclarePung:
+		case DeclarePung:
 			value = 3
-		case model.DeclareKong:
+		case DeclareKong:
 			value = 4
-		case model.DeclareMahjong:
+		case DeclareMahjong:
 			value = 5
 		default:
 			panic("invalid action given in response to 'handleTileDiscarded'")
@@ -167,30 +192,30 @@ func (t *Table) handleTileDiscardedActions(actions map[driver.Seat]driver.Action
 	bestAction := actions[bestSeat]
 
 	switch a := bestAction.(type) {
-	case model.DoNothing:
+	case DoNothing:
 		t.ActivePlayerTakesDiscarded()
 		t.ActivateSeat(bestSeat)
-		return stateNextTurn, nil
+		return stateNextTurn(t), nil
 
-	case model.DeclareChow:
+	case DeclareChow:
 		t.ActivateSeat(bestSeat)
 		t.ActivePlayerTakesChow(a.Tile)
-		return stateMustDiscard, nil
+		return stateMustDiscard(t), nil
 
-	case model.DeclarePung:
+	case DeclarePung:
 		t.ActivateSeat(bestSeat)
 		t.ActivePlayerTakesPung()
-		return stateMustDiscard, nil
+		return stateMustDiscard(t), nil
 
-	case model.DeclareKong:
+	case DeclareKong:
 		t.ActivateSeat(bestSeat)
 		t.ActivePlayerTakesKong()
 		t.DealToActivePlayer()
-		return stateMustDiscard, nil
+		return stateMustDiscard(t), nil
 
-	case model.DeclareMahjong:
+	case DeclareMahjong:
 		// TODO: double check no more logic is needed here
-		return stateNextRound, nil
+		return stateNextRound(t), nil
 	}
 
 	panic(fmt.Sprintf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction))
@@ -200,16 +225,16 @@ func (t *Table) tryNextRound(_ map[driver.Seat]driver.Action) (*driver.State, er
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
-	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(driver.Seat(3)).GetSeatWind() == model.North {
-		return stateGameEnded, nil
+	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(driver.Seat(3)).GetSeatWind() == North {
+		return stateGameEnded(t), nil
 	}
 
-	if t.GetPlayerAtSeat(model.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
+	if t.GetPlayerAtSeat(driver.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
 		t.SetNextPrevalentWind()
 	}
 
 	t.ResetWall()
 	t.PrepareNextRound()
 
-	return stateNextTurn, nil
+	return stateNextTurn(t), nil
 }

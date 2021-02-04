@@ -1,19 +1,9 @@
-package model
+package game
 
 import (
+	"github.com/roelofruis/mahjong-learn/driver"
 	"sort"
 )
-
-type Action interface {
-	// has to be unique among all defined actions (to guarantee a stable sorting)
-	ActionOrder() int
-}
-
-type ByActionOrder []Action
-
-func (a ByActionOrder) Len() int           { return len(a) }
-func (a ByActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }
 
 // Tile received actions
 type Discard struct{ Tile Tile }
@@ -52,8 +42,8 @@ func (d DeclareMahjong) ActionOrder() int { return -1 }
 
 // Player actions
 
-func (p *Player) GetDiscardAfterCombinationActions() []Action {
-	availableActions := make([]Action, 0)
+func (p *Player) GetDiscardAfterCombinationActions() []driver.Action {
+	availableActions := make([]driver.Action, 0)
 
 	for t, c := range p.concealed.tiles {
 		availableActions = append(availableActions, Discard{Tile: t})
@@ -64,11 +54,13 @@ func (p *Player) GetDiscardAfterCombinationActions() []Action {
 
 	// TODO: add declare mahjong
 
+	sort.Sort(driver.ByActionOrder(availableActions))
+
 	return availableActions
 }
 
-func (p *Player) GetTileReceivedActions() []Action {
-	availableActions := make([]Action, 0)
+func (p *Player) GetTileReceivedActions() []driver.Action {
+	availableActions := make([]driver.Action, 0)
 
 	receivedTile := *p.received
 
@@ -89,11 +81,13 @@ func (p *Player) GetTileReceivedActions() []Action {
 
 	// TODO: add declare mahjong
 
+	sort.Sort(driver.ByActionOrder(availableActions))
+
 	return availableActions
 }
 
-func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []Action {
-	availableActions := make([]Action, 0)
+func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []driver.Action {
+	availableActions := make([]driver.Action, 0)
 
 	availableActions = append(availableActions, DoNothing{})
 
@@ -113,7 +107,7 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []Acti
 
 	// TODO: add declare mahjong
 
-	sort.Sort(ByActionOrder(availableActions))
+	sort.Sort(driver.ByActionOrder(availableActions))
 
 	return availableActions
 }

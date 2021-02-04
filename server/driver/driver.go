@@ -20,7 +20,7 @@ func NewGameDriver(initialState *State, transitionLimit int) *GameDriver {
 	}
 }
 
-func (m *GameDriver) View() *State {
+func (m *GameDriver) GetState() *State {
 	return m.state
 }
 
@@ -33,7 +33,7 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 	}
 
 	seatActions := make(map[Seat]Action)
-	possibleActions := m.state.Actions()
+	possibleActions := m.state.Actions
 
 	if possibleActions != nil {
 		if selectedActions == nil {
@@ -41,7 +41,7 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 			selectedActions = make(map[Seat]int, 0)
 		}
 
-		for seat, actions := range possibleActions {
+		for seat, actions := range possibleActions() {
 			selected, has := selectedActions[seat]
 			if !has || selected < 0 || selected >= len(actions) {
 				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) -1}
@@ -59,7 +59,7 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 		m.state = state
 		seatActions = nil // only use player actions in first transition
 
-		if m.state.Transition == nil || m.state.Actions() != nil {
+		if m.state.Transition == nil || m.state.Actions != nil {
 			// transition until we are in a terminal state, or another player action is required
 			return nil
 		}

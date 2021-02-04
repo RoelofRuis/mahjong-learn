@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/roelofruis/mahjong-learn/driver"
 	"github.com/roelofruis/mahjong-learn/game"
-	"github.com/roelofruis/mahjong-learn/game/model"
 	"net/http"
 	"strconv"
 )
@@ -42,23 +42,23 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplay(r *http.Request, stateMachine *game.Game) *Response {
+func (s *Server) handleDisplay(r *http.Request, game *game.MahjongGame) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
-		Data:       View(stateMachine),
+		Data:       View(game),
 	}
 }
 
-func (s *Server) handleActions(r *http.Request, stateMachine *game.Game) *Response {
-	actionMap := make(map[model.Seat]int)
+func (s *Server) handleActions(r *http.Request, game *game.MahjongGame) *Response {
+	actionMap := make(map[driver.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
 		if err == nil {
-			actionMap[model.Seat(i)] = int(playerAction)
+			actionMap[driver.Seat(i)] = int(playerAction)
 		}
 	}
 
-	err := stateMachine.Transition(actionMap)
+	err := game.Driver.Transition(actionMap)
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
@@ -74,7 +74,7 @@ func (s *Server) handleActions(r *http.Request, stateMachine *game.Game) *Respon
 			Location string `json:"location"`
 		}{
 			Message:  "Actions executed",
-			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, stateMachine.Id()),
+			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, game.Id),
 		},
 	}
 }

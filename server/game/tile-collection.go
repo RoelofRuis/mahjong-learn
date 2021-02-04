@@ -1,4 +1,4 @@
-package model
+package game
 
 import "math/rand"
 
@@ -149,6 +149,6 @@ func (c BonusTile) CombinationOrder() int { return int(c.Tile) + 300 }
 
 type ByCombinationOrder []Combination
 
-func (a ByCombinationOrder) Len() int           { return len(a) }
-func (a ByCombinationOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByCombinationOrder) Len() int      { return len(a) }
+func (a ByCombinationOrder) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByCombinationOrder) Less(i, j int) bool { return a[i].CombinationOrder() < a[j].CombinationOrder() }

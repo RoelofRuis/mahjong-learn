@@ -53,8 +53,8 @@ func (s *Server) Routes() {
 	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.handleMethods(map[string]RequestHandler{
-		http.MethodGet:  s.withStateMachine(s.handleDisplay),
-		http.MethodPost: s.withStateMachine(s.handleActions),
+		http.MethodGet:  s.withGame(s.handleDisplay),
+		http.MethodPost: s.withGame(s.handleActions),
 	})))
 }
 
@@ -95,7 +95,7 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	}
 }
 
-func (s *Server) withStateMachine(f func(r *http.Request, stateMachine *game.Game) *Response) RequestHandler {
+func (s *Server) withGame(f func(r *http.Request, game *game.MahjongGame) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string

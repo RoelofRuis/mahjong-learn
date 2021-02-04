@@ -2,19 +2,20 @@ package game
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/game/model"
+	"github.com/roelofruis/mahjong-learn/driver"
 	"math/rand"
 	"testing"
 )
 
 func TestGameLogic(t *testing.T) {
-	game := NewGame(1)
-
-	var table, state, actions = game.View()
+	game := NewMahjongGame(1)
 
 	numTransitions := 0
 	var stateHistory []string
 	for {
+		state := game.Driver.GetState()
+		actions := game.Driver.GetState().Actions
+
 		stateHistory = append(stateHistory, state.Name)
 
 		if state.Transition == nil {
@@ -26,12 +27,12 @@ func TestGameLogic(t *testing.T) {
 			t.FailNow()
 		}
 
-		selectedActions := make(map[model.Seat]int)
-		for seat, actions := range actions {
-			selectedActions[seat] = rand.Intn(len(actions))
+		selectedActions := make(map[driver.Seat]int)
+		for seat, a := range actions() {
+			selectedActions[seat] = rand.Intn(len(a))
 		}
 
-		err := game.Transition(selectedActions)
+		err := game.Driver.Transition(selectedActions)
 		if err != nil {
 			t.Logf("game transition raised an error: %s", err.Error())
 			t.FailNow()
@@ -39,9 +40,7 @@ func TestGameLogic(t *testing.T) {
 
 		numTransitions++
 
-		table, state, actions = game.View()
-
-		err = checkInvariants(table)
+		err = checkInvariants(*game.Table)
 		if err != nil {
 			t.Logf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
 			t.Logf("state was [%s] selected actions were [%+v]", state.Name, selectedActions)
@@ -52,11 +51,11 @@ func TestGameLogic(t *testing.T) {
 	t.Logf("game ended without errors after [%d] actions", numTransitions)
 }
 
-func checkInvariants(table model.Table) error {
+func checkInvariants(table Table) error {
 	return checkTileCount(table)
 }
 
-func checkTileCount(table model.Table) error {
+func checkTileCount(table Table) error {
 	wall := table.GetWall().Size()
 	discard := 0
 	if table.GetActiveDiscard() != nil {
@@ -76,7 +75,7 @@ func checkTileCount(table model.Table) error {
 	return nil
 }
 
-func countPlayerTiles(player *model.Player) int {
+func countPlayerTiles(player *Player) int {
 	concealed := player.GetConcealedTiles().Size()
 	discarded := player.GetDiscardedTiles().Size()
 	received := 0
@@ -86,9 +85,9 @@ func countPlayerTiles(player *model.Player) int {
 	exposed := 0
 	for _, c := range player.GetExposedCombinations() {
 		switch c.(type) {
-		case model.Kong:
+		case Kong:
 			exposed += 4
-		case model.BonusTile:
+		case BonusTile:
 			exposed += 1
 		default:
 			exposed += 3

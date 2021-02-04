@@ -13,7 +13,13 @@ type State struct {
 }
 
 type Action interface {
-	ActionOrder() uint64
+	ActionOrder() int
 }
+
+type ByActionOrder []Action
+
+func (a ByActionOrder) Len() int           { return len(a) }
+func (a ByActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }
 
 type Seat int
