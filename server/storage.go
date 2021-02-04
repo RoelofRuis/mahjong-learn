@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"github.com/roelofruis/mahjong-learn/game"
+	"github.com/roelofruis/mahjong-learn/mahjong"
 	"sync"
 	"sync/atomic"
 )
@@ -10,20 +10,20 @@ import (
 func NewGameStorage() *GameStorage {
 	return &GameStorage{
 		gamesLock: sync.RWMutex{},
-		games:     make(map[uint64]*game.MahjongGame),
+		games:     make(map[uint64]*mahjong.MahjongGame),
 		lastIndex: new(uint64),
 	}
 }
 
 type GameStorage struct {
 	gamesLock sync.RWMutex
-	games     map[uint64]*game.MahjongGame
+	games     map[uint64]*mahjong.MahjongGame
 
 	lastIndex *uint64
 }
 
-func (s *GameStorage) Get(id uint64) (*game.MahjongGame, error) {
-	var g *game.MahjongGame
+func (s *GameStorage) Get(id uint64) (*mahjong.MahjongGame, error) {
+	var g *mahjong.MahjongGame
 
 	s.gamesLock.RLock()
 	g, has := s.games[id]
@@ -39,7 +39,7 @@ func (s *GameStorage) Get(id uint64) (*game.MahjongGame, error) {
 func (s *GameStorage) StartNew() uint64 {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	m := game.NewMahjongGame(id)
+	m := mahjong.NewMahjongGame(id)
 
 	s.gamesLock.Lock()
 	s.games[id] = m

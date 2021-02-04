@@ -1,4 +1,4 @@
-package game
+package mahjong
 
 import "github.com/roelofruis/mahjong-learn/driver"
 

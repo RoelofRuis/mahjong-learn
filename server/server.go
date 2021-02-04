@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/game"
+	"github.com/roelofruis/mahjong-learn/mahjong"
 	"log"
 	"net/http"
 	"strconv"
@@ -95,7 +95,7 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	}
 }
 
-func (s *Server) withGame(f func(r *http.Request, game *game.MahjongGame) *Response) RequestHandler {
+func (s *Server) withGame(f func(r *http.Request, game *mahjong.MahjongGame) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string
@@ -145,7 +145,7 @@ func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandle
 			if err != nil {
 				return &Response{
 					StatusCode: http.StatusBadRequest,
-					Error:      fmt.Errorf("unable to parse form: %s", err.Error()),
+					Error:      fmt.Errorf("unable to parse post data: %s", err.Error()),
 				}
 			}
 		}

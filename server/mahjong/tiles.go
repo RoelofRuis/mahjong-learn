@@ -1,4 +1,4 @@
-package game
+package mahjong
 
 type Tile int
 

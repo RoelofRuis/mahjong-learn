@@ -1,4 +1,4 @@
-package game
+package mahjong
 
 import (
 	"fmt"
@@ -117,7 +117,7 @@ func (t *Table) tryDealTile(_ map[driver.Seat]driver.Action) (*driver.State, err
 func (t *Table) mustDiscardActions() map[driver.Seat][]driver.Action {
 	actionMap := make(map[driver.Seat][]driver.Action, 1)
 
-	// TODO: probably move this to game..?
+	// TODO: probably move this to mahjong..?
 	if t.GetActivePlayer().GetReceivedTile() == nil {
 		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
 	} else {

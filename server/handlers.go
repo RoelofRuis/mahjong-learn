@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/driver"
-	"github.com/roelofruis/mahjong-learn/game"
+	"github.com/roelofruis/mahjong-learn/mahjong"
 	"net/http"
 	"strconv"
 )
@@ -42,14 +42,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplay(r *http.Request, game *game.MahjongGame) *Response {
+func (s *Server) handleDisplay(r *http.Request, game *mahjong.MahjongGame) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
 		Data:       View(game),
 	}
 }
 
-func (s *Server) handleActions(r *http.Request, game *game.MahjongGame) *Response {
+func (s *Server) handleActions(r *http.Request, game *mahjong.MahjongGame) *Response {
 	actionMap := make(map[driver.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
