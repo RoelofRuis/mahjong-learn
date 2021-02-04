@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type productinStateMachine struct {
+type productionStateMachine struct {
 	lock sync.Mutex
 
 	transitionLimit int
@@ -13,11 +13,11 @@ type productinStateMachine struct {
 	state *State
 }
 
-func (m *productinStateMachine) StateName() string {
+func (m *productionStateMachine) StateName() string {
 	return m.state.name
 }
 
-func (m *productinStateMachine) AvailableActions() map[Seat][]Action {
+func (m *productionStateMachine) AvailableActions() map[Seat][]Action {
 	if m.state.actions == nil {
 		return make(map[Seat][]Action)
 	}
@@ -30,11 +30,11 @@ func (m *productinStateMachine) AvailableActions() map[Seat][]Action {
 	return m.state.actions
 }
 
-func (m *productinStateMachine) HasTerminated() bool {
+func (m *productionStateMachine) HasTerminated() bool {
 	return m.state.transition == nil
 }
 
-func (m *productinStateMachine) Transition(selectedActions map[Seat]int) error {
+func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 

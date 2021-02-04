@@ -26,7 +26,7 @@ type StateMachine interface {
 }
 
 func NewStateMachine(initialState *State, transitionLimit int) StateMachine {
-	return &productinStateMachine{
+	return &productionStateMachine{
 		lock:            sync.Mutex{},
 		transitionLimit: transitionLimit,
 		state:           initialState,
