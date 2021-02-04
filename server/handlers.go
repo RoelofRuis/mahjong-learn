@@ -60,8 +60,15 @@ func (s *Server) handleActions(r *http.Request, game *mahjong.MahjongGame) *Resp
 
 	err := game.Driver.Transition(actionMap)
 	if err != nil {
+		if _, ok := err.(*driver.IncorrectActionError); ok {
+			return &Response{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			}
+		}
+
 		return &Response{
-			StatusCode: http.StatusBadRequest,
+			StatusCode: http.StatusInternalServerError,
 			Error:      err,
 		}
 	}
