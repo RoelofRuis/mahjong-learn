@@ -36,14 +36,17 @@ func (s *GameStorage) Get(id uint64) (*mahjong.Game, error) {
 	return g, nil
 }
 
-func (s *GameStorage) StartNew() uint64 {
+func (s *GameStorage) StartNew() (uint64, error) {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	m := mahjong.NewGame(id)
+	m, err := mahjong.NewGame(id)
+	if err != nil {
+		return id, err
+	}
 
 	s.gamesLock.Lock()
 	s.games[id] = m
 	s.gamesLock.Unlock()
 
-	return id
+	return id, nil
 }

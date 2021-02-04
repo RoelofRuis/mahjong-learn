@@ -26,7 +26,13 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 }
 
 func (s *Server) handleNew(r *http.Request) *Response {
-	id := s.Games.StartNew()
+	id, err := s.Games.StartNew()
+	if err != nil {
+		return &Response{
+			StatusCode: http.StatusInternalServerError,
+			Error: err,
+		}
+	}
 
 	return &Response{
 		StatusCode: http.StatusCreated,

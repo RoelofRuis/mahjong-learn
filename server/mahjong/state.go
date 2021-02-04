@@ -15,7 +15,7 @@ type Game struct {
 	StateMachine state_machine.StateMachine
 }
 
-func NewGame(id uint64) *Game {
+func NewGame(id uint64) (*Game, error) {
 	table := NewTable()
 	state := stateNewGame(table)
 
@@ -23,14 +23,14 @@ func NewGame(id uint64) *Game {
 
 	err := sm.Transition(nil)
 	if err != nil {
-		panic(err) // TODO: clean return instead of panic!
+		return nil, err
 	}
 
 	return &Game{
 		Id:           id,
 		Table:        table,
 		StateMachine: sm,
-	}
+	}, nil
 }
 
 type State func(table *Table) *state_machine.State
