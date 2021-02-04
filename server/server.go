@@ -95,7 +95,7 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	}
 }
 
-func (s *Server) withGame(f func(r *http.Request, game *mahjong.MahjongGame) *Response) RequestHandler {
+func (s *Server) withGame(f func(r *http.Request, game *mahjong.Game) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		parts := strings.Split(r.URL.Path, "/")
 		var strId string

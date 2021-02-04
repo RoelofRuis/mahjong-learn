@@ -4,7 +4,7 @@ type State struct {
 	// Name just to display human readable information.
 	Name string
 
-	// Required actions per seat. May be nil if this state requires no actions.
+	// Required actions per seat. May be set to nil if this state requires no actions.
 	Actions func() map[Seat][]Action
 
 	// Transition to next state. Selected actions are passed if applicable.

@@ -7,7 +7,7 @@ import (
 
 // TODO: refactor to remove panic calls!
 
-type MahjongGame struct {
+type Game struct {
 	Id uint64
 
 	Table *Table
@@ -15,7 +15,7 @@ type MahjongGame struct {
 	Driver *driver.GameDriver
 }
 
-func NewMahjongGame(id uint64) *MahjongGame {
+func NewGame(id uint64) *Game {
 	table := NewTable()
 	state := stateNewGame(table)
 
@@ -26,22 +26,22 @@ func NewMahjongGame(id uint64) *MahjongGame {
 		panic(err) // TODO: clean return instead of panic!
 	}
 
-	return &MahjongGame{
+	return &Game{
 		Id:     id,
 		Table:  table,
 		Driver: gameDriver,
 	}
 }
 
-type MahjongState func(table *Table) *driver.State
+type State func(table *Table) *driver.State
 
 var (
-	stateNewGame       MahjongState
-	stateNextRound     MahjongState
-	stateNextTurn      MahjongState
-	stateMustDiscard   MahjongState
-	stateTileDiscarded MahjongState
-	stateGameEnded     MahjongState
+	stateNewGame       State
+	stateNextRound     State
+	stateNextTurn      State
+	stateMustDiscard   State
+	stateTileDiscarded State
+	stateGameEnded     State
 )
 
 func init() {

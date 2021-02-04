@@ -10,7 +10,7 @@ func Benchmark100GameRuns(b *testing.B) {
 	rand.Seed(0)
 
 	for i := 0; i < 100; i++ {
-		game := NewMahjongGame(uint64(i))
+		game := NewGame(uint64(i))
 
 		for {
 			state := game.Driver.GetState()

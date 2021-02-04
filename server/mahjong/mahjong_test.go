@@ -8,7 +8,7 @@ import (
 )
 
 func TestGameLogic(t *testing.T) {
-	game := NewMahjongGame(1)
+	game := NewGame(1)
 
 	numTransitions := 0
 	var stateHistory []string

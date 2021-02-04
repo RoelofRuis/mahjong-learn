@@ -42,14 +42,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplay(r *http.Request, game *mahjong.MahjongGame) *Response {
+func (s *Server) handleDisplay(r *http.Request, game *mahjong.Game) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
 		Data:       View(game),
 	}
 }
 
-func (s *Server) handleActions(r *http.Request, game *mahjong.MahjongGame) *Response {
+func (s *Server) handleActions(r *http.Request, game *mahjong.Game) *Response {
 	actionMap := make(map[driver.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)

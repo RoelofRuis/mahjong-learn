@@ -123,7 +123,7 @@ type HumanView struct {
 	Wall          []string           `json:"wall"`
 }
 
-func View(game *mahjong.MahjongGame) *HumanView {
+func View(game *mahjong.Game) *HumanView {
 	s := game.Driver.GetState()
 	a := s.Actions()
 	g := *game.Table
