@@ -1,5 +1,6 @@
 package driver
 
+// indicates a player seat number
 type Seat int
 
 type State struct {
@@ -12,6 +13,12 @@ type State struct {
 	// transition to next state. Selected actions are passed if applicable.
 	// Set to nil to make this a terminal state.
 	transition func(map[Seat]Action) (*State, error)
+}
+
+type Action interface {
+	// Defines an order for the actions returned.
+	// Needs to be unique among simultaneous action options to guarantee a stable sorting.
+	ActionOrder() int
 }
 
 func NewState(name string, actions map[Seat][]Action, transition func(map[Seat]Action) (*State, error)) *State {
@@ -36,10 +43,6 @@ func NewTerminalState(name string) *State {
 		actions: nil,
 		transition: nil,
 	}
-}
-
-type Action interface {
-	ActionOrder() int
 }
 
 type byActionOrder []Action
