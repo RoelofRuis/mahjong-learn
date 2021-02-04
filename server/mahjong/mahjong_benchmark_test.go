@@ -13,15 +13,12 @@ func Benchmark100GameRuns(b *testing.B) {
 		game := NewGame(uint64(i))
 
 		for {
-			state := game.Driver.GetState()
-			actions := state.Actions
-
-			if state.Transition == nil {
+			if game.Driver.HasTerminated() {
 				break
 			}
 
 			selectedActions := make(map[driver.Seat]int)
-			for seat, a := range actions() {
+			for seat, a := range game.Driver.GetAvailableActions() {
 				selectedActions[seat] = rand.Intn(len(a))
 			}
 

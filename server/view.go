@@ -124,31 +124,29 @@ type HumanView struct {
 }
 
 func View(game *mahjong.Game) *HumanView {
-	s := game.Driver.GetState()
-	a := s.Actions()
-	g := *game.Table
+	table := *game.Table
 
 	var activePlayers []int
 	playerViews := make(map[int]PlayerView, 4)
 	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := a[driver.Seat(seat)]
+		actions, has := game.Driver.GetAvailableActions()[driver.Seat(seat)]
 		if !has {
 			actions = make([]driver.Action, 0)
 		} else {
 			activePlayers = append(activePlayers, seat+1)
 		}
-		playerViews[seat+1] = DescribePlayer(g, actions, driver.Seat(seat))
+		playerViews[seat+1] = DescribePlayer(table, actions, driver.Seat(seat))
 	}
 
 	return &HumanView{
 		Id:            game.Id,
-		HasEnded:      s.Transition == nil,
-		StateName:     s.Name,
-		PrevalentWind: WindNames[g.GetPrevalentWind()],
+		HasEnded:      game.Driver.HasTerminated(),
+		StateName:     game.Driver.GetStateName(),
+		PrevalentWind: WindNames[table.GetPrevalentWind()],
 		ActivePlayers: activePlayers,
-		ActiveDiscard: DescribeTilePointer(g.GetActiveDiscard()),
+		ActiveDiscard: DescribeTilePointer(table.GetActiveDiscard()),
 		Players:       playerViews,
-		Wall:          Describe(g.GetWall()),
+		Wall:          Describe(table.GetWall()),
 	}
 }
 

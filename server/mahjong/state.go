@@ -73,7 +73,7 @@ func init() {
 	stateMustDiscard = func(table *Table) *driver.State {
 		return &driver.State{
 			Name:          "Must Discard",
-			Actions: table.mustDiscardActions,
+			Actions: table.mustDiscardActions(),
 			Transition:    table.handleMustDiscardActions,
 		}
 	}
@@ -81,7 +81,7 @@ func init() {
 	stateTileDiscarded = func(table *Table) *driver.State {
 		return &driver.State{
 			Name:          "Tile Discarded",
-			Actions: table.tileDiscardedActions,
+			Actions: table.tileDiscardedActions(),
 			Transition:    table.handleTileDiscardedActions,
 		}
 	}
@@ -117,7 +117,6 @@ func (t *Table) tryDealTile(_ map[driver.Seat]driver.Action) (*driver.State, err
 func (t *Table) mustDiscardActions() map[driver.Seat][]driver.Action {
 	actionMap := make(map[driver.Seat][]driver.Action, 1)
 
-	// TODO: probably move this to mahjong..?
 	if t.GetActivePlayer().GetReceivedTile() == nil {
 		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
 	} else {

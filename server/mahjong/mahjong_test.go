@@ -13,12 +13,12 @@ func TestGameLogic(t *testing.T) {
 	numTransitions := 0
 	var stateHistory []string
 	for {
-		state := game.Driver.GetState()
-		actions := game.Driver.GetState().Actions
+		actions := game.Driver.GetAvailableActions()
+		stateName := game.Driver.GetStateName()
 
-		stateHistory = append(stateHistory, state.Name)
+		stateHistory = append(stateHistory, game.Driver.GetStateName())
 
-		if state.Transition == nil {
+		if game.Driver.HasTerminated() {
 			break
 		}
 
@@ -28,7 +28,7 @@ func TestGameLogic(t *testing.T) {
 		}
 
 		selectedActions := make(map[driver.Seat]int)
-		for seat, a := range actions() {
+		for seat, a := range game.Driver.GetAvailableActions() {
 			selectedActions[seat] = rand.Intn(len(a))
 		}
 
@@ -43,7 +43,7 @@ func TestGameLogic(t *testing.T) {
 		err = checkInvariants(*game.Table)
 		if err != nil {
 			t.Logf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
-			t.Logf("state was [%s] selected actions were [%+v]", state.Name, selectedActions)
+			t.Logf("state was [%s] selected actions were [%+v]", stateName, selectedActions)
 			t.FailNow()
 		}
 	}

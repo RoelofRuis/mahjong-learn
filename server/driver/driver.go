@@ -20,28 +20,38 @@ func NewGameDriver(initialState *State, transitionLimit int) *GameDriver {
 	}
 }
 
-func (m *GameDriver) GetState() *State {
-	return m.state
+func (m *GameDriver) GetStateName() string {
+	return m.state.Name
+}
+
+func (m *GameDriver) GetAvailableActions() map[Seat][]Action {
+	if m.state.Actions == nil {
+		return make(map[Seat][]Action)
+	}
+	return m.state.Actions
+}
+
+func (m *GameDriver) HasTerminated() bool {
+	return m.state.Transition == nil
 }
 
 func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if m.state.Transition == nil {
+	if m.HasTerminated() {
 		return nil
 	}
 
 	seatActions := make(map[Seat]Action)
-	possibleActions := m.state.Actions
 
-	if possibleActions != nil {
+	if m.state.Actions != nil {
 		if selectedActions == nil {
 			// initialize empty so we can return IncorrectActionError for erroneous seat
 			selectedActions = make(map[Seat]int, 0)
 		}
 
-		for seat, actions := range possibleActions() {
+		for seat, actions := range m.state.Actions {
 			selected, has := selectedActions[seat]
 			if !has || selected < 0 || selected >= len(actions) {
 				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) -1}
@@ -59,7 +69,7 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 		m.state = state
 		seatActions = nil // only use player actions in first transition
 
-		if m.state.Transition == nil || m.state.Actions != nil {
+		if m.HasTerminated() || m.state.Actions != nil {
 			// transition until we are in a terminal state, or another player action is required
 			return nil
 		}
