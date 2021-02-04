@@ -9,10 +9,10 @@ type GameDriver struct {
 
 	transitionLimit int
 
-	state State
+	state *State
 }
 
-func NewGameDriver(initialState State, transitionLimit int) *GameDriver {
+func NewGameDriver(initialState *State, transitionLimit int) *GameDriver {
 	return &GameDriver{
 		lock:            sync.Mutex{},
 		transitionLimit: transitionLimit,
@@ -20,7 +20,7 @@ func NewGameDriver(initialState State, transitionLimit int) *GameDriver {
 	}
 }
 
-func (m *GameDriver) View() ViewableState {
+func (m *GameDriver) View() *State {
 	return m.state
 }
 
@@ -28,7 +28,7 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if m.state.IsTerminal() {
+	if m.state.Transition == nil {
 		return nil
 	}
 
@@ -59,12 +59,12 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 		m.state = state
 		seatActions = nil // only use player actions in first transition
 
-		if m.state.IsTerminal() || m.state.Actions() != nil {
+		if m.state.Transition == nil || m.state.Actions() != nil {
 			// transition until we are in a terminal state, or another player action is required
 			return nil
 		}
 
-		stateHistory = append(stateHistory, m.state.Name())
+		stateHistory = append(stateHistory, m.state.Name)
 		if len(stateHistory) > m.transitionLimit {
 			return TransitionLimitReachedError{
 				transitionLimit: m.transitionLimit,
