@@ -2,7 +2,6 @@ package mahjong
 
 import (
 	"github.com/roelofruis/mahjong-learn/driver"
-	"sort"
 )
 
 // Tile received actions
@@ -54,8 +53,6 @@ func (p *Player) GetDiscardAfterCombinationActions() []driver.Action {
 
 	// TODO: add declare mahjong
 
-	sort.Sort(driver.ByActionOrder(availableActions))
-
 	return availableActions
 }
 
@@ -81,8 +78,6 @@ func (p *Player) GetTileReceivedActions() []driver.Action {
 
 	// TODO: add declare mahjong
 
-	sort.Sort(driver.ByActionOrder(availableActions))
-
 	return availableActions
 }
 
@@ -106,8 +101,6 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []driv
 	}
 
 	// TODO: add declare mahjong
-
-	sort.Sort(driver.ByActionOrder(availableActions))
 
 	return availableActions
 }

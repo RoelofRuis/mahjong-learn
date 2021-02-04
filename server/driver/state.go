@@ -1,5 +1,7 @@
 package driver
 
+type Seat int
+
 type State struct {
 	// name just to display human readable information.
 	name string
@@ -40,10 +42,8 @@ type Action interface {
 	ActionOrder() int
 }
 
-type ByActionOrder []Action
+type byActionOrder []Action
 
-func (a ByActionOrder) Len() int           { return len(a) }
-func (a ByActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }
-
-type Seat int
+func (a byActionOrder) Len() int           { return len(a) }
+func (a byActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }

@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"sort"
 	"sync"
 )
 
@@ -48,6 +49,12 @@ func (m *productionGameDriver) AvailableActions() map[Seat][]Action {
 	if m.state.actions == nil {
 		return make(map[Seat][]Action)
 	}
+
+	for s, a := range m.state.actions {
+		sort.Sort(byActionOrder(a))
+		m.state.actions[s] = a
+	}
+
 	return m.state.actions
 }
 
