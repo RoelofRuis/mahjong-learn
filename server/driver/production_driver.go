@@ -5,40 +5,12 @@ import (
 	"sync"
 )
 
-type GameDriver interface {
-	// Name of the current state the driver is in
-	StateName() string
-
-	// Whether the driver is in a terminal state and no more actions can be performed.
-	// If this returns true, calling Transition is a no-op.
-	HasTerminated() bool
-
-	// Get the actions that are available for executing in this state
-	AvailableActions() map[Seat][]Action
-
-	// Perform the transition to the next state
-	//
-	// Might return one of several errors:
-	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
-	// TransitionLimitReachedError in case the chain of state transitions that did not require an action became too long
-	// GameLogicError in case executing the game logic returned an error.
-	Transition(selectedActions map[Seat]int) error
-}
-
 type productionGameDriver struct {
 	lock sync.Mutex
 
 	transitionLimit int
 
 	state *State
-}
-
-func NewGameDriver(initialState *State, transitionLimit int) GameDriver {
-	return &productionGameDriver{
-		lock:            sync.Mutex{},
-		transitionLimit: transitionLimit,
-		state:           initialState,
-	}
 }
 
 func (m *productionGameDriver) StateName() string {

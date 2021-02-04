@@ -13,10 +13,10 @@ func TestGameLogic(t *testing.T) {
 	numTransitions := 0
 	var stateHistory []string
 	for {
-		actions := game.Driver.GetAvailableActions()
-		stateName := game.Driver.GetStateName()
+		actions := game.Driver.AvailableActions()
+		stateName := game.Driver.StateName()
 
-		stateHistory = append(stateHistory, game.Driver.GetStateName())
+		stateHistory = append(stateHistory, game.Driver.StateName())
 
 		if game.Driver.HasTerminated() {
 			break
@@ -28,7 +28,7 @@ func TestGameLogic(t *testing.T) {
 		}
 
 		selectedActions := make(map[driver.Seat]int)
-		for seat, a := range game.Driver.GetAvailableActions() {
+		for seat, a := range game.Driver.AvailableActions() {
 			selectedActions[seat] = rand.Intn(len(a))
 		}
 

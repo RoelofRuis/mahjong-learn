@@ -18,7 +18,7 @@ func Benchmark100GameRuns(b *testing.B) {
 			}
 
 			selectedActions := make(map[driver.Seat]int)
-			for seat, a := range game.Driver.GetAvailableActions() {
+			for seat, a := range game.Driver.AvailableActions() {
 				selectedActions[seat] = rand.Intn(len(a))
 			}
 
