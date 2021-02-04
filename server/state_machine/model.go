@@ -62,11 +62,11 @@ func NewState(name string, actions map[Seat][]Action, transition func(map[Seat]A
 	}
 }
 
-func NewIntermediateState(name string, transition func(map[Seat]Action) (*State, error)) *State {
+func NewIntermediateState(name string, transition func() *State) *State {
 	return &State {
 		name: name,
 		actions: nil,
-		transition: transition,
+		transition: func(_ map[Seat]Action) (*State, error) { return transition(), nil },
 	}
 }
 

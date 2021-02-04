@@ -10,7 +10,6 @@ type Game struct {
 	Id uint64
 
 	Table *Table
-
 	StateMachine state_machine.StateMachine
 }
 
@@ -70,23 +69,23 @@ func init() {
 	}
 }
 
-func (t *Table) initialize(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
+func (t *Table) initialize() *state_machine.State {
 	t.DealConcealed(13, 0)
 	t.DealConcealed(13, 1)
 	t.DealConcealed(13, 2)
 	t.DealConcealed(13, 3)
 
-	return stateNextTurn(t), nil
+	return stateNextTurn(t)
 }
 
-func (t *Table) tryDealTile(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
+func (t *Table) tryDealTile() *state_machine.State {
 	if t.GetWallSize() <= 14 {
-		return stateNextRound(t), nil
+		return stateNextRound(t)
 	}
 
 	t.DealToActivePlayer()
 
-	return stateMustDiscard(t), nil
+	return stateMustDiscard(t)
 }
 
 func (t *Table) mustDiscardActions() map[state_machine.Seat][]state_machine.Action {
@@ -195,12 +194,12 @@ func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_
 	return nil, fmt.Errorf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction)
 }
 
-func (t *Table) tryNextRound(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
+func (t *Table) tryNextRound() *state_machine.State {
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
 	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == North {
-		return stateGameEnded(t), nil
+		return stateGameEnded(t)
 	}
 
 	if t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
@@ -210,5 +209,5 @@ func (t *Table) tryNextRound(_ map[state_machine.Seat]state_machine.Action) (*st
 	t.ResetWall()
 	t.PrepareNextRound()
 
-	return stateNextTurn(t), nil
+	return stateNextTurn(t)
 }
