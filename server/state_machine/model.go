@@ -1,15 +1,15 @@
-package driver
+package state_machine
 
 import (
 	"fmt"
 	"sync"
 )
 
-type GameDriver interface {
-	// Name of the current state the driver is in
+type StateMachine interface {
+	// Name of the current state the state machine is in
 	StateName() string
 
-	// Whether the driver is in a terminal state and no more actions can be performed.
+	// Whether the state machine is in a terminal state and no more actions can be performed.
 	// If this returns true, calling Transition is a no-op.
 	HasTerminated() bool
 
@@ -20,13 +20,13 @@ type GameDriver interface {
 	//
 	// Might return one of several errors:
 	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
-	// TransitionLimitReachedError in case the chain of state transitions that did not require an action became too long
-	// GameLogicError in case executing the game logic returned an error.
+	// TooManyIntermediateStatesError in case the chain of state transitions that did not require an action became too long
+	// TransitionLogicError in case executing the transition logic returned an error.
 	Transition(selectedActions map[Seat]int) error
 }
 
-func NewGameDriver(initialState *State, transitionLimit int) GameDriver {
-	return &productionGameDriver{
+func NewStateMachine(initialState *State, transitionLimit int) StateMachine {
+	return &productinStateMachine{
 		lock:            sync.Mutex{},
 		transitionLimit: transitionLimit,
 		state:           initialState,
@@ -93,19 +93,19 @@ func (e IncorrectActionError) Error() string {
 	return fmt.Sprintf("an action is required for seat [%d] within range [0 to %d]", e.seat, e.upperActionIndex)
 }
 
-type TransitionLimitReachedError struct {
+type TooManyIntermediateStatesError struct {
 	transitionLimit int
 	StateHistory []string
 }
 
-func (e TransitionLimitReachedError) Error() string {
-	return fmt.Sprintf("transitioning to next action state took more than [%d] steps", e.transitionLimit)
+func (e TooManyIntermediateStatesError) Error() string {
+	return fmt.Sprintf("transitioning to next actionable state took more than [%d] steps", e.transitionLimit)
 }
 
-type GameLogicError struct {
+type TransitionLogicError struct {
 	Err error
 }
 
-func (e GameLogicError) Error() string {
-	return fmt.Sprintf("game logic error: %s", e.Err.Error())
+func (e TransitionLogicError) Error() string {
+	return fmt.Sprintf("transition logic error: %s", e.Err.Error())
 }

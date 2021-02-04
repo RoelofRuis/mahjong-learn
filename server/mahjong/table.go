@@ -1,6 +1,6 @@
 package mahjong
 
-import "github.com/roelofruis/mahjong-learn/driver"
+import "github.com/roelofruis/mahjong-learn/state_machine"
 
 type Wind int
 
@@ -15,12 +15,12 @@ type Table struct {
 	prevalentWind Wind
 	wall          *TileCollection
 	activeDiscard *Tile
-	players       map[driver.Seat]*Player
-	activeSeat    driver.Seat
+	players       map[state_machine.Seat]*Player
+	activeSeat    state_machine.Seat
 }
 
 func NewTable() *Table {
-	players := make(map[driver.Seat]*Player, 4)
+	players := make(map[state_machine.Seat]*Player, 4)
 
 	wall := NewMahjongSet()
 	players[0] = NewPlayer(East)
@@ -43,12 +43,12 @@ func (t *Table) GetWallSize() int {
 	return t.wall.Size()
 }
 
-func (t *Table) GetActiveSeat() driver.Seat {
+func (t *Table) GetActiveSeat() state_machine.Seat {
 	return t.activeSeat
 }
 
-func (t *Table) GetReactingPlayers() map[driver.Seat]*Player {
-	reactingPlayers := make(map[driver.Seat]*Player, 3)
+func (t *Table) GetReactingPlayers() map[state_machine.Seat]*Player {
+	reactingPlayers := make(map[state_machine.Seat]*Player, 3)
 	for s, p := range t.players {
 		if s != t.activeSeat {
 			reactingPlayers[s] = p
@@ -61,7 +61,7 @@ func (t *Table) GetActivePlayer() *Player {
 	return t.GetPlayerAtSeat(t.activeSeat)
 }
 
-func (t *Table) GetPlayerAtSeat(seat driver.Seat) *Player {
+func (t *Table) GetPlayerAtSeat(seat state_machine.Seat) *Player {
 	return t.players[seat]
 }
 
@@ -94,7 +94,7 @@ func (t *Table) DealToActivePlayer() {
 	}
 }
 
-func (t *Table) DealConcealed(n int, s driver.Seat) {
+func (t *Table) DealConcealed(n int, s state_machine.Seat) {
 	activePlayer := t.players[s]
 
 	for i := n; i > 0; i-- {
@@ -130,7 +130,7 @@ func (t *Table) PrepareNextRound() {
 	}
 }
 
-func (t *Table) ActivateSeat(seat driver.Seat) {
+func (t *Table) ActivateSeat(seat state_machine.Seat) {
 	t.activeSeat = seat
 }
 

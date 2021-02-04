@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 	"github.com/roelofruis/mahjong-learn/mahjong"
 )
 
@@ -129,19 +129,19 @@ func View(game *mahjong.Game) *HumanView {
 	var activePlayers []int
 	playerViews := make(map[int]PlayerView, 4)
 	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := game.Driver.AvailableActions()[driver.Seat(seat)]
+		actions, has := game.StateMachine.AvailableActions()[state_machine.Seat(seat)]
 		if !has {
-			actions = make([]driver.Action, 0)
+			actions = make([]state_machine.Action, 0)
 		} else {
 			activePlayers = append(activePlayers, seat+1)
 		}
-		playerViews[seat+1] = DescribePlayer(table, actions, driver.Seat(seat))
+		playerViews[seat+1] = DescribePlayer(table, actions, state_machine.Seat(seat))
 	}
 
 	return &HumanView{
 		Id:            game.Id,
-		HasEnded:      game.Driver.HasTerminated(),
-		StateName:     game.Driver.StateName(),
+		HasEnded:      game.StateMachine.HasTerminated(),
+		StateName:     game.StateMachine.StateName(),
 		PrevalentWind: WindNames[table.GetPrevalentWind()],
 		ActivePlayers: activePlayers,
 		ActiveDiscard: DescribeTilePointer(table.GetActiveDiscard()),
@@ -194,7 +194,7 @@ func Describe(t *mahjong.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g mahjong.Table, actions []driver.Action, seat driver.Seat) PlayerView {
+func DescribePlayer(g mahjong.Table, actions []state_machine.Action, seat state_machine.Seat) PlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = DescribeAction(a)
@@ -212,7 +212,7 @@ func DescribePlayer(g mahjong.Table, actions []driver.Action, seat driver.Seat) 
 	}
 }
 
-func DescribeAction(action driver.Action) string {
+func DescribeAction(action state_machine.Action) string {
 	switch a := action.(type) {
 	case mahjong.Discard:
 		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])

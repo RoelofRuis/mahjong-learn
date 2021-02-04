@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 	"github.com/roelofruis/mahjong-learn/mahjong"
 	"net/http"
 	"strconv"
@@ -50,17 +50,17 @@ func (s *Server) handleDisplay(r *http.Request, game *mahjong.Game) *Response {
 }
 
 func (s *Server) handleActions(r *http.Request, game *mahjong.Game) *Response {
-	actionMap := make(map[driver.Seat]int)
+	actionMap := make(map[state_machine.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
 		if err == nil {
-			actionMap[driver.Seat(i)] = int(playerAction)
+			actionMap[state_machine.Seat(i)] = int(playerAction)
 		}
 	}
 
-	err := game.Driver.Transition(actionMap)
+	err := game.StateMachine.Transition(actionMap)
 	if err != nil {
-		if _, ok := err.(*driver.IncorrectActionError); ok {
+		if _, ok := err.(*state_machine.IncorrectActionError); ok {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,

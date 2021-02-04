@@ -1,7 +1,7 @@
 package mahjong
 
 import (
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 	"math/rand"
 	"testing"
 )
@@ -13,16 +13,16 @@ func Benchmark100GameRuns(b *testing.B) {
 		game := NewGame(uint64(i))
 
 		for {
-			if game.Driver.HasTerminated() {
+			if game.StateMachine.HasTerminated() {
 				break
 			}
 
-			selectedActions := make(map[driver.Seat]int)
-			for seat, a := range game.Driver.AvailableActions() {
+			selectedActions := make(map[state_machine.Seat]int)
+			for seat, a := range game.StateMachine.AvailableActions() {
 				selectedActions[seat] = rand.Intn(len(a))
 			}
 
-			_ = game.Driver.Transition(selectedActions)
+			_ = game.StateMachine.Transition(selectedActions)
 		}
 	}
 }

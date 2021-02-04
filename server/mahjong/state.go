@@ -2,7 +2,7 @@ package mahjong
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 )
 
 // TODO: refactor to remove panic calls!
@@ -12,28 +12,28 @@ type Game struct {
 
 	Table *Table
 
-	Driver driver.GameDriver
+	StateMachine state_machine.StateMachine
 }
 
 func NewGame(id uint64) *Game {
 	table := NewTable()
 	state := stateNewGame(table)
 
-	gameDriver := driver.NewGameDriver(state, 10)
+	sm := state_machine.NewStateMachine(state, 10)
 
-	err := gameDriver.Transition(nil)
+	err := sm.Transition(nil)
 	if err != nil {
 		panic(err) // TODO: clean return instead of panic!
 	}
 
 	return &Game{
-		Id:     id,
-		Table:  table,
-		Driver: gameDriver,
+		Id:           id,
+		Table:        table,
+		StateMachine: sm,
 	}
 }
 
-type State func(table *Table) *driver.State
+type State func(table *Table) *state_machine.State
 
 var (
 	stateNewGame       State
@@ -46,32 +46,32 @@ var (
 
 func init() {
 	// initialize states in `init` to prevent loops in references
-	stateNewGame = func(table *Table) *driver.State {
-		return driver.NewIntermediateState("New Game", table.initialize)
+	stateNewGame = func(table *Table) *state_machine.State {
+		return state_machine.NewIntermediateState("New Game", table.initialize)
 	}
 
-	stateNextRound = func(table *Table) *driver.State {
-		return driver.NewIntermediateState("Next Round", table.tryNextRound)
+	stateNextRound = func(table *Table) *state_machine.State {
+		return state_machine.NewIntermediateState("Next Round", table.tryNextRound)
 	}
 
-	stateNextTurn = func(table *Table) *driver.State {
-		return driver.NewIntermediateState("Next turn", table.tryDealTile)
+	stateNextTurn = func(table *Table) *state_machine.State {
+		return state_machine.NewIntermediateState("Next turn", table.tryDealTile)
 	}
 
-	stateMustDiscard = func(table *Table) *driver.State {
-		return driver.NewState("Must Discard", table.mustDiscardActions(), table.handleMustDiscardActions)
+	stateMustDiscard = func(table *Table) *state_machine.State {
+		return state_machine.NewState("Must Discard", table.mustDiscardActions(), table.handleMustDiscardActions)
 	}
 
-	stateTileDiscarded = func(table *Table) *driver.State {
-		return driver.NewState("Tile Discarded", table.tileDiscardedActions(), table.handleTileDiscardedActions)
+	stateTileDiscarded = func(table *Table) *state_machine.State {
+		return state_machine.NewState("Tile Discarded", table.tileDiscardedActions(), table.handleTileDiscardedActions)
 	}
 
-	stateGameEnded = func(table *Table) *driver.State {
-		return driver.NewTerminalState("Game Ended")
+	stateGameEnded = func(table *Table) *state_machine.State {
+		return state_machine.NewTerminalState("Game Ended")
 	}
 }
 
-func (t *Table) initialize(_ map[driver.Seat]driver.Action) (*driver.State, error) {
+func (t *Table) initialize(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
 	t.DealConcealed(13, 0)
 	t.DealConcealed(13, 1)
 	t.DealConcealed(13, 2)
@@ -80,7 +80,7 @@ func (t *Table) initialize(_ map[driver.Seat]driver.Action) (*driver.State, erro
 	return stateNextTurn(t), nil
 }
 
-func (t *Table) tryDealTile(_ map[driver.Seat]driver.Action) (*driver.State, error) {
+func (t *Table) tryDealTile(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
 	if t.GetWallSize() <= 14 {
 		return stateNextRound(t), nil
 	}
@@ -90,8 +90,8 @@ func (t *Table) tryDealTile(_ map[driver.Seat]driver.Action) (*driver.State, err
 	return stateMustDiscard(t), nil
 }
 
-func (t *Table) mustDiscardActions() map[driver.Seat][]driver.Action {
-	actionMap := make(map[driver.Seat][]driver.Action, 1)
+func (t *Table) mustDiscardActions() map[state_machine.Seat][]state_machine.Action {
+	actionMap := make(map[state_machine.Seat][]state_machine.Action, 1)
 
 	if t.GetActivePlayer().GetReceivedTile() == nil {
 		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
@@ -102,7 +102,7 @@ func (t *Table) mustDiscardActions() map[driver.Seat][]driver.Action {
 	return actionMap
 }
 
-func (t *Table) handleMustDiscardActions(actions map[driver.Seat]driver.Action) (*driver.State, error) {
+func (t *Table) handleMustDiscardActions(actions map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
 	switch a := actions[t.GetActiveSeat()].(type) {
 	case Discard:
 		t.ActivePlayerDiscards(a.Tile)
@@ -127,8 +127,8 @@ func (t *Table) handleMustDiscardActions(actions map[driver.Seat]driver.Action) 
 	}
 }
 
-func (t *Table) tileDiscardedActions() map[driver.Seat][]driver.Action {
-	m := make(map[driver.Seat][]driver.Action, 3)
+func (t *Table) tileDiscardedActions() map[state_machine.Seat][]state_machine.Action {
+	m := make(map[state_machine.Seat][]state_machine.Action, 3)
 
 	activeDiscard := *t.GetActiveDiscard()
 
@@ -140,10 +140,10 @@ func (t *Table) tileDiscardedActions() map[driver.Seat][]driver.Action {
 	return m
 }
 
-func (t *Table) handleTileDiscardedActions(actions map[driver.Seat]driver.Action) (*driver.State, error) {
+func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
 	var bestValue = 0
-	var bestSeat driver.Seat
-	for _, seatIndex := range []driver.Seat{ (t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4 } {
+	var bestSeat state_machine.Seat
+	for _, seatIndex := range []state_machine.Seat{(t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4 } {
 		var value int
 		switch actions[seatIndex].(type) {
 		case DoNothing:
@@ -196,15 +196,15 @@ func (t *Table) handleTileDiscardedActions(actions map[driver.Seat]driver.Action
 	panic(fmt.Sprintf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction))
 }
 
-func (t *Table) tryNextRound(_ map[driver.Seat]driver.Action) (*driver.State, error) {
+func (t *Table) tryNextRound(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
-	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(driver.Seat(3)).GetSeatWind() == North {
+	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == North {
 		return stateGameEnded(t), nil
 	}
 
-	if t.GetPlayerAtSeat(driver.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
+	if t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
 		t.SetNextPrevalentWind()
 	}
 

@@ -2,7 +2,7 @@ package mahjong
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 	"math/rand"
 	"testing"
 )
@@ -13,12 +13,12 @@ func TestGameLogic(t *testing.T) {
 	numTransitions := 0
 	var stateHistory []string
 	for {
-		actions := game.Driver.AvailableActions()
-		stateName := game.Driver.StateName()
+		actions := game.StateMachine.AvailableActions()
+		stateName := game.StateMachine.StateName()
 
-		stateHistory = append(stateHistory, game.Driver.StateName())
+		stateHistory = append(stateHistory, game.StateMachine.StateName())
 
-		if game.Driver.HasTerminated() {
+		if game.StateMachine.HasTerminated() {
 			break
 		}
 
@@ -27,12 +27,12 @@ func TestGameLogic(t *testing.T) {
 			t.FailNow()
 		}
 
-		selectedActions := make(map[driver.Seat]int)
-		for seat, a := range game.Driver.AvailableActions() {
+		selectedActions := make(map[state_machine.Seat]int)
+		for seat, a := range game.StateMachine.AvailableActions() {
 			selectedActions[seat] = rand.Intn(len(a))
 		}
 
-		err := game.Driver.Transition(selectedActions)
+		err := game.StateMachine.Transition(selectedActions)
 		if err != nil {
 			t.Logf("game transition raised an error: %s", err.Error())
 			t.FailNow()

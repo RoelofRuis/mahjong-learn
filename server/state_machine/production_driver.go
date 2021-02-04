@@ -1,11 +1,11 @@
-package driver
+package state_machine
 
 import (
 	"sort"
 	"sync"
 )
 
-type productionGameDriver struct {
+type productinStateMachine struct {
 	lock sync.Mutex
 
 	transitionLimit int
@@ -13,11 +13,11 @@ type productionGameDriver struct {
 	state *State
 }
 
-func (m *productionGameDriver) StateName() string {
+func (m *productinStateMachine) StateName() string {
 	return m.state.name
 }
 
-func (m *productionGameDriver) AvailableActions() map[Seat][]Action {
+func (m *productinStateMachine) AvailableActions() map[Seat][]Action {
 	if m.state.actions == nil {
 		return make(map[Seat][]Action)
 	}
@@ -30,11 +30,11 @@ func (m *productionGameDriver) AvailableActions() map[Seat][]Action {
 	return m.state.actions
 }
 
-func (m *productionGameDriver) HasTerminated() bool {
+func (m *productinStateMachine) HasTerminated() bool {
 	return m.state.transition == nil
 }
 
-func (m *productionGameDriver) Transition(selectedActions map[Seat]int) error {
+func (m *productinStateMachine) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -63,7 +63,7 @@ func (m *productionGameDriver) Transition(selectedActions map[Seat]int) error {
 	for {
 		state, err := m.state.transition(seatActions)
 		if err != nil {
-			return GameLogicError{Err: err}
+			return TransitionLogicError{Err: err}
 		}
 		m.state = state
 		seatActions = nil // only use player actions in first transition
@@ -75,7 +75,7 @@ func (m *productionGameDriver) Transition(selectedActions map[Seat]int) error {
 
 		stateHistory = append(stateHistory, m.StateName())
 		if len(stateHistory) > m.transitionLimit {
-			return TransitionLimitReachedError{
+			return TooManyIntermediateStatesError{
 				transitionLimit: m.transitionLimit,
 				StateHistory:    stateHistory,
 			}

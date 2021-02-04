@@ -1,7 +1,7 @@
 package mahjong
 
 import (
-	"github.com/roelofruis/mahjong-learn/driver"
+	"github.com/roelofruis/mahjong-learn/state_machine"
 )
 
 // Tile received actions
@@ -41,8 +41,8 @@ func (d DeclareMahjong) ActionOrder() int { return -1 }
 
 // Player actions
 
-func (p *Player) GetDiscardAfterCombinationActions() []driver.Action {
-	availableActions := make([]driver.Action, 0)
+func (p *Player) GetDiscardAfterCombinationActions() []state_machine.Action {
+	availableActions := make([]state_machine.Action, 0)
 
 	for t, c := range p.concealed.tiles {
 		availableActions = append(availableActions, Discard{Tile: t})
@@ -56,8 +56,8 @@ func (p *Player) GetDiscardAfterCombinationActions() []driver.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileReceivedActions() []driver.Action {
-	availableActions := make([]driver.Action, 0)
+func (p *Player) GetTileReceivedActions() []state_machine.Action {
+	availableActions := make([]state_machine.Action, 0)
 
 	receivedTile := *p.received
 
@@ -81,8 +81,8 @@ func (p *Player) GetTileReceivedActions() []driver.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []driver.Action {
-	availableActions := make([]driver.Action, 0)
+func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []state_machine.Action {
+	availableActions := make([]state_machine.Action, 0)
 
 	availableActions = append(availableActions, DoNothing{})
 
