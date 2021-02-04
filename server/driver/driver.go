@@ -4,7 +4,27 @@ import (
 	"sync"
 )
 
-type GameDriver struct {
+type GameDriver interface {
+	// Name of the current state the driver is in
+	StateName() string
+
+	// Whether the driver is in a terminal state and no more actions can be performed.
+	// If this returns true, calling Transition is a no-op.
+	HasTerminated() bool
+
+	// Get the actions that are available for executing in this state
+	AvailableActions() map[Seat][]Action
+
+	// Perform the transition to the next state
+	//
+	// Might return one of several errors:
+	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
+	// TransitionLimitReachedError in case the chain of state transitions that did not require an action became too long
+	// GameLogicError in case executing the game logic returned an error.
+	Transition(selectedActions map[Seat]int) error
+}
+
+type productionGameDriver struct {
 	lock sync.Mutex
 
 	transitionLimit int
@@ -12,30 +32,30 @@ type GameDriver struct {
 	state *State
 }
 
-func NewGameDriver(initialState *State, transitionLimit int) *GameDriver {
-	return &GameDriver{
+func NewGameDriver(initialState *State, transitionLimit int) GameDriver {
+	return &productionGameDriver{
 		lock:            sync.Mutex{},
 		transitionLimit: transitionLimit,
 		state:           initialState,
 	}
 }
 
-func (m *GameDriver) GetStateName() string {
-	return m.state.Name
+func (m *productionGameDriver) StateName() string {
+	return m.state.name
 }
 
-func (m *GameDriver) GetAvailableActions() map[Seat][]Action {
-	if m.state.Actions == nil {
+func (m *productionGameDriver) AvailableActions() map[Seat][]Action {
+	if m.state.actions == nil {
 		return make(map[Seat][]Action)
 	}
-	return m.state.Actions
+	return m.state.actions
 }
 
-func (m *GameDriver) HasTerminated() bool {
-	return m.state.Transition == nil
+func (m *productionGameDriver) HasTerminated() bool {
+	return m.state.transition == nil
 }
 
-func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
+func (m *productionGameDriver) Transition(selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -45,13 +65,13 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 
 	seatActions := make(map[Seat]Action)
 
-	if m.state.Actions != nil {
+	if m.state.actions != nil {
 		if selectedActions == nil {
 			// initialize empty so we can return IncorrectActionError for erroneous seat
 			selectedActions = make(map[Seat]int, 0)
 		}
 
-		for seat, actions := range m.state.Actions {
+		for seat, actions := range m.state.actions {
 			selected, has := selectedActions[seat]
 			if !has || selected < 0 || selected >= len(actions) {
 				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) -1}
@@ -62,19 +82,19 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 
 	var stateHistory []string
 	for {
-		state, err := m.state.Transition(seatActions)
+		state, err := m.state.transition(seatActions)
 		if err != nil {
 			return GameLogicError{Err: err}
 		}
 		m.state = state
 		seatActions = nil // only use player actions in first transition
 
-		if m.HasTerminated() || m.state.Actions != nil {
+		if m.HasTerminated() || m.state.actions != nil {
 			// transition until we are in a terminal state, or another player action is required
 			return nil
 		}
 
-		stateHistory = append(stateHistory, m.state.Name)
+		stateHistory = append(stateHistory, m.StateName())
 		if len(stateHistory) > m.transitionLimit {
 			return TransitionLimitReachedError{
 				transitionLimit: m.transitionLimit,

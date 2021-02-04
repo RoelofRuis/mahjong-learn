@@ -12,7 +12,7 @@ type Game struct {
 
 	Table *Table
 
-	Driver *driver.GameDriver
+	Driver driver.GameDriver
 }
 
 func NewGame(id uint64) *Game {
@@ -47,51 +47,27 @@ var (
 func init() {
 	// initialize states in `init` to prevent loops in references
 	stateNewGame = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:          "New Game",
-			Actions: nil,
-			Transition:    table.initialize,
-		}
+		return driver.NewIntermediateState("New Game", table.initialize)
 	}
 
 	stateNextRound = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:          "Next Round",
-			Actions: nil,
-			Transition:    table.tryNextRound,
-		}
+		return driver.NewIntermediateState("Next Round", table.tryNextRound)
 	}
 
 	stateNextTurn = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:    "Next Turn",
-			Actions: nil,
-			Transition: table.tryDealTile,
-		}
+		return driver.NewIntermediateState("Next turn", table.tryDealTile)
 	}
 
 	stateMustDiscard = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:          "Must Discard",
-			Actions: table.mustDiscardActions(),
-			Transition:    table.handleMustDiscardActions,
-		}
+		return driver.NewState("Must Discard", table.mustDiscardActions(), table.handleMustDiscardActions)
 	}
 
 	stateTileDiscarded = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:          "Tile Discarded",
-			Actions: table.tileDiscardedActions(),
-			Transition:    table.handleTileDiscardedActions,
-		}
+		return driver.NewState("Tile Discarded", table.tileDiscardedActions(), table.handleTileDiscardedActions)
 	}
 
 	stateGameEnded = func(table *Table) *driver.State {
-		return &driver.State{
-			Name:          "Game Ended",
-			Actions: nil,
-			Transition:    nil,
-		}
+		return driver.NewTerminalState("Game Ended")
 	}
 }
 

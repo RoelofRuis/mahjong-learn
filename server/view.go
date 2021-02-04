@@ -129,7 +129,7 @@ func View(game *mahjong.Game) *HumanView {
 	var activePlayers []int
 	playerViews := make(map[int]PlayerView, 4)
 	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := game.Driver.GetAvailableActions()[driver.Seat(seat)]
+		actions, has := game.Driver.AvailableActions()[driver.Seat(seat)]
 		if !has {
 			actions = make([]driver.Action, 0)
 		} else {
@@ -141,7 +141,7 @@ func View(game *mahjong.Game) *HumanView {
 	return &HumanView{
 		Id:            game.Id,
 		HasEnded:      game.Driver.HasTerminated(),
-		StateName:     game.Driver.GetStateName(),
+		StateName:     game.Driver.StateName(),
 		PrevalentWind: WindNames[table.GetPrevalentWind()],
 		ActivePlayers: activePlayers,
 		ActiveDiscard: DescribeTilePointer(table.GetActiveDiscard()),

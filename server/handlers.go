@@ -80,7 +80,7 @@ func (s *Server) handleActions(r *http.Request, game *mahjong.Game) *Response {
 			Id       uint64 `json:"id"`
 			Location string `json:"location"`
 		}{
-			Message:  "Actions executed",
+			Message:  "actions executed",
 			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, game.Id),
 		},
 	}
