@@ -1,11 +1,10 @@
 package mahjong
 
 import (
+	"errors"
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/state_machine"
 )
-
-// TODO: refactor to remove panic calls!
 
 type Game struct {
 	Id uint64
@@ -157,7 +156,7 @@ func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_
 		case DeclareMahjong:
 			value = 5
 		default:
-			panic("invalid action given in response to 'handleTileDiscarded'")
+			return nil, errors.New("invalid action given in response to `handleTileDiscarded`")
 		}
 		if value > bestValue {
 			bestValue = value
@@ -193,7 +192,7 @@ func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_
 		return stateNextRound(t), nil
 	}
 
-	panic(fmt.Sprintf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction))
+	return nil, fmt.Errorf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction)
 }
 
 func (t *Table) tryNextRound(_ map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
