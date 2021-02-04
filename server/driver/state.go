@@ -1,10 +1,15 @@
 package driver
 
-type State interface {
+type ViewableState interface {
 	// Name just to display human readable information.
 	Name() string
 	// Required actions per seat. May be nil if this state requires no actions.
 	Actions() map[Seat][]Action
+}
+
+type State interface {
+	ViewableState
+
 	// Transition to next state. Selected actions are passed if applicable.
 	Transition(map[Seat]Action) (State, error)
 	// Whether this is a terminal state and the state machine cannot progress further.

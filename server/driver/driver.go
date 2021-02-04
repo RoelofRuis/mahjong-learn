@@ -5,7 +5,7 @@ import (
 )
 
 type GameDriver struct {
-	lock sync.RWMutex
+	lock sync.Mutex
 
 	transitionLimit int
 
@@ -14,10 +14,14 @@ type GameDriver struct {
 
 func NewGameDriver(initialState State, transitionLimit int) *GameDriver {
 	return &GameDriver{
-		lock:            sync.RWMutex{},
+		lock:            sync.Mutex{},
 		transitionLimit: transitionLimit,
 		state:           initialState,
 	}
+}
+
+func (m *GameDriver) View() ViewableState {
+	return m.state
 }
 
 func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
@@ -55,8 +59,8 @@ func (m *GameDriver) Transition(selectedActions map[Seat]int) error {
 		m.state = state
 		seatActions = nil // only use player actions in first transition
 
-		// transition until we are in a terminal state, or another player action is required
 		if m.state.IsTerminal() || m.state.Actions() != nil {
+			// transition until we are in a terminal state, or another player action is required
 			return nil
 		}
 
