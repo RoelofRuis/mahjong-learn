@@ -75,9 +75,9 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 			log.Printf("Handler returned error: %s", response.Error.Error())
 			data = struct {
 				Error      string `json:"error"`
-				StatusCode int `json:"status_code"`
+				StatusCode int    `json:"status_code"`
 			}{
-				Error: response.Error.Error(),
+				Error:      response.Error.Error(),
 				StatusCode: response.StatusCode,
 			}
 		}

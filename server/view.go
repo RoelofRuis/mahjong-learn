@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/state_machine"
 	"github.com/roelofruis/mahjong-learn/mahjong"
+	"github.com/roelofruis/mahjong-learn/state"
 )
 
 var TileOrder = []mahjong.Tile{
@@ -129,13 +129,13 @@ func View(game *mahjong.Game) *HumanView {
 	var activePlayers []int
 	playerViews := make(map[int]PlayerView, 4)
 	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := game.StateMachine.AvailableActions()[state_machine.Seat(seat)]
+		actions, has := game.StateMachine.AvailableActions()[state.Seat(seat)]
 		if !has {
-			actions = make([]state_machine.Action, 0)
+			actions = make([]state.Action, 0)
 		} else {
 			activePlayers = append(activePlayers, seat+1)
 		}
-		playerViews[seat+1] = DescribePlayer(table, actions, state_machine.Seat(seat))
+		playerViews[seat+1] = DescribePlayer(table, actions, state.Seat(seat))
 	}
 
 	return &HumanView{
@@ -194,7 +194,7 @@ func Describe(t *mahjong.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g mahjong.Table, actions []state_machine.Action, seat state_machine.Seat) PlayerView {
+func DescribePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) PlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = DescribeAction(a)
@@ -212,7 +212,7 @@ func DescribePlayer(g mahjong.Table, actions []state_machine.Action, seat state_
 	}
 }
 
-func DescribeAction(action state_machine.Action) string {
+func DescribeAction(action state.Action) string {
 	switch a := action.(type) {
 	case mahjong.Discard:
 		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])

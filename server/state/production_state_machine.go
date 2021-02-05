@@ -1,4 +1,4 @@
-package state_machine
+package state
 
 import (
 	"sort"
@@ -53,7 +53,7 @@ func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error 
 		for seat, actions := range m.state.actions {
 			selected, has := selectedActions[seat]
 			if !has || selected < 0 || selected >= len(actions) {
-				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) -1}
+				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) - 1}
 			}
 			seatActions[seat] = actions[selected]
 		}

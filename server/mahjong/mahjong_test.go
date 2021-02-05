@@ -2,7 +2,7 @@ package mahjong
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/state_machine"
+	"github.com/roelofruis/mahjong-learn/state"
 	"math/rand"
 	"testing"
 )
@@ -27,7 +27,7 @@ func TestGameLogic(t *testing.T) {
 			t.FailNow()
 		}
 
-		selectedActions := make(map[state_machine.Seat]int)
+		selectedActions := make(map[state.Seat]int)
 		for seat, a := range game.StateMachine.AvailableActions() {
 			selectedActions[seat] = rand.Intn(len(a))
 		}
@@ -79,7 +79,7 @@ func countPlayerTiles(player *Player) int {
 	concealed := player.GetConcealedTiles().Size()
 	discarded := player.GetDiscardedTiles().Size()
 	received := 0
-	if player.GetReceivedTile() != nil{
+	if player.GetReceivedTile() != nil {
 		received = 1
 	}
 	exposed := 0

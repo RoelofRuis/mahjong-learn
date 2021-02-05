@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/state_machine"
 	"github.com/roelofruis/mahjong-learn/mahjong"
+	"github.com/roelofruis/mahjong-learn/state"
 	"net/http"
 	"strconv"
 )
@@ -30,7 +30,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusInternalServerError,
-			Error: err,
+			Error:      err,
 		}
 	}
 
@@ -56,17 +56,17 @@ func (s *Server) handleDisplay(r *http.Request, game *mahjong.Game) *Response {
 }
 
 func (s *Server) handleActions(r *http.Request, game *mahjong.Game) *Response {
-	actionMap := make(map[state_machine.Seat]int)
+	actionMap := make(map[state.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
 		if err == nil {
-			actionMap[state_machine.Seat(i)] = int(playerAction)
+			actionMap[state.Seat(i)] = int(playerAction)
 		}
 	}
 
 	err := game.StateMachine.Transition(actionMap)
 	if err != nil {
-		if _, ok := err.(*state_machine.IncorrectActionError); ok {
+		if _, ok := err.(*state.IncorrectActionError); ok {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
 				Error:      err,

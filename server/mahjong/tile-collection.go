@@ -126,11 +126,11 @@ type Combination interface {
 	CombinationOrder() int
 }
 
-type Chow struct { FirstTile Tile }
+type Chow struct{ FirstTile Tile }
 
 func (c Chow) CombinationOrder() int { return int(c.FirstTile) }
 
-type Pung struct { Tile Tile }
+type Pung struct{ Tile Tile }
 
 func (c Pung) CombinationOrder() int { return int(c.Tile) + 100 }
 
@@ -151,4 +151,6 @@ type ByCombinationOrder []Combination
 
 func (a ByCombinationOrder) Len() int      { return len(a) }
 func (a ByCombinationOrder) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a ByCombinationOrder) Less(i, j int) bool { return a[i].CombinationOrder() < a[j].CombinationOrder() }
+func (a ByCombinationOrder) Less(i, j int) bool {
+	return a[i].CombinationOrder() < a[j].CombinationOrder()
+}

@@ -1,7 +1,7 @@
 package mahjong
 
 import (
-	"github.com/roelofruis/mahjong-learn/state_machine"
+	"github.com/roelofruis/mahjong-learn/state"
 )
 
 // Tile received actions
@@ -41,8 +41,8 @@ func (d DeclareMahjong) ActionOrder() int { return -1 }
 
 // Player actions
 
-func (p *Player) GetDiscardAfterCombinationActions() []state_machine.Action {
-	availableActions := make([]state_machine.Action, 0)
+func (p *Player) GetDiscardAfterCombinationActions() []state.Action {
+	availableActions := make([]state.Action, 0)
 
 	for t, c := range p.concealed.tiles {
 		availableActions = append(availableActions, Discard{Tile: t})
@@ -56,8 +56,8 @@ func (p *Player) GetDiscardAfterCombinationActions() []state_machine.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileReceivedActions() []state_machine.Action {
-	availableActions := make([]state_machine.Action, 0)
+func (p *Player) GetTileReceivedActions() []state.Action {
+	availableActions := make([]state.Action, 0)
 
 	receivedTile := *p.received
 
@@ -81,8 +81,8 @@ func (p *Player) GetTileReceivedActions() []state_machine.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []state_machine.Action {
-	availableActions := make([]state_machine.Action, 0)
+func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []state.Action {
+	availableActions := make([]state.Action, 0)
 
 	availableActions = append(availableActions, DoNothing{})
 
@@ -117,16 +117,16 @@ func possibleChows(hand *TileCollection, tile Tile) []Tile {
 	for _, i := range []int{1, 2, 3, 4, 5, 6, 7} {
 		diff := suitNumber - i
 		if diff >= 0 && diff <= 2 {
-			if i != suitNumber && hand.NumOf(Tile((suitType * 10) + i)) == 0 {
+			if i != suitNumber && hand.NumOf(Tile((suitType*10)+i)) == 0 {
 				continue
 			}
-			if i + 1 != suitNumber && hand.NumOf(Tile((suitType * 10) + i + 1)) == 0 {
+			if i+1 != suitNumber && hand.NumOf(Tile((suitType*10)+i+1)) == 0 {
 				continue
 			}
-			if i + 2 != suitNumber && hand.NumOf(Tile((suitType * 10) + i + 2)) == 0 {
+			if i+2 != suitNumber && hand.NumOf(Tile((suitType*10)+i+2)) == 0 {
 				continue
 			}
-			tileList = append(tileList, Tile((suitType * 10) + i))
+			tileList = append(tileList, Tile((suitType*10)+i))
 		}
 	}
 

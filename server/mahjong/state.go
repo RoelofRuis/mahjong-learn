@@ -3,21 +3,21 @@ package mahjong
 import (
 	"errors"
 	"fmt"
-	"github.com/roelofruis/mahjong-learn/state_machine"
+	"github.com/roelofruis/mahjong-learn/state"
 )
 
 type Game struct {
 	Id uint64
 
-	Table *Table
-	StateMachine state_machine.StateMachine
+	Table        *Table
+	StateMachine state.StateMachine
 }
 
 func NewGame(id uint64) (*Game, error) {
 	table := NewTable()
-	state := stateNewGame(table)
+	generator := stateNewGame(table)
 
-	sm := state_machine.NewStateMachine(state, 10)
+	sm := state.NewStateMachine(generator, 10)
 
 	err := sm.Transition(nil)
 	if err != nil {
@@ -31,45 +31,45 @@ func NewGame(id uint64) (*Game, error) {
 	}, nil
 }
 
-type State func(table *Table) *state_machine.State
+type StateGenerator func(table *Table) *state.State
 
 var (
-	stateNewGame       State
-	stateNextRound     State
-	stateNextTurn      State
-	stateMustDiscard   State
-	stateTileDiscarded State
-	stateGameEnded     State
+	stateNewGame       StateGenerator
+	stateNextRound     StateGenerator
+	stateNextTurn      StateGenerator
+	stateMustDiscard   StateGenerator
+	stateTileDiscarded StateGenerator
+	stateGameEnded     StateGenerator
 )
 
 func init() {
 	// initialize states in `init` to prevent loops in references
-	stateNewGame = func(table *Table) *state_machine.State {
-		return state_machine.NewIntermediateState("New Game", table.initialize)
+	stateNewGame = func(table *Table) *state.State {
+		return state.NewIntermediateState("New Game", table.initialize)
 	}
 
-	stateNextRound = func(table *Table) *state_machine.State {
-		return state_machine.NewIntermediateState("Next Round", table.tryNextRound)
+	stateNextRound = func(table *Table) *state.State {
+		return state.NewIntermediateState("Next Round", table.tryNextRound)
 	}
 
-	stateNextTurn = func(table *Table) *state_machine.State {
-		return state_machine.NewIntermediateState("Next turn", table.tryDealTile)
+	stateNextTurn = func(table *Table) *state.State {
+		return state.NewIntermediateState("Next turn", table.tryDealTile)
 	}
 
-	stateMustDiscard = func(table *Table) *state_machine.State {
-		return state_machine.NewState("Must Discard", table.mustDiscardActions(), table.handleMustDiscardActions)
+	stateMustDiscard = func(table *Table) *state.State {
+		return state.NewState("Must Discard", table.mustDiscardActions(), table.handleMustDiscardActions)
 	}
 
-	stateTileDiscarded = func(table *Table) *state_machine.State {
-		return state_machine.NewState("Tile Discarded", table.tileDiscardedActions(), table.handleTileDiscardedActions)
+	stateTileDiscarded = func(table *Table) *state.State {
+		return state.NewState("Tile Discarded", table.tileDiscardedActions(), table.handleTileDiscardedActions)
 	}
 
-	stateGameEnded = func(table *Table) *state_machine.State {
-		return state_machine.NewTerminalState("Game Ended")
+	stateGameEnded = func(table *Table) *state.State {
+		return state.NewTerminalState("Game Ended")
 	}
 }
 
-func (t *Table) initialize() *state_machine.State {
+func (t *Table) initialize() *state.State {
 	t.DealConcealed(13, 0)
 	t.DealConcealed(13, 1)
 	t.DealConcealed(13, 2)
@@ -78,7 +78,7 @@ func (t *Table) initialize() *state_machine.State {
 	return stateNextTurn(t)
 }
 
-func (t *Table) tryDealTile() *state_machine.State {
+func (t *Table) tryDealTile() *state.State {
 	if t.GetWallSize() <= 14 {
 		return stateNextRound(t)
 	}
@@ -88,8 +88,8 @@ func (t *Table) tryDealTile() *state_machine.State {
 	return stateMustDiscard(t)
 }
 
-func (t *Table) mustDiscardActions() map[state_machine.Seat][]state_machine.Action {
-	actionMap := make(map[state_machine.Seat][]state_machine.Action, 1)
+func (t *Table) mustDiscardActions() map[state.Seat][]state.Action {
+	actionMap := make(map[state.Seat][]state.Action, 1)
 
 	if t.GetActivePlayer().GetReceivedTile() == nil {
 		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
@@ -100,7 +100,7 @@ func (t *Table) mustDiscardActions() map[state_machine.Seat][]state_machine.Acti
 	return actionMap
 }
 
-func (t *Table) handleMustDiscardActions(actions map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
+func (t *Table) handleMustDiscardActions(actions map[state.Seat]state.Action) (*state.State, error) {
 	switch a := actions[t.GetActiveSeat()].(type) {
 	case Discard:
 		t.ActivePlayerDiscards(a.Tile)
@@ -125,23 +125,23 @@ func (t *Table) handleMustDiscardActions(actions map[state_machine.Seat]state_ma
 	}
 }
 
-func (t *Table) tileDiscardedActions() map[state_machine.Seat][]state_machine.Action {
-	m := make(map[state_machine.Seat][]state_machine.Action, 3)
+func (t *Table) tileDiscardedActions() map[state.Seat][]state.Action {
+	m := make(map[state.Seat][]state.Action, 3)
 
 	activeDiscard := *t.GetActiveDiscard()
 
 	for s, p := range t.GetReactingPlayers() {
-		isNextSeat := (t.GetActiveSeat() + 1)%4 == s
+		isNextSeat := (t.GetActiveSeat()+1)%4 == s
 		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextSeat)
 	}
 
 	return m
 }
 
-func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_machine.Action) (*state_machine.State, error) {
+func (t *Table) handleTileDiscardedActions(actions map[state.Seat]state.Action) (*state.State, error) {
 	var bestValue = 0
-	var bestSeat state_machine.Seat
-	for _, seatIndex := range []state_machine.Seat{(t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4 } {
+	var bestSeat state.Seat
+	for _, seatIndex := range []state.Seat{(t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4} {
 		var value int
 		switch actions[seatIndex].(type) {
 		case DoNothing:
@@ -194,15 +194,15 @@ func (t *Table) handleTileDiscardedActions(actions map[state_machine.Seat]state_
 	return nil, fmt.Errorf("invalid state encountered after resolving tile discarded.\nall actions %+v\nbest action %+v", actions, bestAction)
 }
 
-func (t *Table) tryNextRound() *state_machine.State {
+func (t *Table) tryNextRound() *state.State {
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
-	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == North {
+	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(state.Seat(3)).GetSeatWind() == North {
 		return stateGameEnded(t)
 	}
 
-	if t.GetPlayerAtSeat(state_machine.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
+	if t.GetPlayerAtSeat(state.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
 		t.SetNextPrevalentWind()
 	}
 

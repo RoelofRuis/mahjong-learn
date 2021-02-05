@@ -1,4 +1,4 @@
-package state_machine
+package state
 
 import (
 	"fmt"
@@ -63,17 +63,17 @@ func NewState(name string, actions map[Seat][]Action, transition func(map[Seat]A
 }
 
 func NewIntermediateState(name string, transition func() *State) *State {
-	return &State {
-		name: name,
-		actions: nil,
+	return &State{
+		name:       name,
+		actions:    nil,
 		transition: func(_ map[Seat]Action) (*State, error) { return transition(), nil },
 	}
 }
 
 func NewTerminalState(name string) *State {
-	return &State {
-		name: name,
-		actions: nil,
+	return &State{
+		name:       name,
+		actions:    nil,
 		transition: nil,
 	}
 }
@@ -85,7 +85,7 @@ func (a byActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }
 
 type IncorrectActionError struct {
-	seat Seat
+	seat             Seat
 	upperActionIndex int
 }
 
@@ -95,7 +95,7 @@ func (e IncorrectActionError) Error() string {
 
 type TooManyIntermediateStatesError struct {
 	transitionLimit int
-	StateHistory []string
+	StateHistory    []string
 }
 
 func (e TooManyIntermediateStatesError) Error() string {

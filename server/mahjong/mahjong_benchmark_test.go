@@ -1,7 +1,7 @@
 package mahjong
 
 import (
-	"github.com/roelofruis/mahjong-learn/state_machine"
+	"github.com/roelofruis/mahjong-learn/state"
 	"math/rand"
 	"testing"
 )
@@ -17,7 +17,7 @@ func Benchmark100GameRuns(b *testing.B) {
 				break
 			}
 
-			selectedActions := make(map[state_machine.Seat]int)
+			selectedActions := make(map[state.Seat]int)
 			for seat, a := range game.StateMachine.AvailableActions() {
 				selectedActions[seat] = rand.Intn(len(a))
 			}
