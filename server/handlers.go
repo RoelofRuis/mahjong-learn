@@ -20,7 +20,7 @@ func (s *Server) handleIndex(_ *http.Request) *Response {
 			Message:      "Mahjong Game API",
 			Version:      "0.1",
 			GamesStarted: int(*s.Games.lastIndex),
-			NewGame:      fmt.Sprintf("%s%s", s.GetDomain(true), s.Paths.New),
+			NewGame:      fmt.Sprintf("%s/new", s.GetDomain(true)),
 		},
 	}
 }
@@ -43,7 +43,7 @@ func (s *Server) handleNew(r *http.Request) *Response {
 		}{
 			Message:  "Game created",
 			Id:       id,
-			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, id),
+			Location: fmt.Sprintf("%s/game/%d", s.GetDomain(true), id),
 		},
 	}
 }
@@ -87,7 +87,7 @@ func (s *Server) handleActions(r *http.Request, game *mahjong.Game) *Response {
 			Location string `json:"location"`
 		}{
 			Message:  "actions executed",
-			Location: fmt.Sprintf("%s%s%d", s.GetDomain(true), s.Paths.Game, game.Id),
+			Location: fmt.Sprintf("%s/game/%d", s.GetDomain(true), game.Id),
 		},
 	}
 }

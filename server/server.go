@@ -3,18 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/roelofruis/mahjong-learn/mahjong"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type Server struct {
 	Host   string
 	Port   string
 	Paths  *Paths
-	Router http.ServeMux
+	Router *mux.Router
 
 	Games *GameStorage
 }
@@ -50,12 +50,10 @@ func (s *Server) GetDomain(includeScheme bool) string {
 type RequestHandler func(*http.Request) *Response
 
 func (s *Server) Routes() {
-	s.Router.HandleFunc(s.Paths.Index, s.asJsonResponse(s.handleIndex))
-	s.Router.HandleFunc(s.Paths.New, s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc(s.Paths.Game, s.asJsonResponse(s.handleMethods(map[string]RequestHandler{
-		http.MethodGet:  s.withGame(s.handleDisplay),
-		http.MethodPost: s.withGame(s.handleActions),
-	})))
+	s.Router.HandleFunc("/", s.asJsonResponse(s.handleIndex))
+	s.Router.HandleFunc("/new", s.asJsonResponse(s.handleNew))
+	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplay))).Methods("GET")
+	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withValidForm(s.withGame(s.handleActions)))).Methods("POST")
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -97,16 +95,12 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 
 func (s *Server) withGame(f func(r *http.Request, game *mahjong.Game) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
-		parts := strings.Split(r.URL.Path, "/")
-		var strId string
-		if len(parts) == 2 {
-			strId = parts[1]
-		} else if len(parts) == 3 {
-			strId = parts[2]
-		} else {
+		vars := mux.Vars(r)
+		strId, has := vars["id"]
+		if !has {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
-				Error:      fmt.Errorf("unable to determine id"),
+				Error:      fmt.Errorf("no id given"),
 			}
 		}
 
@@ -130,16 +124,8 @@ func (s *Server) withGame(f func(r *http.Request, game *mahjong.Game) *Response)
 	}
 }
 
-func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandler {
+func (s *Server) withValidForm(f RequestHandler) RequestHandler {
 	return func(r *http.Request) *Response {
-		handler, has := handlers[r.Method]
-		if !has {
-			return &Response{
-				StatusCode: http.StatusMethodNotAllowed,
-				Error:      fmt.Errorf("endpoint is unable to handle %s requests", r.Method),
-			}
-		}
-
 		if r.Method == http.MethodPost {
 			err := r.ParseForm()
 			if err != nil {
@@ -150,6 +136,6 @@ func (s *Server) handleMethods(handlers map[string]RequestHandler) RequestHandle
 			}
 		}
 
-		return handler(r)
+		return f(r)
 	}
 }

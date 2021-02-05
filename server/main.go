@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"math/rand"
 	"net/http"
@@ -20,7 +21,7 @@ func main() {
 		Host:   "localhost",
 		Port:   port,
 		Paths:  NewPaths(),
-		Router: http.ServeMux{},
+		Router: mux.NewRouter(),
 
 		Games: NewGameStorage(),
 	}
