@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/roelofruis/mahjong-learn/state"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -43,8 +44,7 @@ func TestGameLogic(t *testing.T) {
 		err = checkInvariants(*game.Table)
 		if err != nil {
 			t.Logf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
-			t.Logf("%+v\n", transitioner.LastSelection)
-			t.Logf("%+v\n", transitioner.LastActions)
+			t.Logf("%s\n", describeState(transitioner))
 			t.FailNow()
 		}
 	}
@@ -95,4 +95,38 @@ func countPlayerTiles(player *Player) int {
 		}
 	}
 	return concealed + discarded + exposed + received
+}
+
+func describeState(transitioner *state.DebugTransitioner) string {
+	var seatActions []string
+	for seat, actions := range transitioner.LastActions {
+		var actionNames []string
+		for _, a := range actions {
+			actionNames = append(actionNames, describeAction(a))
+		}
+		seatActions = append(seatActions, fmt.Sprintf("seat [%d] : %s", seat, strings.Join(actionNames, ",")))
+	}
+	return strings.Join(seatActions, "\n")
+}
+
+func describeAction(action state.Action) string {
+	switch a := action.(type) {
+	case Discard:
+		return fmt.Sprintf("Discard [%d]", a.Tile)
+	case DeclareConcealedKong:
+		return fmt.Sprintf("Declare a concealed Kong [%d]", a.Tile)
+	case ExposedPungToKong:
+		return fmt.Sprintf("Add to exposed pung")
+	case DoNothing:
+		return "Do nothing"
+	case DeclareChow:
+		return fmt.Sprintf("Declare chow [%d]", a.Tile)
+	case DeclarePung:
+		return "Declare a pung"
+	case DeclareKong:
+		return "Declare a kong"
+	case DeclareMahjong:
+		return "Declare mahjong"
+	}
+	return "<UNKNOWN>"
 }
