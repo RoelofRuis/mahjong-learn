@@ -137,13 +137,17 @@ func (t *Table) ActivateSeat(seat state.Seat) {
 func (t *Table) ActivePlayerDeclaresConcealedKong(tile Tile) {
 	activePlayer := t.GetActivePlayer()
 
+	if activePlayer.received != nil {
+		// always add to hand first, the player may be declaring a different concealed kong than with the tile just dealt.
+		activePlayer.concealed.Add(*activePlayer.received)
+		activePlayer.received = nil
+	}
+
 	activePlayer.concealed.RemoveAll(tile)
 	activePlayer.exposed.Add(Kong{
 		Tile:      tile,
 		Concealed: false,
 	})
-
-	activePlayer.received = nil
 }
 
 func (t *Table) ActivePlayerAddsToExposedPung() {
