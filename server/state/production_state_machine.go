@@ -59,7 +59,7 @@ func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error 
 		}
 	}
 
-	var stateHistory []string
+	statesVisited := 0
 	for {
 		state, err := m.state.transition(seatActions)
 		if err != nil {
@@ -73,11 +73,11 @@ func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error 
 			return nil
 		}
 
-		stateHistory = append(stateHistory, m.StateName())
-		if len(stateHistory) > m.transitionLimit {
+		statesVisited++
+
+		if statesVisited > m.transitionLimit {
 			return TooManyIntermediateStatesError{
 				transitionLimit: m.transitionLimit,
-				StateHistory:    stateHistory,
 			}
 		}
 	}

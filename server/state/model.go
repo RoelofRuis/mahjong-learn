@@ -95,7 +95,6 @@ func (e IncorrectActionError) Error() string {
 
 type TooManyIntermediateStatesError struct {
 	transitionLimit int
-	StateHistory    []string
 }
 
 func (e TooManyIntermediateStatesError) Error() string {
