@@ -8,13 +8,13 @@ import (
 )
 
 func TestGameLogic(t *testing.T) {
-	game, _ := NewGame(1)
+	transitioner := &state.DebugTransitioner{TransitionLimit: 10}
+	game, _ := NewGame(transitioner)
 
 	numTransitions := 0
 	var stateHistory []string
 	for {
 		actions := game.StateMachine.AvailableActions()
-		stateName := game.StateMachine.StateName()
 
 		stateHistory = append(stateHistory, game.StateMachine.StateName())
 
@@ -43,7 +43,8 @@ func TestGameLogic(t *testing.T) {
 		err = checkInvariants(*game.Table)
 		if err != nil {
 			t.Logf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
-			t.Logf("state was [%s] selected actions were [%+v]", stateName, selectedActions)
+			t.Logf("%+v\n", transitioner.LastSelection)
+			t.Logf("%+v\n", transitioner.LastActions)
 			t.FailNow()
 		}
 	}

@@ -7,17 +7,15 @@ import (
 )
 
 type Game struct {
-	Id uint64
-
 	Table        *Table
 	StateMachine *state.StateMachine
 }
 
-func NewGame(id uint64) (*Game, error) {
+func NewGame(transitioner state.Transitioner) (*Game, error) {
 	table := NewTable()
 	generator := stateNewGame(table)
 
-	sm := state.NewStateMachine(generator)
+	sm := state.NewStateMachine(generator, transitioner)
 
 	err := sm.Transition(nil)
 	if err != nil {
@@ -25,7 +23,6 @@ func NewGame(id uint64) (*Game, error) {
 	}
 
 	return &Game{
-		Id:           id,
 		Table:        table,
 		StateMachine: sm,
 	}, nil

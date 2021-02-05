@@ -11,7 +11,7 @@ type StateMachine struct {
 
 	state *State
 
-	transitioner stateTransitioner
+	transitioner Transitioner
 }
 
 // Name of the current state the state machine is in
@@ -40,14 +40,21 @@ func (s *StateMachine) AvailableActions() map[Seat][]Action {
 }
 
 func (s *StateMachine) Transition(selectedActions map[Seat]int) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if s.HasTerminated() {
+		return nil
+	}
+
 	return s.transitioner.Transition(s, selectedActions)
 }
 
-func NewStateMachine(initialState *State) *StateMachine {
+func NewStateMachine(initialState *State, transitioner Transitioner) *StateMachine {
 	return &StateMachine{
 		lock:         sync.Mutex{},
 		state:        initialState,
-		transitioner: &productionTransitioner{transitionLimit: 10},
+		transitioner: transitioner,
 	}
 }
 
@@ -124,5 +131,5 @@ type TransitionLogicError struct {
 }
 
 func (e TransitionLogicError) Error() string {
-	return fmt.Sprintf("transition logic error: %s", e.Err.Error())
+	return fmt.Sprintf("Transition logic error: %s", e.Err.Error())
 }

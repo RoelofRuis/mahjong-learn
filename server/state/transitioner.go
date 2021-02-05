@@ -1,6 +1,6 @@
 package state
 
-type stateTransitioner interface {
+type Transitioner interface {
 	// Perform the transition to the next state
 	//
 	// Might return one of several errors:
@@ -10,17 +10,62 @@ type stateTransitioner interface {
 	Transition(machine *StateMachine, selectedActions map[Seat]int) error
 }
 
-type productionTransitioner struct {
-	transitionLimit int
+type ProductionTransitioner struct {
+	TransitionLimit int
 }
 
-func (t *productionTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
+func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
+	seatActions := make(map[Seat]Action)
 
-	if m.HasTerminated() {
-		return nil
+	if m.state.actions != nil {
+		if selectedActions == nil {
+			// initialize empty so we can return IncorrectActionError for erroneous seat
+			selectedActions = make(map[Seat]int, 0)
+		}
+
+		for seat, actions := range m.state.actions {
+			selected, has := selectedActions[seat]
+			if !has || selected < 0 || selected >= len(actions) {
+				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) - 1}
+			}
+			seatActions[seat] = actions[selected]
+		}
 	}
+
+	statesVisited := 0
+	for {
+		state, err := m.state.transition(seatActions)
+		if err != nil {
+			return TransitionLogicError{Err: err}
+		}
+		m.state = state
+		seatActions = nil // only use player actions in first Transition
+
+		if m.HasTerminated() || m.state.actions != nil {
+			// Transition until we are in a terminal state, or another player action is required
+			return nil
+		}
+
+		statesVisited++
+
+		if statesVisited > t.TransitionLimit {
+			return TooManyIntermediateStatesError{
+				transitionLimit: t.TransitionLimit,
+			}
+		}
+	}
+}
+
+type DebugTransitioner struct {
+	TransitionLimit int
+
+	LastActions map[Seat][]Action
+	LastSelection map[Seat]int
+}
+
+func (t *DebugTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
+	t.LastActions = m.state.actions
+	t.LastSelection = selectedActions
 
 	seatActions := make(map[Seat]Action)
 
@@ -46,18 +91,18 @@ func (t *productionTransitioner) Transition(m *StateMachine, selectedActions map
 			return TransitionLogicError{Err: err}
 		}
 		m.state = state
-		seatActions = nil // only use player actions in first transition
+		seatActions = nil // only use player actions in first Transition
 
 		if m.HasTerminated() || m.state.actions != nil {
-			// transition until we are in a terminal state, or another player action is required
+			// Transition until we are in a terminal state, or another player action is required
 			return nil
 		}
 
 		statesVisited++
 
-		if statesVisited > t.transitionLimit {
+		if statesVisited > t.TransitionLimit {
 			return TooManyIntermediateStatesError{
-				transitionLimit: t.transitionLimit,
+				transitionLimit: t.TransitionLimit,
 			}
 		}
 	}

@@ -123,7 +123,7 @@ type HumanView struct {
 	Wall          []string           `json:"wall"`
 }
 
-func View(game *mahjong.Game) *HumanView {
+func View(id uint64, game *mahjong.Game) *HumanView {
 	table := *game.Table
 
 	var activePlayers []int
@@ -139,7 +139,7 @@ func View(game *mahjong.Game) *HumanView {
 	}
 
 	return &HumanView{
-		Id:            game.Id,
+		Id:            id,
 		HasEnded:      game.StateMachine.HasTerminated(),
 		StateName:     game.StateMachine.StateName(),
 		PrevalentWind: WindNames[table.GetPrevalentWind()],
