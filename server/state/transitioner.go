@@ -1,40 +1,20 @@
 package state
 
-import (
-	"sort"
-	"sync"
-)
+type stateTransitioner interface {
+	// Perform the transition to the next state
+	//
+	// Might return one of several errors:
+	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
+	// TooManyIntermediateStatesError in case the chain of state transitions that did not require an action became too long
+	// TransitionLogicError in case executing the transition logic returned an error.
+	Transition(machine *StateMachine, selectedActions map[Seat]int) error
+}
 
-type productionStateMachine struct {
-	lock sync.Mutex
-
+type productionTransitioner struct {
 	transitionLimit int
-
-	state *State
 }
 
-func (m *productionStateMachine) StateName() string {
-	return m.state.name
-}
-
-func (m *productionStateMachine) AvailableActions() map[Seat][]Action {
-	if m.state.actions == nil {
-		return make(map[Seat][]Action)
-	}
-
-	for s, a := range m.state.actions {
-		sort.Sort(byActionOrder(a))
-		m.state.actions[s] = a
-	}
-
-	return m.state.actions
-}
-
-func (m *productionStateMachine) HasTerminated() bool {
-	return m.state.transition == nil
-}
-
-func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error {
+func (t *productionTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -75,9 +55,9 @@ func (m *productionStateMachine) Transition(selectedActions map[Seat]int) error 
 
 		statesVisited++
 
-		if statesVisited > m.transitionLimit {
+		if statesVisited > t.transitionLimit {
 			return TooManyIntermediateStatesError{
-				transitionLimit: m.transitionLimit,
+				transitionLimit: t.transitionLimit,
 			}
 		}
 	}

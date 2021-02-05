@@ -10,14 +10,14 @@ type Game struct {
 	Id uint64
 
 	Table        *Table
-	StateMachine state.StateMachine
+	StateMachine *state.StateMachine
 }
 
 func NewGame(id uint64) (*Game, error) {
 	table := NewTable()
 	generator := stateNewGame(table)
 
-	sm := state.NewStateMachine(generator, 10)
+	sm := state.NewStateMachine(generator)
 
 	err := sm.Transition(nil)
 	if err != nil {

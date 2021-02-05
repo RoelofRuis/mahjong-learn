@@ -2,34 +2,52 @@ package state
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 )
 
-type StateMachine interface {
-	// Name of the current state the state machine is in
-	StateName() string
+type StateMachine struct {
+	lock sync.Mutex
 
-	// Whether the state machine is in a terminal state and no more actions can be performed.
-	// If this returns true, calling Transition is a no-op.
-	HasTerminated() bool
+	state *State
 
-	// Get the actions that are available for executing in this state
-	AvailableActions() map[Seat][]Action
-
-	// Perform the transition to the next state
-	//
-	// Might return one of several errors:
-	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
-	// TooManyIntermediateStatesError in case the chain of state transitions that did not require an action became too long
-	// TransitionLogicError in case executing the transition logic returned an error.
-	Transition(selectedActions map[Seat]int) error
+	transitioner stateTransitioner
 }
 
-func NewStateMachine(initialState *State, transitionLimit int) StateMachine {
-	return &productionStateMachine{
-		lock:            sync.Mutex{},
-		transitionLimit: transitionLimit,
-		state:           initialState,
+// Name of the current state the state machine is in
+func (s *StateMachine) StateName() string {
+	return s.state.name
+}
+
+// Whether the state machine is in a terminal state and no more actions can be performed.
+// If this returns true, calling Transition is a no-op.
+func (s *StateMachine) HasTerminated() bool {
+	return s.state.transition == nil
+}
+
+// Get the actions that are available for executing in this state
+func (s *StateMachine) AvailableActions() map[Seat][]Action {
+	if s.state.actions == nil {
+		return make(map[Seat][]Action)
+	}
+
+	for seat, a := range s.state.actions {
+		sort.Sort(byActionOrder(a))
+		s.state.actions[seat] = a
+	}
+
+	return s.state.actions
+}
+
+func (s *StateMachine) Transition(selectedActions map[Seat]int) error {
+	return s.transitioner.Transition(s, selectedActions)
+}
+
+func NewStateMachine(initialState *State) *StateMachine {
+	return &StateMachine{
+		lock:         sync.Mutex{},
+		state:        initialState,
+		transitioner: &productionTransitioner{transitionLimit: 10},
 	}
 }
 
