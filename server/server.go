@@ -54,7 +54,7 @@ func (s *Server) Routes() {
 	s.Router.HandleFunc("/new", s.asJsonResponse(s.handleNew))
 	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplayGame))).Methods("GET")
 	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withValidForm(s.withGame(s.handleActions)))).Methods("POST")
-	s.Router.HandleFunc("/game/{id:[0-9]+}/player/{seat:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplayPlayer))).Methods("GET")
+	s.Router.HandleFunc("/game/{id:[0-9]+}/player/{player:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplayPlayer))).Methods("GET")
 	s.Router.NotFoundHandler = s.asJsonResponse(s.notFoundHandler)
 }
 

@@ -30,14 +30,14 @@ func ViewGame(game *mahjong.Game) *GameView {
 
 	var activePlayers []int
 	playerViews := make(map[int]GamePlayerView, 4)
-	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := game.StateMachine.AvailableActions()[state.Seat(seat)]
+	for _, player := range []int{0, 1, 2, 3} {
+		actions, has := game.StateMachine.AvailableActions()[player]
 		if !has {
 			actions = make([]state.Action, 0)
 		} else {
-			activePlayers = append(activePlayers, seat+1)
+			activePlayers = append(activePlayers, player+1)
 		}
-		playerViews[seat+1] = describeGamePlayer(table, actions, state.Seat(seat))
+		playerViews[player+1] = describeGamePlayer(table, actions, player)
 	}
 
 	return &GameView{
@@ -51,18 +51,18 @@ func ViewGame(game *mahjong.Game) *GameView {
 	}
 }
 
-func describeGamePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) GamePlayerView {
+func describeGamePlayer(g mahjong.Table, actions []state.Action, player int) GamePlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = describeAction(a)
 	}
 
-	p := g.GetPlayerAtSeat(seat)
+	p := g.GetPlayerByIndex(player)
 
 	return GamePlayerView{
 		Actions:   actionMap,
 		Score:     p.GetScore(),
-		Wind:      WindNames[p.GetSeatWind()],
+		Wind:      WindNames[p.GetWind()],
 		Received:  describeTilePointer(p.GetReceivedTile()),
 		Concealed: describeTileCollection(p.GetConcealedTiles()),
 		Exposed:   describeCombinations(p.GetExposedCombinations()),

@@ -28,9 +28,9 @@ func TestGameLogic(t *testing.T) {
 			t.FailNow()
 		}
 
-		selectedActions := make(map[state.Seat]int)
-		for seat, a := range game.StateMachine.AvailableActions() {
-			selectedActions[seat] = rand.Intn(len(a))
+		selectedActions := make(map[int]int)
+		for player, a := range game.StateMachine.AvailableActions() {
+			selectedActions[player] = rand.Intn(len(a))
 		}
 
 		err := game.StateMachine.Transition(selectedActions)
@@ -62,10 +62,10 @@ func checkTileCount(table Table) error {
 	if table.GetActiveDiscard() != nil {
 		discard = 1
 	}
-	player1 := countPlayerTiles(table.GetPlayerAtSeat(0))
-	player2 := countPlayerTiles(table.GetPlayerAtSeat(1))
-	player3 := countPlayerTiles(table.GetPlayerAtSeat(2))
-	player4 := countPlayerTiles(table.GetPlayerAtSeat(3))
+	player1 := countPlayerTiles(table.GetPlayerByIndex(0))
+	player2 := countPlayerTiles(table.GetPlayerByIndex(1))
+	player3 := countPlayerTiles(table.GetPlayerByIndex(2))
+	player4 := countPlayerTiles(table.GetPlayerByIndex(3))
 
 	tileCount := wall + discard + player1 + player2 + player3 + player4
 
@@ -98,15 +98,15 @@ func countPlayerTiles(player *Player) int {
 }
 
 func describeState(transitioner *state.DebugTransitioner) string {
-	var seatActions []string
-	for seat, actions := range transitioner.LastActions {
+	var playerActions []string
+	for player, actions := range transitioner.LastActions {
 		var actionNames []string
 		for _, a := range actions {
 			actionNames = append(actionNames, describeAction(a))
 		}
-		seatActions = append(seatActions, fmt.Sprintf("seat [%d] : %s", seat, strings.Join(actionNames, ",")))
+		playerActions = append(playerActions, fmt.Sprintf("playerplayer [%d] : %s", player, strings.Join(actionNames, ",")))
 	}
-	return strings.Join(seatActions, "\n")
+	return strings.Join(playerActions, "\n")
 }
 
 func describeAction(action state.Action) string {

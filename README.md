@@ -59,7 +59,7 @@ Status Code 200
     wall:           []string        
 }
 ```
-**- `POST /game/<id>` Update the game state.** Requires POST data to contain a map with as keys the players (1-indexed) required to perform an action in the current state and as values the index of the action to be performed by that player. 
+**- `POST /game/<id>` Update the game state.** Requires POST data to contain a map with as keys the players (0-indexed) required to perform an action in the current state and as values the index of the action to be performed by that player. 
 
 ```
 Status Code 202

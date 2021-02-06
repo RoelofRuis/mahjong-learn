@@ -25,21 +25,21 @@ func (s *StateMachine) HasTerminated() bool {
 	return s.state.transition == nil
 }
 
-// Get the actions that are available for executing in this state
-func (s *StateMachine) AvailableActions() map[Seat][]Action {
+// Get the actions that are available for executing in this state per player
+func (s *StateMachine) AvailableActions() map[int][]Action {
 	if s.state.actions == nil {
-		return make(map[Seat][]Action)
+		return make(map[int][]Action)
 	}
 
-	for seat, a := range s.state.actions {
+	for player, a := range s.state.actions {
 		sort.Sort(byActionOrder(a))
-		s.state.actions[seat] = a
+		s.state.actions[player] = a
 	}
 
 	return s.state.actions
 }
 
-func (s *StateMachine) Transition(selectedActions map[Seat]int) error {
+func (s *StateMachine) Transition(selectedActions map[int]int) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -58,19 +58,16 @@ func NewStateMachine(initialState *State, transitioner Transitioner) *StateMachi
 	}
 }
 
-// indicates a player seat number
-type Seat int
-
 type State struct {
 	// name just to display human readable information.
 	name string
 
-	// Required actions per seat. May be set to nil if this state requires no actions.
-	actions map[Seat][]Action
+	// Required actions per player. May be set to nil if this state requires no actions.
+	actions map[int][]Action
 
 	// transition to next state. Selected actions are passed if applicable.
 	// Set to nil to make this a terminal state.
-	transition func(map[Seat]Action) (*State, error)
+	transition func(map[int]Action) (*State, error)
 }
 
 type Action interface {
@@ -79,7 +76,7 @@ type Action interface {
 	ActionOrder() int
 }
 
-func NewState(name string, actions map[Seat][]Action, transition func(map[Seat]Action) (*State, error)) *State {
+func NewState(name string, actions map[int][]Action, transition func(map[int]Action) (*State, error)) *State {
 	return &State{
 		name:       name,
 		actions:    actions,
@@ -91,7 +88,7 @@ func NewIntermediateState(name string, transition func() *State) *State {
 	return &State{
 		name:       name,
 		actions:    nil,
-		transition: func(_ map[Seat]Action) (*State, error) { return transition(), nil },
+		transition: func(_ map[int]Action) (*State, error) { return transition(), nil },
 	}
 }
 
@@ -110,12 +107,12 @@ func (a byActionOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byActionOrder) Less(i, j int) bool { return a[i].ActionOrder() < a[j].ActionOrder() }
 
 type IncorrectActionError struct {
-	seat             Seat
+	player           int
 	upperActionIndex int
 }
 
 func (e IncorrectActionError) Error() string {
-	return fmt.Sprintf("an action is required for seat [%d] within range [0 to %d]", e.seat, e.upperActionIndex)
+	return fmt.Sprintf("an action is required for player [%d] within range [0 to %d]", e.player, e.upperActionIndex)
 }
 
 type TooManyIntermediateStatesError struct {
@@ -131,5 +128,5 @@ type TransitionLogicError struct {
 }
 
 func (e TransitionLogicError) Error() string {
-	return fmt.Sprintf("Transition logic error: %s", e.Err.Error())
+	return fmt.Sprintf("transition logic error: %s", e.Err.Error())
 }

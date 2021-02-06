@@ -85,20 +85,20 @@ func (t *Table) tryDealTile() *state.State {
 	return stateMustDiscard(t)
 }
 
-func (t *Table) mustDiscardActions() map[state.Seat][]state.Action {
-	actionMap := make(map[state.Seat][]state.Action, 1)
+func (t *Table) mustDiscardActions() map[int][]state.Action {
+	actionMap := make(map[int][]state.Action, 1)
 
 	if t.GetActivePlayer().GetReceivedTile() == nil {
-		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
+		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
 	} else {
-		actionMap[t.GetActiveSeat()] = t.GetActivePlayer().GetTileReceivedActions()
+		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().GetTileReceivedActions()
 	}
 
 	return actionMap
 }
 
-func (t *Table) handleMustDiscardActions(actions map[state.Seat]state.Action) (*state.State, error) {
-	switch a := actions[t.GetActiveSeat()].(type) {
+func (t *Table) handleMustDiscardActions(actions map[int]state.Action) (*state.State, error) {
+	switch a := actions[t.GetActivePlayerIndex()].(type) {
 	case Discard:
 		t.ActivePlayerDiscards(a.Tile)
 		return stateTileDiscarded(t), nil
@@ -122,25 +122,25 @@ func (t *Table) handleMustDiscardActions(actions map[state.Seat]state.Action) (*
 	}
 }
 
-func (t *Table) tileDiscardedActions() map[state.Seat][]state.Action {
-	m := make(map[state.Seat][]state.Action, 3)
+func (t *Table) tileDiscardedActions() map[int][]state.Action {
+	m := make(map[int][]state.Action, 3)
 
 	activeDiscard := *t.GetActiveDiscard()
 
 	for s, p := range t.GetReactingPlayers() {
-		isNextSeat := (t.GetActiveSeat()+1)%4 == s
-		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextSeat)
+		isNextPlayer := (t.GetActivePlayerIndex()+1)%4 == s
+		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextPlayer)
 	}
 
 	return m
 }
 
-func (t *Table) handleTileDiscardedActions(actions map[state.Seat]state.Action) (*state.State, error) {
+func (t *Table) handleTileDiscardedActions(actions map[int]state.Action) (*state.State, error) {
 	var bestValue = 0
-	var bestSeat state.Seat
-	for _, seatIndex := range []state.Seat{(t.GetActiveSeat() + 1) % 4, (t.GetActiveSeat() + 2) % 4, (t.GetActiveSeat() + 3) % 4} {
+	var bestPlayer int
+	for _, playerIndex := range []int{(t.GetActivePlayerIndex() + 1) % 4, (t.GetActivePlayerIndex() + 2) % 4, (t.GetActivePlayerIndex() + 3) % 4} {
 		var value int
-		switch actions[seatIndex].(type) {
+		switch actions[playerIndex].(type) {
 		case DoNothing:
 			value = 1
 		case DeclareChow:
@@ -156,29 +156,29 @@ func (t *Table) handleTileDiscardedActions(actions map[state.Seat]state.Action) 
 		}
 		if value > bestValue {
 			bestValue = value
-			bestSeat = seatIndex
+			bestPlayer = playerIndex
 		}
 	}
-	bestAction := actions[bestSeat]
+	bestAction := actions[bestPlayer]
 
 	switch a := bestAction.(type) {
 	case DoNothing:
 		t.ActivePlayerTakesDiscarded()
-		t.ActivateSeat(bestSeat)
+		t.MakePlayerActive(bestPlayer)
 		return stateNextTurn(t), nil
 
 	case DeclareChow:
-		t.ActivateSeat(bestSeat)
+		t.MakePlayerActive(bestPlayer)
 		t.ActivePlayerTakesChow(a.Tile)
 		return stateMustDiscard(t), nil
 
 	case DeclarePung:
-		t.ActivateSeat(bestSeat)
+		t.MakePlayerActive(bestPlayer)
 		t.ActivePlayerTakesPung()
 		return stateMustDiscard(t), nil
 
 	case DeclareKong:
-		t.ActivateSeat(bestSeat)
+		t.MakePlayerActive(bestPlayer)
 		t.ActivePlayerTakesKong()
 		t.DealToActivePlayer()
 		return stateMustDiscard(t), nil
@@ -195,11 +195,11 @@ func (t *Table) tryNextRound() *state.State {
 	// TODO: tally scores
 
 	// Game ends if player 3 has been North
-	if t.GetPrevalentWind() == North && t.GetPlayerAtSeat(state.Seat(3)).GetSeatWind() == North {
+	if t.GetPrevalentWind() == North && t.GetPlayerByIndex(3).GetWind() == North {
 		return stateGameEnded(t)
 	}
 
-	if t.GetPlayerAtSeat(state.Seat(3)).GetSeatWind() == t.GetPrevalentWind() {
+	if t.GetPlayerByIndex(3).GetWind() == t.GetPrevalentWind() {
 		t.SetNextPrevalentWind()
 	}
 

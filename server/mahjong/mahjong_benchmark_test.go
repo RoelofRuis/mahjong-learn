@@ -17,9 +17,9 @@ func Benchmark100GameRuns(b *testing.B) {
 				break
 			}
 
-			selectedActions := make(map[state.Seat]int)
-			for seat, a := range game.StateMachine.AvailableActions() {
-				selectedActions[seat] = rand.Intn(len(a))
+			selectedActions := make(map[int]int)
+			for player, a := range game.StateMachine.AvailableActions() {
+				selectedActions[player] = rand.Intn(len(a))
 			}
 
 			_ = game.StateMachine.Transition(selectedActions)

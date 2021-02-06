@@ -2,7 +2,6 @@ package view
 
 import (
 	"github.com/roelofruis/mahjong-learn/mahjong"
-	"github.com/roelofruis/mahjong-learn/state"
 )
 
 type OtherPlayer struct {
@@ -29,28 +28,28 @@ type PlayerView struct {
 	OtherPlayers map[int]OtherPlayer `json:"other_players"`
 }
 
-func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
+func ViewPlayer(game *mahjong.Game, playerIndex int) *PlayerView {
 	table := *game.Table
 
 	discardingPlayer := -1
 	activeDiscard := "none"
 	if table.GetActiveDiscard() != nil {
-		discardingPlayer = int(table.GetActiveSeat())
+		discardingPlayer = table.GetActivePlayerIndex()
 		activeDiscard = describeTilePointer(table.GetActiveDiscard())
 	}
 
 	otherPlayers := make(map[int]OtherPlayer)
-	for _, s := range []int{0, 1, 2, 3} {
-		if state.Seat(s) == seat {
+	for _, p := range []int{0, 1, 2, 3} {
+		if p == playerIndex {
 			continue
 		}
-		otherPlayers[s] = describeOtherPlayer(table, state.Seat(s))
+		otherPlayers[p] = describeOtherPlayer(table, p)
 	}
 
-	p := table.GetPlayerAtSeat(seat)
+	player := table.GetPlayerByIndex(playerIndex)
 
 	actionMap := make(map[int]string)
-	for i, a := range game.StateMachine.AvailableActions()[seat] {
+	for i, a := range game.StateMachine.AvailableActions()[playerIndex] {
 		actionMap[i] = describeAction(a)
 	}
 
@@ -61,23 +60,23 @@ func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
 
 		OtherPlayers: otherPlayers,
 
-		Score:     p.GetScore(),
-		Wind:      WindNames[p.GetSeatWind()],
-		Received:  describeTilePointer(p.GetReceivedTile()),
-		Concealed: describeTileCollection(p.GetConcealedTiles()),
-		Exposed:   describeCombinations(p.GetExposedCombinations()),
-		Discarded: describeTileCollection(p.GetDiscardedTiles()),
+		Score:     player.GetScore(),
+		Wind:      WindNames[player.GetWind()],
+		Received:  describeTilePointer(player.GetReceivedTile()),
+		Concealed: describeTileCollection(player.GetConcealedTiles()),
+		Exposed:   describeCombinations(player.GetExposedCombinations()),
+		Discarded: describeTileCollection(player.GetDiscardedTiles()),
 
 		Actions: actionMap,
 	}
 }
 
-func describeOtherPlayer(table mahjong.Table, seat state.Seat) OtherPlayer {
-	p := table.GetPlayerAtSeat(seat)
+func describeOtherPlayer(table mahjong.Table, player int) OtherPlayer {
+	p := table.GetPlayerByIndex(player)
 
 	return OtherPlayer{
 		Score:     p.GetScore(),
-		Wind:      WindNames[p.GetSeatWind()],
+		Wind:      WindNames[p.GetWind()],
 		Exposed:   describeCombinations(p.GetExposedCombinations()),
 		Discarded: describeTileCollection(p.GetDiscardedTiles()),
 	}

@@ -58,14 +58,14 @@ func (s *Server) handleDisplayGame(r *http.Request, game *mahjong.Game, _ uint64
 }
 
 func (s *Server) handleDisplayPlayer(r *http.Request, game *mahjong.Game, _ uint64) *Response {
-	seat, err := intVar(mux.Vars(r), "seat")
+	player, err := intVar(mux.Vars(r), "player")
 	if err != nil {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
 			Error:      err,
 		}
 	}
-	if seat < 0 || seat > 3 {
+	if player < 0 || player > 3 {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
 			Error:      fmt.Errorf("player should be between 0 and 3 inclusive"),
@@ -73,16 +73,16 @@ func (s *Server) handleDisplayPlayer(r *http.Request, game *mahjong.Game, _ uint
 	}
 	return &Response{
 		StatusCode: http.StatusOK,
-		Data:       view.ViewPlayer(game, state.Seat(seat)),
+		Data:       view.ViewPlayer(game, player),
 	}
 }
 
 func (s *Server) handleActions(r *http.Request, game *mahjong.Game, id uint64) *Response {
-	actionMap := make(map[state.Seat]int)
-	for i, playerKey := range []string{"1", "2", "3", "4"} {
-		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
+	actionMap := make(map[int]int)
+	for i, playerKey := range []int{0, 1, 2, 3} {
+		playerAction, err := strconv.ParseInt(r.PostForm.Get(fmt.Sprintf("%d", playerKey)), 10, 64)
 		if err == nil {
-			actionMap[state.Seat(i)] = int(playerAction)
+			actionMap[i] = int(playerAction)
 		}
 	}
 

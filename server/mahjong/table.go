@@ -1,7 +1,5 @@
 package mahjong
 
-import "github.com/roelofruis/mahjong-learn/state"
-
 type Wind int
 
 const (
@@ -15,12 +13,12 @@ type Table struct {
 	prevalentWind Wind
 	wall          *TileCollection
 	activeDiscard *Tile
-	players       map[state.Seat]*Player
-	activeSeat    state.Seat
+	players       map[int]*Player
+	activePlayer  int
 }
 
 func NewTable() *Table {
-	players := make(map[state.Seat]*Player, 4)
+	players := make(map[int]*Player, 4)
 
 	wall := NewMahjongSet()
 	players[0] = NewPlayer(East)
@@ -33,7 +31,7 @@ func NewTable() *Table {
 		wall:          wall,
 		activeDiscard: nil,
 		players:       players,
-		activeSeat:    0,
+		activePlayer:  0,
 	}
 }
 
@@ -43,14 +41,14 @@ func (t *Table) GetWallSize() int {
 	return t.wall.Size()
 }
 
-func (t *Table) GetActiveSeat() state.Seat {
-	return t.activeSeat
+func (t *Table) GetActivePlayerIndex() int {
+	return t.activePlayer
 }
 
-func (t *Table) GetReactingPlayers() map[state.Seat]*Player {
-	reactingPlayers := make(map[state.Seat]*Player, 3)
+func (t *Table) GetReactingPlayers() map[int]*Player {
+	reactingPlayers := make(map[int]*Player, 3)
 	for s, p := range t.players {
-		if s != t.activeSeat {
+		if s != t.activePlayer {
 			reactingPlayers[s] = p
 		}
 	}
@@ -58,11 +56,11 @@ func (t *Table) GetReactingPlayers() map[state.Seat]*Player {
 }
 
 func (t *Table) GetActivePlayer() *Player {
-	return t.GetPlayerAtSeat(t.activeSeat)
+	return t.GetPlayerByIndex(t.activePlayer)
 }
 
-func (t *Table) GetPlayerAtSeat(seat state.Seat) *Player {
-	return t.players[seat]
+func (t *Table) GetPlayerByIndex(player int) *Player {
+	return t.players[player]
 }
 
 func (t *Table) GetPrevalentWind() Wind {
@@ -94,8 +92,8 @@ func (t *Table) DealToActivePlayer() {
 	}
 }
 
-func (t *Table) DealConcealed(n int, s state.Seat) {
-	activePlayer := t.players[s]
+func (t *Table) DealConcealed(n int, player int) {
+	activePlayer := t.players[player]
 
 	for i := n; i > 0; i-- {
 		for {
@@ -125,13 +123,13 @@ func (t *Table) PrepareNextRound() {
 		p.discarded.Empty()
 		p.concealed.Empty()
 		p.exposed.Empty()
-		p.seatWind = (p.seatWind + 5) % 4
+		p.wind = (p.wind + 5) % 4
 		t.DealConcealed(13, s)
 	}
 }
 
-func (t *Table) ActivateSeat(seat state.Seat) {
-	t.activeSeat = seat
+func (t *Table) MakePlayerActive(player int) {
+	t.activePlayer = player
 }
 
 func (t *Table) ActivePlayerDeclaresConcealedKong(tile Tile) {

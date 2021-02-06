@@ -81,7 +81,7 @@ func (p *Player) GetTileReceivedActions() []state.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []state.Action {
+func (p *Player) GetTileDiscardedActions(discarded Tile, isNextPlayer bool) []state.Action {
 	availableActions := make([]state.Action, 0)
 
 	availableActions = append(availableActions, DoNothing{})
@@ -94,7 +94,7 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextSeat bool) []stat
 		availableActions = append(availableActions, DeclareKong{})
 	}
 
-	if isNextSeat {
+	if isNextPlayer {
 		for _, c := range possibleChows(p.concealed, discarded) {
 			availableActions = append(availableActions, DeclareChow{Tile: c})
 		}

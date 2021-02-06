@@ -1,45 +1,45 @@
 package state
 
 type Transitioner interface {
-	// Perform the transition to the next state
+	// Perform the transition to the next state based on the selected actions.
 	//
-	// Might return one of several errors:
-	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions()
-	// TooManyIntermediateStatesError in case the chain of state transitions that did not require an action became too long
+	// This might return one of several errors:
+	// IncorrectActionError in case the given action map is inconsistent with the currently available actions as returned by AvailableActions().
+	// TooManyIntermediateStatesError in case the chain of intermediate states became too long.
 	// TransitionLogicError in case executing the transition logic returned an error.
-	Transition(machine *StateMachine, selectedActions map[Seat]int) error
+	Transition(machine *StateMachine, selectedActions map[int]int) error
 }
 
 type ProductionTransitioner struct {
 	TransitionLimit int
 }
 
-func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
-	seatActions := make(map[Seat]Action)
+func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map[int]int) error {
+	playerActions := make(map[int]Action)
 
 	if m.state.actions != nil {
 		if selectedActions == nil {
-			// initialize empty so we can return IncorrectActionError for erroneous seat
-			selectedActions = make(map[Seat]int, 0)
+			// initialize empty so we can return IncorrectActionError for erroneous player
+			selectedActions = make(map[int]int, 0)
 		}
 
-		for seat, actions := range m.state.actions {
-			selected, has := selectedActions[seat]
+		for player, actions := range m.state.actions {
+			selected, has := selectedActions[player]
 			if !has || selected < 0 || selected >= len(actions) {
-				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) - 1}
+				return IncorrectActionError{player: player, upperActionIndex: len(actions) - 1}
 			}
-			seatActions[seat] = actions[selected]
+			playerActions[player] = actions[selected]
 		}
 	}
 
 	statesVisited := 0
 	for {
-		state, err := m.state.transition(seatActions)
+		state, err := m.state.transition(playerActions)
 		if err != nil {
 			return TransitionLogicError{Err: err}
 		}
 		m.state = state
-		seatActions = nil // only use player actions in first Transition
+		playerActions = nil // only use player actions in first Transition
 
 		if m.HasTerminated() || m.state.actions != nil {
 			// Transition until we are in a terminal state, or another player action is required
@@ -59,39 +59,39 @@ func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map
 type DebugTransitioner struct {
 	TransitionLimit int
 
-	LastActions   map[Seat][]Action
-	LastSelection map[Seat]int
+	LastActions   map[int][]Action
+	LastSelection map[int]int
 }
 
-func (t *DebugTransitioner) Transition(m *StateMachine, selectedActions map[Seat]int) error {
+func (t *DebugTransitioner) Transition(m *StateMachine, selectedActions map[int]int) error {
 	t.LastActions = m.state.actions
 	t.LastSelection = selectedActions
 
-	seatActions := make(map[Seat]Action)
+	playerActions := make(map[int]Action)
 
 	if m.state.actions != nil {
 		if selectedActions == nil {
-			// initialize empty so we can return IncorrectActionError for erroneous seat
-			selectedActions = make(map[Seat]int, 0)
+			// initialize empty so we can return IncorrectActionError for erroneous player
+			selectedActions = make(map[int]int, 0)
 		}
 
-		for seat, actions := range m.state.actions {
-			selected, has := selectedActions[seat]
+		for player, actions := range m.state.actions {
+			selected, has := selectedActions[player]
 			if !has || selected < 0 || selected >= len(actions) {
-				return IncorrectActionError{seat: seat, upperActionIndex: len(actions) - 1}
+				return IncorrectActionError{player: player, upperActionIndex: len(actions) - 1}
 			}
-			seatActions[seat] = actions[selected]
+			playerActions[player] = actions[selected]
 		}
 	}
 
 	statesVisited := 0
 	for {
-		state, err := m.state.transition(seatActions)
+		state, err := m.state.transition(playerActions)
 		if err != nil {
 			return TransitionLogicError{Err: err}
 		}
 		m.state = state
-		seatActions = nil // only use player actions in first Transition
+		playerActions = nil // only use player actions in first Transition
 
 		if m.HasTerminated() || m.state.actions != nil {
 			// Transition until we are in a terminal state, or another player action is required

@@ -6,17 +6,17 @@ type Player struct {
 	score int
 
 	received  *Tile
-	seatWind  Wind
+	wind      Wind
 	concealed *TileCollection
 	exposed   *CombinationCollection
 	discarded *TileCollection
 }
 
-func NewPlayer(seatWind Wind) *Player {
+func NewPlayer(wind Wind) *Player {
 	return &Player{
 		score:     0,
 		received:  nil,
-		seatWind:  seatWind,
+		wind:      wind,
 		concealed: NewEmptyTileCollection(),
 		exposed:   NewCombinationCollection(),
 		discarded: NewEmptyTileCollection(),
@@ -29,8 +29,8 @@ func (p *Player) GetConcealedTiles() *TileCollection {
 	return p.concealed
 }
 
-func (p *Player) GetSeatWind() Wind {
-	return p.seatWind
+func (p *Player) GetWind() Wind {
+	return p.wind
 }
 
 func (p *Player) GetExposedCombinations() []Combination {

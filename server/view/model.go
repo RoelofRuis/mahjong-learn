@@ -103,7 +103,6 @@ var WindNames = map[mahjong.Wind]string{
 	mahjong.North: "North",
 }
 
-
 func describeTilePointer(t *mahjong.Tile) string {
 	if t == nil {
 		return "none"
