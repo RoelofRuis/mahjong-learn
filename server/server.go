@@ -102,7 +102,7 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 	}
 }
 
-func (s *Server) withGame(f func(r *http.Request, id uint64, game *mahjong.Game) *Response) RequestHandler {
+func (s *Server) withGame(f func(r *http.Request, game *mahjong.Game, id uint64) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		vars := mux.Vars(r)
 		id, err := intVar(vars, "id")
@@ -121,7 +121,7 @@ func (s *Server) withGame(f func(r *http.Request, id uint64, game *mahjong.Game)
 			}
 		}
 
-		return f(r, uint64(id), g)
+		return f(r, g, uint64(id))
 	}
 }
 

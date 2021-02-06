@@ -1,4 +1,4 @@
-package main
+package view
 
 import (
 	"fmt"
@@ -103,61 +103,15 @@ var WindNames = map[mahjong.Wind]string{
 	mahjong.North: "North",
 }
 
-type GamePlayerView struct {
-	Actions   map[int]string `json:"actions"`
-	Wind      string         `json:"wind"`
-	Received  string         `json:"received"`
-	Concealed []string       `json:"concealed"`
-	Exposed   []string       `json:"exposed"`
-	Discarded []string       `json:"discarded"`
-}
 
-type GameView struct {
-	Id            uint64                 `json:"id"`
-	HasEnded      bool                   `json:"has_ended"`
-	StateName     string                 `json:"state_name"`
-	PrevalentWind string                 `json:"prevalent_wind"`
-	ActivePlayers []int                  `json:"active_players"`
-	ActiveDiscard string                 `json:"active_discard"`
-	Players       map[int]GamePlayerView `json:"players"`
-	Wall          []string               `json:"wall"`
-}
-
-func ViewGame(id uint64, game *mahjong.Game) *GameView {
-	table := *game.Table
-
-	var activePlayers []int
-	playerViews := make(map[int]GamePlayerView, 4)
-	for _, seat := range []int{0, 1, 2, 3} {
-		actions, has := game.StateMachine.AvailableActions()[state.Seat(seat)]
-		if !has {
-			actions = make([]state.Action, 0)
-		} else {
-			activePlayers = append(activePlayers, seat+1)
-		}
-		playerViews[seat+1] = DescribePlayer(table, actions, state.Seat(seat))
-	}
-
-	return &GameView{
-		Id:            id,
-		HasEnded:      game.StateMachine.HasTerminated(),
-		StateName:     game.StateMachine.StateName(),
-		PrevalentWind: WindNames[table.GetPrevalentWind()],
-		ActivePlayers: activePlayers,
-		ActiveDiscard: DescribeTilePointer(table.GetActiveDiscard()),
-		Players:       playerViews,
-		Wall:          Describe(table.GetWall()),
-	}
-}
-
-func DescribeTilePointer(t *mahjong.Tile) string {
+func describeTilePointer(t *mahjong.Tile) string {
 	if t == nil {
 		return "none"
 	}
 	return TileNames[*t]
 }
 
-func DescribeCombinations(combinations []mahjong.Combination) []string {
+func describeCombinations(combinations []mahjong.Combination) []string {
 	descriptions := make([]string, len(combinations))
 	for i, combi := range combinations {
 		switch c := combi.(type) {
@@ -181,7 +135,7 @@ func DescribeCombinations(combinations []mahjong.Combination) []string {
 	return descriptions
 }
 
-func Describe(t *mahjong.TileCollection) []string {
+func describeTileCollection(t *mahjong.TileCollection) []string {
 	descriptions := make([]string, 0)
 	for _, tile := range TileOrder {
 		count := t.NumOf(tile)
@@ -194,25 +148,7 @@ func Describe(t *mahjong.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) GamePlayerView {
-	actionMap := make(map[int]string)
-	for i, a := range actions {
-		actionMap[i] = DescribeAction(a)
-	}
-
-	p := g.GetPlayerAtSeat(seat)
-
-	return GamePlayerView{
-		Actions:   actionMap,
-		Wind:      WindNames[p.GetSeatWind()],
-		Received:  DescribeTilePointer(p.GetReceivedTile()),
-		Concealed: Describe(p.GetConcealedTiles()),
-		Exposed:   DescribeCombinations(p.GetExposedCombinations()),
-		Discarded: Describe(p.GetDiscardedTiles()),
-	}
-}
-
-func DescribeAction(action state.Action) string {
+func describeAction(action state.Action) string {
 	switch a := action.(type) {
 	case mahjong.Discard:
 		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])

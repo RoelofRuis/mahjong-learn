@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/roelofruis/mahjong-learn/mahjong"
 	"github.com/roelofruis/mahjong-learn/state"
+	"github.com/roelofruis/mahjong-learn/view"
 	"net/http"
 	"strconv"
 )
@@ -49,14 +50,14 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplayGame(r *http.Request, id uint64, game *mahjong.Game) *Response {
+func (s *Server) handleDisplayGame(r *http.Request, game *mahjong.Game, _ uint64) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
-		Data:       ViewGame(id, game),
+		Data:       view.ViewGame(game),
 	}
 }
 
-func (s *Server) handleDisplayPlayer(r *http.Request, id uint64, game *mahjong.Game) *Response {
+func (s *Server) handleDisplayPlayer(r *http.Request, game *mahjong.Game, _ uint64) *Response {
 	seat, err := intVar(mux.Vars(r), "seat")
 	if err != nil {
 		return &Response{
@@ -73,11 +74,11 @@ func (s *Server) handleDisplayPlayer(r *http.Request, id uint64, game *mahjong.G
 	}
 	return &Response{
 		StatusCode: http.StatusOK,
-		Data:       ViewPlayer(id, game, state.Seat(seat)),
+		Data:       view.ViewPlayer(game, state.Seat(seat)),
 	}
 }
 
-func (s *Server) handleActions(r *http.Request, id uint64, game *mahjong.Game) *Response {
+func (s *Server) handleActions(r *http.Request, game *mahjong.Game, id uint64) *Response {
 	actionMap := make(map[state.Seat]int)
 	for i, playerKey := range []string{"1", "2", "3", "4"} {
 		playerAction, err := strconv.ParseInt(r.PostForm.Get(playerKey), 10, 64)
