@@ -35,9 +35,9 @@ func ViewGame(game *mahjong.Game) *GameView {
 		if !has {
 			actions = make([]state.Action, 0)
 		} else {
-			activePlayers = append(activePlayers, player+1)
+			activePlayers = append(activePlayers, player)
 		}
-		playerViews[player+1] = describeGamePlayer(table, actions, player)
+		playerViews[player] = describeGamePlayer(table, actions, player)
 	}
 
 	return &GameView{
