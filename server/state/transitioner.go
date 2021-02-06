@@ -1,5 +1,9 @@
 package state
 
+import (
+	"fmt"
+)
+
 type Transitioner interface {
 	// Perform the transition to the next state based on the selected actions.
 	//
@@ -11,7 +15,7 @@ type Transitioner interface {
 }
 
 type ProductionTransitioner struct {
-	TransitionLimit int
+	IntermediateTransitionLimit int
 }
 
 func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map[int]int) error {
@@ -48,22 +52,29 @@ func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map
 
 		statesVisited++
 
-		if statesVisited > t.TransitionLimit {
+		if statesVisited > t.IntermediateTransitionLimit {
 			return TooManyIntermediateStatesError{
-				transitionLimit: t.TransitionLimit,
+				transitionLimit: t.IntermediateTransitionLimit,
 			}
 		}
 	}
 }
 
 type DebugTransitioner struct {
-	TransitionLimit int
+	IntermediateTransitionLimit int
+	ActionLimit                 int
+	actionsPerformed            int
 
 	LastActions   map[int][]Action
 	LastSelection map[int]int
 }
 
 func (t *DebugTransitioner) Transition(m *StateMachine, selectedActions map[int]int) error {
+	t.actionsPerformed++
+	if t.actionsPerformed > t.ActionLimit {
+		return TransitionLogicError{Err: fmt.Errorf("more actions than the configured maximum of [%d] were performed", t.ActionLimit)}
+	}
+
 	t.LastActions = m.state.actions
 	t.LastSelection = selectedActions
 
@@ -100,9 +111,9 @@ func (t *DebugTransitioner) Transition(m *StateMachine, selectedActions map[int]
 
 		statesVisited++
 
-		if statesVisited > t.TransitionLimit {
+		if statesVisited > t.IntermediateTransitionLimit {
 			return TooManyIntermediateStatesError{
-				transitionLimit: t.TransitionLimit,
+				transitionLimit: t.IntermediateTransitionLimit,
 			}
 		}
 	}

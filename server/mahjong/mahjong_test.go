@@ -33,7 +33,7 @@ func Test1kRuns(t *testing.T) {
 }
 
 func runGame() (*state.DebugTransitioner, error) {
-	transitioner := &state.DebugTransitioner{TransitionLimit: 10}
+	transitioner := &state.DebugTransitioner{IntermediateTransitionLimit: 10, ActionLimit: 1000000}
 	game, _ := NewGame(transitioner)
 
 	numTransitions := 0
