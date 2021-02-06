@@ -13,11 +13,11 @@ type OtherPlayer struct {
 }
 
 type PlayerView struct {
+	Actions map[int]string `json:"actions"`
+
 	PrevalentWind    string `json:"prevalent_wind"`
 	DiscardingPlayer int    `json:"discarding_player"`
 	ActiveDiscard    string `json:"active_discard"`
-
-	OtherPlayers map[int]OtherPlayer `json:"other_players"`
 
 	Score     int      `json:"score"`
 	Wind      string   `json:"wind"`
@@ -25,6 +25,8 @@ type PlayerView struct {
 	Concealed []string `json:"concealed"`
 	Exposed   []string `json:"exposed"`
 	Discarded []string `json:"discarded"`
+
+	OtherPlayers map[int]OtherPlayer `json:"other_players"`
 }
 
 func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
@@ -32,7 +34,7 @@ func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
 
 	discardingPlayer := -1
 	activeDiscard := "none"
-	if table.GetActiveDiscard() == nil {
+	if table.GetActiveDiscard() != nil {
 		discardingPlayer = int(table.GetActiveSeat())
 		activeDiscard = describeTilePointer(table.GetActiveDiscard())
 	}
@@ -47,6 +49,11 @@ func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
 
 	p := table.GetPlayerAtSeat(seat)
 
+	actionMap := make(map[int]string)
+	for i, a := range game.StateMachine.AvailableActions()[seat] {
+		actionMap[i] = describeAction(a)
+	}
+
 	return &PlayerView{
 		PrevalentWind:    WindNames[table.GetPrevalentWind()],
 		DiscardingPlayer: discardingPlayer,
@@ -60,6 +67,8 @@ func ViewPlayer(game *mahjong.Game, seat state.Seat) *PlayerView {
 		Concealed: describeTileCollection(p.GetConcealedTiles()),
 		Exposed:   describeCombinations(p.GetExposedCombinations()),
 		Discarded: describeTileCollection(p.GetDiscardedTiles()),
+
+		Actions: actionMap,
 	}
 }
 
