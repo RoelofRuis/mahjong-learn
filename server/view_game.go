@@ -103,7 +103,7 @@ var WindNames = map[mahjong.Wind]string{
 	mahjong.North: "North",
 }
 
-type PlayerView struct {
+type GamePlayerView struct {
 	Actions   map[int]string `json:"actions"`
 	Wind      string         `json:"wind"`
 	Received  string         `json:"received"`
@@ -112,22 +112,22 @@ type PlayerView struct {
 	Discarded []string       `json:"discarded"`
 }
 
-type HumanView struct {
-	Id            uint64             `json:"id"`
-	HasEnded      bool               `json:"has_ended"`
-	StateName     string             `json:"state_name"`
-	PrevalentWind string             `json:"prevalent_wind"`
-	ActivePlayers []int              `json:"active_players"`
-	ActiveDiscard string             `json:"active_discard"`
-	Players       map[int]PlayerView `json:"players"`
-	Wall          []string           `json:"wall"`
+type GameView struct {
+	Id            uint64                 `json:"id"`
+	HasEnded      bool                   `json:"has_ended"`
+	StateName     string                 `json:"state_name"`
+	PrevalentWind string                 `json:"prevalent_wind"`
+	ActivePlayers []int                  `json:"active_players"`
+	ActiveDiscard string                 `json:"active_discard"`
+	Players       map[int]GamePlayerView `json:"players"`
+	Wall          []string               `json:"wall"`
 }
 
-func View(id uint64, game *mahjong.Game) *HumanView {
+func ViewGame(id uint64, game *mahjong.Game) *GameView {
 	table := *game.Table
 
 	var activePlayers []int
-	playerViews := make(map[int]PlayerView, 4)
+	playerViews := make(map[int]GamePlayerView, 4)
 	for _, seat := range []int{0, 1, 2, 3} {
 		actions, has := game.StateMachine.AvailableActions()[state.Seat(seat)]
 		if !has {
@@ -138,7 +138,7 @@ func View(id uint64, game *mahjong.Game) *HumanView {
 		playerViews[seat+1] = DescribePlayer(table, actions, state.Seat(seat))
 	}
 
-	return &HumanView{
+	return &GameView{
 		Id:            id,
 		HasEnded:      game.StateMachine.HasTerminated(),
 		StateName:     game.StateMachine.StateName(),
@@ -194,7 +194,7 @@ func Describe(t *mahjong.TileCollection) []string {
 	return descriptions
 }
 
-func DescribePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) PlayerView {
+func DescribePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) GamePlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
 		actionMap[i] = DescribeAction(a)
@@ -202,7 +202,7 @@ func DescribePlayer(g mahjong.Table, actions []state.Action, seat state.Seat) Pl
 
 	p := g.GetPlayerAtSeat(seat)
 
-	return PlayerView{
+	return GamePlayerView{
 		Actions:   actionMap,
 		Wind:      WindNames[p.GetSeatWind()],
 		Received:  DescribeTilePointer(p.GetReceivedTile()),

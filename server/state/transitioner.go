@@ -59,7 +59,7 @@ func (t *ProductionTransitioner) Transition(m *StateMachine, selectedActions map
 type DebugTransitioner struct {
 	TransitionLimit int
 
-	LastActions map[Seat][]Action
+	LastActions   map[Seat][]Action
 	LastSelection map[Seat]int
 }
 

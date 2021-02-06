@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/roelofruis/mahjong-learn/mahjong"
 	"github.com/roelofruis/mahjong-learn/state"
 	"net/http"
@@ -48,10 +49,31 @@ func (s *Server) handleNew(r *http.Request) *Response {
 	}
 }
 
-func (s *Server) handleDisplay(r *http.Request, id uint64, game *mahjong.Game) *Response {
+func (s *Server) handleDisplayGame(r *http.Request, id uint64, game *mahjong.Game) *Response {
 	return &Response{
 		StatusCode: http.StatusOK,
-		Data:       View(id, game),
+		Data:       ViewGame(id, game),
+	}
+}
+
+func (s *Server) handleDisplayPlayer(r *http.Request, id uint64, game *mahjong.Game) *Response {
+	seat, err := intVar(mux.Vars(r), "seat")
+	if err != nil {
+		return &Response{
+			StatusCode: http.StatusBadRequest,
+			Error:      err,
+		}
+	}
+	fmt.Printf("%+v", seat)
+	if seat < 0 || seat > 4 {
+		return &Response{
+			StatusCode: http.StatusBadRequest,
+			Error:      fmt.Errorf("player should be between 0 and 3 inclusive"),
+		}
+	}
+	return &Response{
+		StatusCode: http.StatusOK,
+		Data:       ViewPlayer(id, game, state.Seat(seat)),
 	}
 }
 

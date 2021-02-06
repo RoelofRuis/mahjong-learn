@@ -52,8 +52,17 @@ type RequestHandler func(*http.Request) *Response
 func (s *Server) Routes() {
 	s.Router.HandleFunc("/", s.asJsonResponse(s.handleIndex))
 	s.Router.HandleFunc("/new", s.asJsonResponse(s.handleNew))
-	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplay))).Methods("GET")
+	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplayGame))).Methods("GET")
 	s.Router.HandleFunc("/game/{id:[0-9]+}", s.asJsonResponse(s.withValidForm(s.withGame(s.handleActions)))).Methods("POST")
+	s.Router.HandleFunc("/game/{id:[0-9]+}/player/{seat:[0-9]+}", s.asJsonResponse(s.withGame(s.handleDisplayPlayer))).Methods("GET")
+	s.Router.NotFoundHandler = s.asJsonResponse(s.notFoundHandler)
+}
+
+func (s *Server) notFoundHandler(_ *http.Request) *Response {
+	return &Response{
+		StatusCode: http.StatusNotFound,
+		Error:      fmt.Errorf("not found"),
+	}
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -96,19 +105,11 @@ func (s *Server) asJsonResponse(f RequestHandler) http.HandlerFunc {
 func (s *Server) withGame(f func(r *http.Request, id uint64, game *mahjong.Game) *Response) RequestHandler {
 	return func(r *http.Request) *Response {
 		vars := mux.Vars(r)
-		strId, has := vars["id"]
-		if !has {
-			return &Response{
-				StatusCode: http.StatusBadRequest,
-				Error:      fmt.Errorf("no id given"),
-			}
-		}
-
-		id, err := strconv.ParseInt(strId, 10, 64)
+		id, err := intVar(vars, "id")
 		if err != nil {
 			return &Response{
 				StatusCode: http.StatusBadRequest,
-				Error:      fmt.Errorf("invalid game id [%s]", strId),
+				Error:      err,
 			}
 		}
 
@@ -116,7 +117,7 @@ func (s *Server) withGame(f func(r *http.Request, id uint64, game *mahjong.Game)
 		if err != nil {
 			return &Response{
 				StatusCode: http.StatusNotFound,
-				Error:      fmt.Errorf("no game with id [%s]", strId),
+				Error:      fmt.Errorf("no game with id [%d]", id),
 			}
 		}
 
@@ -138,4 +139,17 @@ func (s *Server) withValidForm(f RequestHandler) RequestHandler {
 
 		return f(r)
 	}
+}
+
+func intVar(vars map[string]string, name string) (int, error) {
+	strId, has := vars[name]
+	if !has {
+		return 0, fmt.Errorf("no %s given", name)
+	}
+
+	id, err := strconv.ParseInt(strId, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s value [%s]", name, strId)
+	}
+	return int(id), nil
 }
