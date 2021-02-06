@@ -6,11 +6,11 @@ type TileCollection struct {
 	tiles map[Tile]uint8
 }
 
-func NewEmptyTileCollection() *TileCollection {
+func newEmptyTileCollection() *TileCollection {
 	return &TileCollection{tiles: make(map[Tile]uint8)}
 }
 
-func NewMahjongSet() *TileCollection {
+func newMahjongSet() *TileCollection {
 	return &TileCollection{tiles: map[Tile]uint8{
 		Bamboo1: 4, Bamboo2: 4, Bamboo3: 4, Bamboo4: 4, Bamboo5: 4, Bamboo6: 4, Bamboo7: 4, Bamboo8: 4, Bamboo9: 4,
 		Circles1: 4, Circles2: 4, Circles3: 4, Circles4: 4, Circles5: 4, Circles6: 4, Circles7: 4, Circles8: 4, Circles9: 4,
@@ -45,15 +45,15 @@ func (t *TileCollection) Size() int {
 
 // State Modifiers
 
-func (t *TileCollection) Empty() {
+func (t *TileCollection) empty() {
 	t.tiles = make(map[Tile]uint8)
 }
 
-func (t *TileCollection) RemoveAll(tile Tile) {
+func (t *TileCollection) removeAll(tile Tile) {
 	delete(t.tiles, tile)
 }
 
-func (t *TileCollection) Remove(tile Tile) {
+func (t *TileCollection) remove(tile Tile) {
 	n, has := t.tiles[tile]
 	if !has {
 		return
@@ -65,11 +65,11 @@ func (t *TileCollection) Remove(tile Tile) {
 	}
 }
 
-func (t *TileCollection) Add(tile Tile) {
+func (t *TileCollection) add(tile Tile) {
 	t.tiles[tile]++
 }
 
-func (t *TileCollection) RemoveRandom() Tile {
+func (t *TileCollection) removeRandom() Tile {
 	var tileList = make([]Tile, 0)
 	for k, v := range t.tiles {
 		for i := v; i > 0; i-- {
@@ -88,13 +88,13 @@ type CombinationCollection struct {
 	combinations []Combination
 }
 
-func NewCombinationCollection() *CombinationCollection {
+func newCombinationCollection() *CombinationCollection {
 	return &CombinationCollection{combinations: []Combination{}}
 }
 
 // Getters
 
-func (c CombinationCollection) Contains(check Combination) bool {
+func (c CombinationCollection) contains(check Combination) bool {
 	for _, comb := range c.combinations {
 		if comb == check {
 			return true
@@ -105,11 +105,11 @@ func (c CombinationCollection) Contains(check Combination) bool {
 
 // State modifiers
 
-func (c *CombinationCollection) Empty() {
+func (c *CombinationCollection) empty() {
 	c.combinations = []Combination{}
 }
 
-func (c *CombinationCollection) Replace(old Combination, new Combination) {
+func (c *CombinationCollection) replace(old Combination, new Combination) {
 	for i, comb := range c.combinations {
 		if comb == old {
 			c.combinations[i] = new
@@ -117,7 +117,7 @@ func (c *CombinationCollection) Replace(old Combination, new Combination) {
 	}
 }
 
-func (c *CombinationCollection) Add(combination Combination) {
+func (c *CombinationCollection) add(combination Combination) {
 	c.combinations = append(c.combinations, combination)
 }
 

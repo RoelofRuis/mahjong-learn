@@ -47,30 +47,30 @@ const (
 	SeasonWinter        Tile = 63
 )
 
-func IsBamboo(t Tile) bool {
+func isBamboo(t Tile) bool {
 	return t > 0 && t < 10
 }
 
-func IsCircle(t Tile) bool {
+func isCircle(t Tile) bool {
 	return t > 10 && t < 20
 }
 
-func IsCharacter(t Tile) bool {
+func isCharacter(t Tile) bool {
 	return t > 20 && t < 30
 }
 
-func IsSuit(t Tile) bool {
+func isSuit(t Tile) bool {
 	return t < 30
 }
 
-func IsDragon(t Tile) bool {
+func isDragon(t Tile) bool {
 	return t >= 30 && t <= 32
 }
 
-func IsWind(t Tile) bool {
+func isWind(t Tile) bool {
 	return t >= 40 && t <= 43
 }
 
-func IsBonusTile(t Tile) bool {
+func isBonusTile(t Tile) bool {
 	return t >= 50
 }

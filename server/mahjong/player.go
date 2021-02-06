@@ -12,14 +12,14 @@ type Player struct {
 	discarded *TileCollection
 }
 
-func NewPlayer(wind Wind) *Player {
+func newPlayer(wind Wind) *Player {
 	return &Player{
 		score:     0,
 		received:  nil,
 		wind:      wind,
-		concealed: NewEmptyTileCollection(),
-		exposed:   NewCombinationCollection(),
-		discarded: NewEmptyTileCollection(),
+		concealed: newEmptyTileCollection(),
+		exposed:   newCombinationCollection(),
+		discarded: newEmptyTileCollection(),
 	}
 }
 

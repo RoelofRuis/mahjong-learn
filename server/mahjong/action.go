@@ -41,7 +41,7 @@ func (d DeclareMahjong) ActionOrder() int { return -1 }
 
 // Player actions
 
-func (p *Player) GetDiscardAfterCombinationActions() []state.Action {
+func (p *Player) getDiscardAfterCombinationActions() []state.Action {
 	availableActions := make([]state.Action, 0)
 
 	for t, c := range p.concealed.tiles {
@@ -56,7 +56,7 @@ func (p *Player) GetDiscardAfterCombinationActions() []state.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileReceivedActions() []state.Action {
+func (p *Player) getTileReceivedActions() []state.Action {
 	availableActions := make([]state.Action, 0)
 
 	receivedTile := *p.received
@@ -72,7 +72,7 @@ func (p *Player) GetTileReceivedActions() []state.Action {
 		}
 	}
 
-	if p.exposed.Contains(Pung{Tile: receivedTile}) {
+	if p.exposed.contains(Pung{Tile: receivedTile}) {
 		availableActions = append(availableActions, ExposedPungToKong{})
 	}
 
@@ -81,7 +81,7 @@ func (p *Player) GetTileReceivedActions() []state.Action {
 	return availableActions
 }
 
-func (p *Player) GetTileDiscardedActions(discarded Tile, isNextPlayer bool) []state.Action {
+func (p *Player) getTileDiscardedActions(discarded Tile, isNextPlayer bool) []state.Action {
 	availableActions := make([]state.Action, 0)
 
 	availableActions = append(availableActions, DoNothing{})
@@ -108,7 +108,7 @@ func (p *Player) GetTileDiscardedActions(discarded Tile, isNextPlayer bool) []st
 func possibleChows(hand *TileCollection, tile Tile) []Tile {
 	tileList := make([]Tile, 0)
 
-	if !IsSuit(tile) {
+	if !isSuit(tile) {
 		return nil
 	}
 

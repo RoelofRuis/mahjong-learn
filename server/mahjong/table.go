@@ -17,14 +17,14 @@ type Table struct {
 	activePlayer  int
 }
 
-func NewTable() *Table {
+func newTable() *Table {
 	players := make(map[int]*Player, 4)
 
-	wall := NewMahjongSet()
-	players[0] = NewPlayer(East)
-	players[1] = NewPlayer(South)
-	players[2] = NewPlayer(West)
-	players[3] = NewPlayer(North)
+	wall := newMahjongSet()
+	players[0] = newPlayer(East)
+	players[1] = newPlayer(South)
+	players[2] = newPlayer(West)
+	players[3] = newPlayer(North)
 
 	return &Table{
 		prevalentWind: East,
@@ -77,81 +77,81 @@ func (t *Table) GetWall() *TileCollection {
 
 // State Updates
 
-func (t *Table) DealToActivePlayer() {
+func (t *Table) dealToActivePlayer() {
 	activePlayer := t.GetActivePlayer()
 
 	for {
-		wallTile := t.wall.RemoveRandom()
+		wallTile := t.wall.removeRandom()
 
-		if !IsBonusTile(wallTile) {
+		if !isBonusTile(wallTile) {
 			activePlayer.received = &wallTile
 			break
 		}
 
-		activePlayer.exposed.Add(BonusTile{wallTile})
+		activePlayer.exposed.add(BonusTile{wallTile})
 	}
 }
 
-func (t *Table) DealConcealed(n int, player int) {
+func (t *Table) dealConcealed(n int, player int) {
 	activePlayer := t.players[player]
 
 	for i := n; i > 0; i-- {
 		for {
-			wallTile := t.wall.RemoveRandom()
+			wallTile := t.wall.removeRandom()
 
-			if !IsBonusTile(wallTile) {
-				activePlayer.concealed.Add(wallTile)
+			if !isBonusTile(wallTile) {
+				activePlayer.concealed.add(wallTile)
 				break
 			}
 
-			activePlayer.exposed.Add(BonusTile{wallTile})
+			activePlayer.exposed.add(BonusTile{wallTile})
 		}
 	}
 }
 
-func (t *Table) SetNextPrevalentWind() {
+func (t *Table) setNextPrevalentWind() {
 	t.prevalentWind++
 }
 
-func (t *Table) ResetWall() {
-	t.wall = NewMahjongSet()
+func (t *Table) resetWall() {
+	t.wall = newMahjongSet()
 }
 
-func (t *Table) PrepareNextRound() {
+func (t *Table) prepareNextRound() {
 	for s, p := range t.players {
 		p.received = nil
-		p.discarded.Empty()
-		p.concealed.Empty()
-		p.exposed.Empty()
+		p.discarded.empty()
+		p.concealed.empty()
+		p.exposed.empty()
 		p.wind = (p.wind + 5) % 4
-		t.DealConcealed(13, s)
+		t.dealConcealed(13, s)
 	}
 }
 
-func (t *Table) MakePlayerActive(player int) {
+func (t *Table) makePlayerActive(player int) {
 	t.activePlayer = player
 }
 
-func (t *Table) ActivePlayerDeclaresConcealedKong(tile Tile) {
+func (t *Table) activePlayerDeclaresConcealedKong(tile Tile) {
 	activePlayer := t.GetActivePlayer()
 
 	if activePlayer.received != nil {
 		// always add to hand first, the player may be declaring a different concealed kong than with the tile just dealt.
-		activePlayer.concealed.Add(*activePlayer.received)
+		activePlayer.concealed.add(*activePlayer.received)
 		activePlayer.received = nil
 	}
 
-	activePlayer.concealed.RemoveAll(tile)
-	activePlayer.exposed.Add(Kong{
+	activePlayer.concealed.removeAll(tile)
+	activePlayer.exposed.add(Kong{
 		Tile:      tile,
 		Concealed: false,
 	})
 }
 
-func (t *Table) ActivePlayerAddsToExposedPung() {
+func (t *Table) activePlayerAddsToExposedPung() {
 	activePlayer := t.GetActivePlayer()
 
-	activePlayer.exposed.Replace(
+	activePlayer.exposed.replace(
 		Pung{Tile: *activePlayer.received},
 		Kong{Tile: *activePlayer.received, Concealed: false},
 	)
@@ -159,53 +159,53 @@ func (t *Table) ActivePlayerAddsToExposedPung() {
 	activePlayer.received = nil
 }
 
-func (t *Table) ActivePlayerDiscards(tile Tile) {
+func (t *Table) activePlayerDiscards(tile Tile) {
 	activePlayer := t.GetActivePlayer()
 
 	if activePlayer.received != nil {
-		activePlayer.concealed.Add(*activePlayer.received)
+		activePlayer.concealed.add(*activePlayer.received)
 		activePlayer.received = nil
 	}
 
-	activePlayer.concealed.Remove(tile)
+	activePlayer.concealed.remove(tile)
 
 	t.activeDiscard = &tile
 }
 
-func (t *Table) ActivePlayerTakesDiscarded() {
+func (t *Table) activePlayerTakesDiscarded() {
 	if t.activeDiscard != nil {
-		t.GetActivePlayer().discarded.Add(*t.activeDiscard)
+		t.GetActivePlayer().discarded.add(*t.activeDiscard)
 		t.activeDiscard = nil
 	}
 }
 
-func (t *Table) ActivePlayerTakesChow(tile Tile) {
+func (t *Table) activePlayerTakesChow(tile Tile) {
 	if t.activeDiscard != nil {
 		activePlayer := t.GetActivePlayer()
-		activePlayer.concealed.Add(*t.activeDiscard)
-		activePlayer.concealed.Remove(tile)
-		activePlayer.concealed.Remove(tile + 1)
-		activePlayer.concealed.Remove(tile + 2)
-		activePlayer.exposed.Add(Chow{FirstTile: tile})
+		activePlayer.concealed.add(*t.activeDiscard)
+		activePlayer.concealed.remove(tile)
+		activePlayer.concealed.remove(tile + 1)
+		activePlayer.concealed.remove(tile + 2)
+		activePlayer.exposed.add(Chow{FirstTile: tile})
 		t.activeDiscard = nil
 	}
 }
 
-func (t *Table) ActivePlayerTakesPung() {
+func (t *Table) activePlayerTakesPung() {
 	if t.activeDiscard != nil {
 		activePlayer := t.GetActivePlayer()
-		activePlayer.concealed.Remove(*t.activeDiscard)
-		activePlayer.concealed.Remove(*t.activeDiscard)
-		activePlayer.exposed.Add(Pung{Tile: *t.activeDiscard})
+		activePlayer.concealed.remove(*t.activeDiscard)
+		activePlayer.concealed.remove(*t.activeDiscard)
+		activePlayer.exposed.add(Pung{Tile: *t.activeDiscard})
 		t.activeDiscard = nil
 	}
 }
 
-func (t *Table) ActivePlayerTakesKong() {
+func (t *Table) activePlayerTakesKong() {
 	if t.activeDiscard != nil {
 		activePlayer := t.GetActivePlayer()
-		activePlayer.concealed.RemoveAll(*t.activeDiscard)
-		activePlayer.exposed.Add(Kong{Tile: *t.activeDiscard, Concealed: false})
+		activePlayer.concealed.removeAll(*t.activeDiscard)
+		activePlayer.exposed.add(Kong{Tile: *t.activeDiscard, Concealed: false})
 		t.activeDiscard = nil
 	}
 }

@@ -12,7 +12,7 @@ type Game struct {
 }
 
 func NewGame(transitioner state.Transitioner) (*Game, error) {
-	table := NewTable()
+	table := newTable()
 	generator := stateNewGame(table)
 
 	sm := state.NewStateMachine(generator, transitioner)
@@ -28,15 +28,15 @@ func NewGame(transitioner state.Transitioner) (*Game, error) {
 	}, nil
 }
 
-type StateGenerator func(table *Table) *state.State
+type stateGenerator func(table *Table) *state.State
 
 var (
-	stateNewGame       StateGenerator
-	stateNextRound     StateGenerator
-	stateNextTurn      StateGenerator
-	stateMustDiscard   StateGenerator
-	stateTileDiscarded StateGenerator
-	stateGameEnded     StateGenerator
+	stateNewGame       stateGenerator
+	stateNextRound     stateGenerator
+	stateNextTurn      stateGenerator
+	stateMustDiscard   stateGenerator
+	stateTileDiscarded stateGenerator
+	stateGameEnded     stateGenerator
 )
 
 func init() {
@@ -67,10 +67,10 @@ func init() {
 }
 
 func (t *Table) initialize() *state.State {
-	t.DealConcealed(13, 0)
-	t.DealConcealed(13, 1)
-	t.DealConcealed(13, 2)
-	t.DealConcealed(13, 3)
+	t.dealConcealed(13, 0)
+	t.dealConcealed(13, 1)
+	t.dealConcealed(13, 2)
+	t.dealConcealed(13, 3)
 
 	return stateNextTurn(t)
 }
@@ -80,7 +80,7 @@ func (t *Table) tryDealTile() *state.State {
 		return stateNextRound(t)
 	}
 
-	t.DealToActivePlayer()
+	t.dealToActivePlayer()
 
 	return stateMustDiscard(t)
 }
@@ -89,9 +89,9 @@ func (t *Table) mustDiscardActions() map[int][]state.Action {
 	actionMap := make(map[int][]state.Action, 1)
 
 	if t.GetActivePlayer().GetReceivedTile() == nil {
-		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().GetDiscardAfterCombinationActions()
+		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().getDiscardAfterCombinationActions()
 	} else {
-		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().GetTileReceivedActions()
+		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().getTileReceivedActions()
 	}
 
 	return actionMap
@@ -100,17 +100,17 @@ func (t *Table) mustDiscardActions() map[int][]state.Action {
 func (t *Table) handleMustDiscardActions(actions map[int]state.Action) (*state.State, error) {
 	switch a := actions[t.GetActivePlayerIndex()].(type) {
 	case Discard:
-		t.ActivePlayerDiscards(a.Tile)
+		t.activePlayerDiscards(a.Tile)
 		return stateTileDiscarded(t), nil
 
 	case DeclareConcealedKong:
-		t.ActivePlayerDeclaresConcealedKong(a.Tile)
-		t.DealToActivePlayer()
+		t.activePlayerDeclaresConcealedKong(a.Tile)
+		t.dealToActivePlayer()
 		return stateMustDiscard(t), nil
 
 	case ExposedPungToKong:
-		t.ActivePlayerAddsToExposedPung()
-		t.DealToActivePlayer()
+		t.activePlayerAddsToExposedPung()
+		t.dealToActivePlayer()
 		return stateMustDiscard(t), nil
 
 	case DeclareMahjong:
@@ -129,7 +129,7 @@ func (t *Table) tileDiscardedActions() map[int][]state.Action {
 
 	for s, p := range t.GetReactingPlayers() {
 		isNextPlayer := (t.GetActivePlayerIndex()+1)%4 == s
-		m[s] = p.GetTileDiscardedActions(activeDiscard, isNextPlayer)
+		m[s] = p.getTileDiscardedActions(activeDiscard, isNextPlayer)
 	}
 
 	return m
@@ -163,24 +163,24 @@ func (t *Table) handleTileDiscardedActions(actions map[int]state.Action) (*state
 
 	switch a := bestAction.(type) {
 	case DoNothing:
-		t.ActivePlayerTakesDiscarded()
-		t.MakePlayerActive(bestPlayer)
+		t.activePlayerTakesDiscarded()
+		t.makePlayerActive(bestPlayer)
 		return stateNextTurn(t), nil
 
 	case DeclareChow:
-		t.MakePlayerActive(bestPlayer)
-		t.ActivePlayerTakesChow(a.Tile)
+		t.makePlayerActive(bestPlayer)
+		t.activePlayerTakesChow(a.Tile)
 		return stateMustDiscard(t), nil
 
 	case DeclarePung:
-		t.MakePlayerActive(bestPlayer)
-		t.ActivePlayerTakesPung()
+		t.makePlayerActive(bestPlayer)
+		t.activePlayerTakesPung()
 		return stateMustDiscard(t), nil
 
 	case DeclareKong:
-		t.MakePlayerActive(bestPlayer)
-		t.ActivePlayerTakesKong()
-		t.DealToActivePlayer()
+		t.makePlayerActive(bestPlayer)
+		t.activePlayerTakesKong()
+		t.dealToActivePlayer()
 		return stateMustDiscard(t), nil
 
 	case DeclareMahjong:
@@ -200,11 +200,11 @@ func (t *Table) tryNextRound() *state.State {
 	}
 
 	if t.GetPlayerByIndex(3).GetWind() == t.GetPrevalentWind() {
-		t.SetNextPrevalentWind()
+		t.setNextPrevalentWind()
 	}
 
-	t.ResetWall()
-	t.PrepareNextRound()
+	t.resetWall()
+	t.prepareNextRound()
 
 	return stateNextTurn(t)
 }
