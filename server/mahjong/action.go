@@ -106,28 +106,33 @@ func (p *Player) getTileDiscardedActions(discarded Tile, isNextPlayer bool) []st
 }
 
 func possibleChows(hand *TileCollection, tile Tile) []Tile {
-	tileList := make([]Tile, 0)
-
 	if !isSuit(tile) {
 		return nil
 	}
 
-	suitType := int(tile) / 10
+	tileList := make([]Tile, 0)
+
+	suitType := (int(tile) / 10) * 10
 	suitNumber := int(tile) % 10
 	for _, i := range []int{1, 2, 3, 4, 5, 6, 7} {
+		tileI := suitType + i
 		diff := suitNumber - i
-		if diff >= 0 && diff <= 2 {
-			if i != suitNumber && hand.NumOf(Tile((suitType*10)+i)) == 0 {
-				continue
-			}
-			if i+1 != suitNumber && hand.NumOf(Tile((suitType*10)+i+1)) == 0 {
-				continue
-			}
-			if i+2 != suitNumber && hand.NumOf(Tile((suitType*10)+i+2)) == 0 {
-				continue
-			}
-			tileList = append(tileList, Tile((suitType*10)+i))
+		if diff < 0 {
+			continue
 		}
+		if diff > 2 {
+			break
+		}
+		if i != suitNumber && hand.NumOf(Tile(tileI)) == 0 {
+			continue
+		}
+		if i+1 != suitNumber && hand.NumOf(Tile(tileI+1)) == 0 {
+			continue
+		}
+		if i+2 != suitNumber && hand.NumOf(Tile(tileI+2)) == 0 {
+			continue
+		}
+		tileList = append(tileList, Tile(tileI))
 	}
 
 	return tileList
