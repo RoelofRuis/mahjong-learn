@@ -46,3 +46,7 @@ func (p *Player) GetDiscardedTiles() *TileCollection {
 func (p *Player) GetReceivedTile() *Tile {
 	return p.received
 }
+
+func (p *Player) GetScore() int {
+	return p.score
+}

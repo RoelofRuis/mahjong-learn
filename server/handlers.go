@@ -65,8 +65,7 @@ func (s *Server) handleDisplayPlayer(r *http.Request, game *mahjong.Game, _ uint
 			Error:      err,
 		}
 	}
-	fmt.Printf("%+v", seat)
-	if seat < 0 || seat > 4 {
+	if seat < 0 || seat > 3 {
 		return &Response{
 			StatusCode: http.StatusBadRequest,
 			Error:      fmt.Errorf("player should be between 0 and 3 inclusive"),

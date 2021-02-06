@@ -7,6 +7,7 @@ import (
 
 type GamePlayerView struct {
 	Actions   map[int]string `json:"actions"`
+	Score     int            `json:"score"`
 	Wind      string         `json:"wind"`
 	Received  string         `json:"received"`
 	Concealed []string       `json:"concealed"`
@@ -60,6 +61,7 @@ func describeGamePlayer(g mahjong.Table, actions []state.Action, seat state.Seat
 
 	return GamePlayerView{
 		Actions:   actionMap,
+		Score:     p.GetScore(),
 		Wind:      WindNames[p.GetSeatWind()],
 		Received:  describeTilePointer(p.GetReceivedTile()),
 		Concealed: describeTileCollection(p.GetConcealedTiles()),
