@@ -11,7 +11,7 @@ func BenchmarkGame(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
-		game, _ := NewGame(&state.ProductionTransitioner{TransitionLimit: 10})
+		game, _ := NewGame(&state.ProductionTransitioner{IntermediateTransitionLimit: 10})
 
 		b.StartTimer()
 		for {

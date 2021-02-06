@@ -40,7 +40,7 @@ func (s *GameStorage) Get(id uint64) (*mahjong.Game, error) {
 func (s *GameStorage) StartNew() (uint64, error) {
 	id := atomic.AddUint64(s.lastIndex, 1)
 
-	m, err := mahjong.NewGame(&state.ProductionTransitioner{TransitionLimit: 10})
+	m, err := mahjong.NewGame(&state.ProductionTransitioner{IntermediateTransitionLimit: 10})
 	if err != nil {
 		return id, err
 	}
