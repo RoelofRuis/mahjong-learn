@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func Benchmark100GameRuns(b *testing.B) {
+func Benchmark1kRuns(b *testing.B) {
 	rand.Seed(0)
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < b.N; i++ {
 		game, _ := NewGame(&state.ProductionTransitioner{TransitionLimit: 10})
 
 		for {

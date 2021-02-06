@@ -8,7 +8,31 @@ import (
 	"testing"
 )
 
-func TestGameLogic(t *testing.T) {
+func TestRun(t *testing.T) {
+	transitioner, err := runGame()
+	if err != nil {
+		t.Logf("err: %s", err)
+		t.Logf("%s\n", describeState(transitioner))
+		t.FailNow()
+	}
+
+	t.Logf("a game ran without errors")
+}
+
+func Test1kRuns(t *testing.T) {
+	for i := 1000; i > 0; i-- {
+		transitioner, err := runGame()
+		if err != nil {
+			t.Logf("err: %s", err)
+			t.Logf("%s\n", describeState(transitioner))
+			t.FailNow()
+		}
+	}
+
+	t.Logf("ran 1000 games without errors")
+}
+
+func runGame() (*state.DebugTransitioner, error) {
 	transitioner := &state.DebugTransitioner{TransitionLimit: 10}
 	game, _ := NewGame(transitioner)
 
@@ -24,8 +48,7 @@ func TestGameLogic(t *testing.T) {
 		}
 
 		if actions == nil {
-			t.Logf("state after transition should define some actions")
-			t.FailNow()
+			return transitioner, fmt.Errorf("state after transition should define some actions")
 		}
 
 		selectedActions := make(map[int]int)
@@ -35,21 +58,17 @@ func TestGameLogic(t *testing.T) {
 
 		err := game.StateMachine.Transition(selectedActions)
 		if err != nil {
-			t.Logf("game transition raised an error: %s", err.Error())
-			t.FailNow()
+			return transitioner, fmt.Errorf("game transition raised an error: %s", err.Error())
 		}
 
 		numTransitions++
 
 		err = checkInvariants(*game.Table)
 		if err != nil {
-			t.Logf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
-			t.Logf("%s\n", describeState(transitioner))
-			t.FailNow()
+			return transitioner, fmt.Errorf("invariant failed after [%d] transitions: %s", numTransitions, err.Error())
 		}
 	}
-
-	t.Logf("game ended without errors after [%d] actions", numTransitions)
+	return nil, nil
 }
 
 func checkInvariants(table Table) error {
