@@ -6,12 +6,14 @@ import (
 	"testing"
 )
 
-func Benchmark1kRuns(b *testing.B) {
+func BenchmarkGame(b *testing.B) {
 	rand.Seed(0)
 
 	for i := 0; i < b.N; i++ {
+		b.StopTimer()
 		game, _ := NewGame(&state.ProductionTransitioner{TransitionLimit: 10})
 
+		b.StartTimer()
 		for {
 			if game.StateMachine.HasTerminated() {
 				break
