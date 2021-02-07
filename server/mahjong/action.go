@@ -72,7 +72,7 @@ func (p *Player) getTileReceivedActions() []state.Action {
 		}
 	}
 
-	if p.exposed.contains(Pung{Tile: receivedTile}) {
+	if p.exposed.Contains(Pung{Tile: receivedTile}) {
 		availableActions = append(availableActions, ExposedPungToKong{})
 	}
 
@@ -106,7 +106,7 @@ func (p *Player) getTileDiscardedActions(discarded Tile, isNextPlayer bool) []st
 }
 
 func possibleChows(hand *TileCollection, tile Tile) []Tile {
-	if !isSuit(tile) {
+	if !tile.IsSuit() {
 		return nil
 	}
 

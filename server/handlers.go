@@ -71,6 +71,19 @@ func (s *Server) handleDisplayPlayer(r *http.Request, game *mahjong.Game, _ uint
 			Error:      fmt.Errorf("player should be between 0 and 3 inclusive"),
 		}
 	}
+	vectorized := false
+	b, err := strconv.ParseBool(r.FormValue("vec"))
+	if err == nil {
+		vectorized = b
+	}
+
+	if vectorized {
+		return &Response{
+			StatusCode: http.StatusOK,
+			Data:       view.ViewPlayerVec(game, player),
+		}
+	}
+
 	return &Response{
 		StatusCode: http.StatusOK,
 		Data:       view.ViewPlayer(game, player),

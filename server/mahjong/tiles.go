@@ -47,30 +47,42 @@ const (
 	SeasonWinter        Tile = 63
 )
 
-func isBamboo(t Tile) bool {
+func (t Tile) IsBamboo() bool {
 	return t > 0 && t < 10
 }
 
-func isCircle(t Tile) bool {
+func (t Tile) IsCircle() bool {
 	return t > 10 && t < 20
 }
 
-func isCharacter(t Tile) bool {
+func (t Tile) IsCharacter() bool {
 	return t > 20 && t < 30
 }
 
-func isSuit(t Tile) bool {
+func (t Tile) IsSuit() bool {
 	return t < 30
 }
 
-func isDragon(t Tile) bool {
+func (t Tile) IsDragon() bool {
 	return t >= 30 && t <= 32
 }
 
-func isWind(t Tile) bool {
+func (t Tile) IsWind() bool {
 	return t >= 40 && t <= 43
 }
 
-func isBonusTile(t Tile) bool {
+func (t Tile) IsBonusTile() bool {
 	return t >= 50
+}
+
+func(t Tile) NextInSuit() *Tile {
+	if !t.IsSuit() {
+		return nil
+	}
+	if t % 10 == 9 {
+		return nil
+	}
+	suit := (t / 10) * 10
+	tile := suit + (t % 10) + 1
+	return &tile
 }

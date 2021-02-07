@@ -83,7 +83,7 @@ func (t *Table) dealToActivePlayer() {
 	for {
 		wallTile := t.wall.removeRandom()
 
-		if !isBonusTile(wallTile) {
+		if !wallTile.IsBonusTile() {
 			activePlayer.received = &wallTile
 			break
 		}
@@ -99,7 +99,7 @@ func (t *Table) dealConcealed(n int, player int) {
 		for {
 			wallTile := t.wall.removeRandom()
 
-			if !isBonusTile(wallTile) {
+			if !wallTile.IsBonusTile() {
 				activePlayer.concealed.add(wallTile)
 				break
 			}

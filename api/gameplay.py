@@ -2,7 +2,7 @@ import api
 import strategy
 
 # set to false to let the game run until ended
-WAIT_FOR_KEY = False
+WAIT_FOR_KEY = True
 
 # select the strategy to use, see strategy file for options
 # IMPORTANT: make sure to provide the function reference, so without the '()'!

@@ -39,6 +39,10 @@ func (p *Player) GetExposedCombinations() []Combination {
 	return p.exposed.combinations
 }
 
+func (p *Player) GetExposedCombinationCollection() *CombinationCollection {
+	return p.exposed
+}
+
 func (p *Player) GetDiscardedTiles() *TileCollection {
 	return p.discarded
 }

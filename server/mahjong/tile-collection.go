@@ -94,7 +94,7 @@ func newCombinationCollection() *CombinationCollection {
 
 // Getters
 
-func (c CombinationCollection) contains(check Combination) bool {
+func (c CombinationCollection) Contains(check Combination) bool {
 	for _, comb := range c.combinations {
 		if comb == check {
 			return true
