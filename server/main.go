@@ -20,7 +20,6 @@ func main() {
 	server := &Server{
 		Host:   "localhost",
 		Port:   port,
-		Paths:  NewPaths(),
 		Router: mux.NewRouter(),
 
 		Games: NewGameStorage(),

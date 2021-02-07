@@ -13,24 +13,9 @@ import (
 type Server struct {
 	Host   string
 	Port   string
-	Paths  *Paths
 	Router *mux.Router
 
 	Games *GameStorage
-}
-
-func NewPaths() *Paths {
-	return &Paths{
-		Index: "/",
-		New:   "/new",
-		Game:  "/game/",
-	}
-}
-
-type Paths struct {
-	Index string
-	New   string
-	Game  string
 }
 
 type Response struct {
