@@ -1,6 +1,8 @@
 package view
 
-import "github.com/roelofruis/mahjong-learn/mahjong"
+import (
+	"github.com/roelofruis/mahjong-learn/mahjong"
+)
 
 type PlayerVec struct {
 	Score            int       `json:"score"`
@@ -126,17 +128,19 @@ var DiscardingPlayerVectors = map[int][]int{
 func collectionToVec(coll *mahjong.TileCollection, maxLen int) [][]int {
 	vector := make([][]int, maxLen)
 	tileIndex := 0
-	for _, t := range TileOrder {
-		if t.IsBonusTile() {
+
+	for _, tileCount := range coll.OrderedCounts() {
+		if tileCount.Tile.IsBonusTile() {
 			// we know the order, so break early on first bonus tile occurrence
 			break
 		}
-		tileVec := tileToVec(&t)
-		for i := coll.NumOf(t); i > 0; i-- {
+		tileVec := tileToVec(&tileCount.Tile)
+		for i := tileCount.Count; i > 0; i-- {
 			vector[tileIndex] = tileVec
 			tileIndex++
 		}
 	}
+
 	for ; tileIndex < maxLen; tileIndex++ {
 		vector[tileIndex] = tileToVec(nil)
 	}

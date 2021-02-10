@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/roelofruis/mahjong-learn/mahjong"
+	"github.com/roelofruis/mahjong-learn/mahjong/view"
 	"github.com/roelofruis/mahjong-learn/state"
-	"github.com/roelofruis/mahjong-learn/view"
 	"net/http"
 	"strconv"
 )

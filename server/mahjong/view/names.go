@@ -6,52 +6,7 @@ import (
 	"github.com/roelofruis/mahjong-learn/state"
 )
 
-var TileOrder = []mahjong.Tile{
-	mahjong.Bamboo1,
-	mahjong.Bamboo2,
-	mahjong.Bamboo3,
-	mahjong.Bamboo4,
-	mahjong.Bamboo5,
-	mahjong.Bamboo6,
-	mahjong.Bamboo7,
-	mahjong.Bamboo8,
-	mahjong.Bamboo9,
-	mahjong.Circles1,
-	mahjong.Circles2,
-	mahjong.Circles3,
-	mahjong.Circles4,
-	mahjong.Circles5,
-	mahjong.Circles6,
-	mahjong.Circles7,
-	mahjong.Circles8,
-	mahjong.Circles9,
-	mahjong.Characters1,
-	mahjong.Characters2,
-	mahjong.Characters3,
-	mahjong.Characters4,
-	mahjong.Characters5,
-	mahjong.Characters6,
-	mahjong.Characters7,
-	mahjong.Characters8,
-	mahjong.Characters9,
-	mahjong.RedDragon,
-	mahjong.GreenDragon,
-	mahjong.WhiteDragon,
-	mahjong.EastWind,
-	mahjong.SouthWind,
-	mahjong.WestWind,
-	mahjong.NorthWind,
-	mahjong.FlowerPlumb,
-	mahjong.FlowerOrchid,
-	mahjong.FlowerChrysanthemum,
-	mahjong.FlowerBamboo,
-	mahjong.SeasonSpring,
-	mahjong.SeasonSummer,
-	mahjong.SeasonAutumn,
-	mahjong.SeasonWinter,
-}
-
-var TileNames = map[mahjong.Tile]string{
+var tileNames = map[mahjong.Tile]string{
 	mahjong.Bamboo1:             "Bamboo 1",
 	mahjong.Bamboo2:             "Bamboo 2",
 	mahjong.Bamboo3:             "Bamboo 3",
@@ -96,35 +51,35 @@ var TileNames = map[mahjong.Tile]string{
 	mahjong.SeasonWinter:        "Winter (season)",
 }
 
-var WindNames = map[mahjong.Wind]string{
+var windNames = map[mahjong.Wind]string{
 	mahjong.East:  "East",
 	mahjong.South: "South",
 	mahjong.West:  "West",
 	mahjong.North: "North",
 }
 
-func describeTilePointer(t *mahjong.Tile) string {
+func tileName(t *mahjong.Tile) string {
 	if t == nil {
 		return "none"
 	}
-	return TileNames[*t]
+	return tileNames[*t]
 }
 
-func describeCombinations(combinations []mahjong.Combination) []string {
+func combinationNames(combinations []mahjong.Combination) []string {
 	descriptions := make([]string, len(combinations))
 	for i, combi := range combinations {
 		switch c := combi.(type) {
 		case mahjong.BonusTile:
-			descriptions[i] = fmt.Sprintf("Bonus tile %s", TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Bonus tile %s", tileNames[c.Tile])
 
 		case mahjong.Chow:
-			descriptions[i] = fmt.Sprintf("Chow %s", TileNames[c.FirstTile])
+			descriptions[i] = fmt.Sprintf("Chow %s", tileNames[c.FirstTile])
 
 		case mahjong.Pung:
-			descriptions[i] = fmt.Sprintf("Pung %s", TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Pung %s", tileNames[c.Tile])
 
 		case mahjong.Kong:
-			descriptions[i] = fmt.Sprintf("Kong %s", TileNames[c.Tile])
+			descriptions[i] = fmt.Sprintf("Kong %s", tileNames[c.Tile])
 
 		default:
 			// This should not happen..!
@@ -134,31 +89,27 @@ func describeCombinations(combinations []mahjong.Combination) []string {
 	return descriptions
 }
 
-func describeTileCollection(t *mahjong.TileCollection) []string {
-	descriptions := make([]string, 0)
-	for _, tile := range TileOrder {
-		count := t.NumOf(tile)
-		if count == 0 {
-			continue
-		}
-		text := fmt.Sprintf("%d× %s", count, TileNames[tile])
-		descriptions = append(descriptions, text)
+func tileCollectionNames(t *mahjong.TileCollection) []string {
+	orderedCounts := t.OrderedCounts()
+	descriptions := make([]string, len(orderedCounts))
+	for i, count := range orderedCounts {
+		descriptions[i] = fmt.Sprintf("%d× %s", count.Count, tileNames[count.Tile])
 	}
 	return descriptions
 }
 
-func describeAction(action state.Action) string {
+func actionNames(action state.Action) string {
 	switch a := action.(type) {
 	case mahjong.Discard:
-		return fmt.Sprintf("Discard a %s", TileNames[a.Tile])
+		return fmt.Sprintf("Discard a %s", tileNames[a.Tile])
 	case mahjong.DeclareConcealedKong:
-		return fmt.Sprintf("Declare a concealed Kong of %s", TileNames[a.Tile])
+		return fmt.Sprintf("Declare a concealed Kong of %s", tileNames[a.Tile])
 	case mahjong.ExposedPungToKong:
 		return fmt.Sprintf("Add to exposed pung")
 	case mahjong.DoNothing:
 		return "Do nothing"
 	case mahjong.DeclareChow:
-		return fmt.Sprintf("Declare chow up from %s", TileNames[a.Tile])
+		return fmt.Sprintf("Declare chow up from %s", tileNames[a.Tile])
 	case mahjong.DeclarePung:
 		return "Declare a pung"
 	case mahjong.DeclareKong:

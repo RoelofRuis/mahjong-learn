@@ -43,18 +43,18 @@ func ViewGame(game *mahjong.Game) *GameView {
 	return &GameView{
 		HasEnded:      game.StateMachine.HasTerminated(),
 		StateName:     game.StateMachine.StateName(),
-		PrevalentWind: WindNames[table.GetPrevalentWind()],
+		PrevalentWind: windNames[table.GetPrevalentWind()],
 		ActivePlayers: activePlayers,
-		ActiveDiscard: describeTilePointer(table.GetActiveDiscard()),
+		ActiveDiscard: tileName(table.GetActiveDiscard()),
 		Players:       playerViews,
-		Wall:          describeTileCollection(table.GetWall()),
+		Wall:          tileCollectionNames(table.GetWall()),
 	}
 }
 
 func describeGamePlayer(g mahjong.Table, actions []state.Action, player int) GamePlayerView {
 	actionMap := make(map[int]string)
 	for i, a := range actions {
-		actionMap[i] = describeAction(a)
+		actionMap[i] = actionNames(a)
 	}
 
 	p := g.GetPlayerByIndex(player)
@@ -62,10 +62,10 @@ func describeGamePlayer(g mahjong.Table, actions []state.Action, player int) Gam
 	return GamePlayerView{
 		Actions:   actionMap,
 		Score:     p.GetScore(),
-		Wind:      WindNames[p.GetWind()],
-		Received:  describeTilePointer(p.GetReceivedTile()),
-		Concealed: describeTileCollection(p.GetConcealedTiles()),
-		Exposed:   describeCombinations(p.GetExposedCombinations()),
-		Discarded: describeTileCollection(p.GetDiscardedTiles()),
+		Wind:      windNames[p.GetWind()],
+		Received:  tileName(p.GetReceivedTile()),
+		Concealed: tileCollectionNames(p.GetConcealedTiles()),
+		Exposed:   combinationNames(p.GetExposedCombinations()),
+		Discarded: tileCollectionNames(p.GetDiscardedTiles()),
 	}
 }

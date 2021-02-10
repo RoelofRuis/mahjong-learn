@@ -1,6 +1,9 @@
 package mahjong
 
-import "math/rand"
+import (
+	"math/rand"
+	"sort"
+)
 
 type TileCollection struct {
 	tiles map[Tile]uint8
@@ -41,6 +44,23 @@ func (t *TileCollection) Size() int {
 	}
 
 	return count
+}
+
+func (t *TileCollection) OrderedCounts() []TileCount {
+	i := 0
+	ordered := make([]TileCount, len(t.tiles))
+	for tile, count := range t.tiles {
+		ordered[i] = TileCount{tile, count}
+	}
+	sort.Slice(ordered, func(i, j int) bool {
+		return ordered[i].Count > ordered[j].Count
+	})
+	return ordered
+}
+
+type TileCount struct {
+	Tile Tile
+	Count uint8
 }
 
 // State Modifiers
