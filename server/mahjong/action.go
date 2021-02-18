@@ -51,7 +51,9 @@ func (p *Player) getDiscardAfterCombinationActions() []state.Action {
 		}
 	}
 
-	// TODO: add declare mahjong
+	if mahjongPossible(p) {
+		availableActions = append(availableActions, DeclareMahjong{})
+	}
 
 	return availableActions
 }
@@ -76,7 +78,9 @@ func (p *Player) getTileReceivedActions() []state.Action {
 		availableActions = append(availableActions, ExposedPungToKong{})
 	}
 
-	// TODO: add declare mahjong
+	if mahjongPossible(p) {
+		availableActions = append(availableActions, DeclareMahjong{})
+	}
 
 	return availableActions
 }
@@ -100,7 +104,9 @@ func (p *Player) getTileDiscardedActions(discarded Tile, isNextPlayer bool) []st
 		}
 	}
 
-	// TODO: add declare mahjong
+	if mahjongPossible(p) {
+		availableActions = append(availableActions, DeclareMahjong{})
+	}
 
 	return availableActions
 }
@@ -136,4 +142,81 @@ func possibleChows(hand *TileCollection, tile Tile) []Tile {
 	}
 
 	return tileList
+}
+
+func mahjongPossible(player *Player) bool {
+	numPungs := 0
+	numKongs := 0
+	numChows := 0
+	numDragonCombinations := 0
+	numBambooCombination := 0
+	numCircleCombinations := 0
+	numCharacterCombinations := 0
+	numOwnBonus := 0
+	hasOwnWind := false
+
+	for _, comb := range player.exposed.combinations {
+		switch c := comb.(type) {
+		case Chow:
+			numChows++
+			if c.FirstTile.IsBamboo() {
+				numBambooCombination++
+			}
+			if c.FirstTile.IsCircle() {
+				numCircleCombinations++
+			}
+			if c.FirstTile.IsCharacter() {
+				numCharacterCombinations++
+			}
+
+		case Pung:
+			numPungs++
+			if c.Tile.IsDragon() {
+				numDragonCombinations++
+			}
+			if c.Tile.IsSameWindAs(player.wind) {
+				hasOwnWind = true
+			}
+			if c.Tile.IsBamboo() {
+				numBambooCombination++
+			}
+			if c.Tile.IsCircle() {
+				numCircleCombinations++
+			}
+			if c.Tile.IsCharacter() {
+				numCharacterCombinations++
+			}
+
+		case Kong:
+			numKongs++
+			if c.Tile.IsDragon() {
+				numDragonCombinations++
+			}
+			if c.Tile.IsSameWindAs(player.wind) {
+				hasOwnWind = true
+			}
+			if c.Tile.IsBamboo() {
+				numBambooCombination++
+			}
+			if c.Tile.IsCircle() {
+				numCircleCombinations++
+			}
+			if c.Tile.IsCharacter() {
+				numCharacterCombinations++
+			}
+
+		case BonusTile:
+			if int(c.Tile) % 10 == int(player.wind) {
+				numOwnBonus++
+			}
+		}
+	}
+
+
+
+	// 4 groups + pair
+
+
+
+	return false
 }

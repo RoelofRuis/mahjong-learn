@@ -71,6 +71,13 @@ func (t Tile) IsWind() bool {
 	return t >= 40 && t <= 43
 }
 
+func (t Tile) IsSameWindAs(wind Wind) bool {
+	if !t.IsWind() {
+		return false
+	}
+	return int(t % 10) == int(wind)
+}
+
 func (t Tile) IsBonusTile() bool {
 	return t >= 50
 }

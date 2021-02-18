@@ -89,8 +89,10 @@ func (t *Table) mustDiscardActions() map[int][]state.Action {
 	actionMap := make(map[int][]state.Action, 1)
 
 	if t.GetActivePlayer().GetReceivedTile() == nil {
+		// player must discard after declaring combination
 		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().getDiscardAfterCombinationActions()
 	} else {
+		// player received tile
 		actionMap[t.GetActivePlayerIndex()] = t.GetActivePlayer().getTileReceivedActions()
 	}
 
